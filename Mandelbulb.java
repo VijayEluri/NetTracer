@@ -19,6 +19,7 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 	private double normalEps = 1e-8;
 	private double bailout = 2;
 	private double accuracy = 1e-5;
+	private double order = 8;
 
 	private RenderingPrimitive[] prims;
 	private Material mat = null;
@@ -59,6 +60,8 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 						bailout = new Double(tokens[1]);
 					if (tokens[0].equals("accuracy"))
 						accuracy = new Double(tokens[1]);
+					if (tokens[0].equals("order"))
+						order = new Double(tokens[1]);
 					break;
 			}
 		}
@@ -85,7 +88,6 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 		double theta = 0;
 		double phi = 0;
 
-		double P = 8;
 		double rPow = 0;
 		double sinThe, cosThe, sinPhi, cosPhi;
 		double zx2, zy2, zz2;
@@ -108,23 +110,25 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 		n = 0;
 		r = 0;
 
-		while (r < bailout && n < nmax)
+		zx2 = zx*zx;
+		zy2 = zy*zy;
+		zz2 = zz*zz;
+		while (n < nmax)
 		{
 			// Potenzierung
-			zx2 = zx*zx;
-			zy2 = zy*zy;
-			zz2 = zz*zz;
-
 			r = Math.sqrt(zx2 + zy2 + zz2);
+			if (r >= bailout)
+				break;
+
 			theta = Math.atan2(Math.sqrt(zx2 + zy2), zz);
 			phi = Math.atan2(zy, zx);
 
-			sinThe = Math.sin(theta * P);
-			cosThe = Math.cos(theta * P);
-			sinPhi = Math.sin(phi * P);
-			cosPhi = Math.cos(phi * P);
+			sinThe = Math.sin(theta * order);
+			cosThe = Math.cos(theta * order);
+			sinPhi = Math.sin(phi * order);
+			cosPhi = Math.cos(phi * order);
 
-			rPow = Math.pow(r, P);
+			rPow = Math.pow(r, order);
 
 			zx = rPow * sinThe * cosPhi;
 			zy = rPow * sinThe * sinPhi;
@@ -135,7 +139,10 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 			zy += cy;
 			zz += cz;
 
-			r = Math.sqrt(zx*zx + zy*zy + zz*zz);
+			zx2 = zx*zx;
+			zy2 = zy*zy;
+			zz2 = zz*zz;
+
 			n++;
 		}
 
@@ -251,7 +258,8 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 		// AABB wird gecached, da sonst der Tree-Bau Jahrhunderte benötigt
 		if (cachedAABB == null)
 		{
-			cachedAABB = new AABB(new Vec3(0, 0, 0), new Vec3(1, 1, 1));
+			cachedAABB = new AABB(new Vec3(0, 0, 0),
+					new Vec3(1.1, 1.1, 1.1));
 		}
 
 		return cachedAABB;
