@@ -11,7 +11,8 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 	private AABB cachedAABB = null;
 	private double step = 0.01;
 	private int nmax = 10;
-	private double normalEps = 0.01;
+	private double normalEps = 1e-8;
+	private double bailout = 2;
 
 	private RenderingPrimitive[] prims;
 	private Material mat = null;
@@ -48,6 +49,8 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 						nmax = new Integer(tokens[1]);
 					if (tokens[0].equals("normalEps"))
 						normalEps = new Double(tokens[1]);
+					if (tokens[0].equals("bailout"))
+						bailout = new Double(tokens[1]);
 					break;
 			}
 		}
@@ -58,7 +61,7 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 		throw new Exception();
 	}
 
-	private int evalAtPoint(Vec3 hitpoint)
+	private int evalAtPoint(Vec3 hitpoint, double[] outR)
 	{
 		double zx = 0;
 		double zy = 0;
@@ -69,7 +72,6 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 		double cz = 0;
 
 		int n = 0;
-		double bailout = 2;
 
 		double r = 0;
 		double theta = 0;
@@ -129,6 +131,8 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 			n++;
 		}
 
+		if (outR != null)
+			outR[0] = r;
 		return n;
 	}
 
@@ -136,23 +140,25 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 	{
 		Vec3 temp = null;
 
+		double xr, xl, yr, yl, zr, zl;
+		double[] carrier = new double[1];
+
 		temp = new Vec3(hitpoint); temp.x += normalEps;
-		int xl = evalAtPoint(temp);
+		evalAtPoint(temp, carrier); xl = carrier[0];
 		temp = new Vec3(hitpoint); temp.x -= normalEps;
-		int xr = evalAtPoint(temp);
+		evalAtPoint(temp, carrier); xr = carrier[0];
 
 		temp = new Vec3(hitpoint); temp.y += normalEps;
-		int yl = evalAtPoint(temp);
+		evalAtPoint(temp, carrier); yl = carrier[0];
 		temp = new Vec3(hitpoint); temp.y -= normalEps;
-		int yr = evalAtPoint(temp);
+		evalAtPoint(temp, carrier); yr = carrier[0];
 
 		temp = new Vec3(hitpoint); temp.z += normalEps;
-		int zl = evalAtPoint(temp);
+		evalAtPoint(temp, carrier); zl = carrier[0];
 		temp = new Vec3(hitpoint); temp.z -= normalEps;
-		int zr = evalAtPoint(temp);
+		evalAtPoint(temp, carrier); zr = carrier[0];
 
 		Vec3 normal = new Vec3(xl - xr, yl - yr, zl - zr).normalized();
-		normal.scale(-1);
 		return normal;
 	}
 
@@ -175,7 +181,7 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 			Vec3 hitpoint = ray.evaluate(alpha);
 
 			// Innen oder außen?
-			if (evalAtPoint(hitpoint) != nmax)
+			if (evalAtPoint(hitpoint, null) != nmax)
 			{
 				//System.out.println("Miss");
 				// Hier ist nix. Weitermachen.
