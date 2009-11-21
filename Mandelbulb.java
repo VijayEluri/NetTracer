@@ -5,6 +5,11 @@ import java.util.LinkedList;
 /**
  * Mandelblub-Fraktale.
  * http://www.skytopia.com/project/fractal/2mandelbulb.html
+ * https://sourceforge.net/projects/aoi/forums/forum/47784/topic/3464031
+ * http://www.fractalforums.com/3d-fractal-generation/true-3d-mandlebrot-type-fractal/msg4109/#msg4109
+ * http://www.bugman123.com/Hypercomplex/index.html
+ * http://www.fractalforums.com/3d-fractal-generation/true-3d-mandlebrot-type-fractal/msg8073/#msg8073
+ * http://www.fractalforums.com/3d-fractal-generation/true-3d-mandlebrot-type-fractal/msg7812/#msg7812
  */
 public class Mandelbulb implements Object3D, RenderingPrimitive
 {
