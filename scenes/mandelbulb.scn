@@ -11,30 +11,56 @@ AARays 0
 noLighting 0
 colorDelta 2.0
 
+/*
+# overview
 camera
-	fov 25
+	fov 45
+	#fov 25
+	#fov 3
 	#origin 2.0 1.5 5.0
 	#origin -2.0 0.1 5.0
 	#origin -2.5 0.1 1.0
-	origin -2.0 0.1 2.0
+	origin -2.0 0.5 2.0
 	updir -0.05 1.0 0.0
 	#viewdir 0.0 0.0 -1.0
 	#lookat 0.0 0.0 0.0
-	lookat 0.0 -0.02 0.0
+	#lookat 0.0 -0.02 0.0
+	#lookat 0.0 -0.04 0.0
+	lookat 0.0 0.04 0.0
 	
 	#focalDistance 5.0
 	#dofAmount 0.3
 	#dofRays 2
 end
+*/
 
+camera
+	fov 3
+	origin 2.0 1.5 5.0
+	updir 0.0 1.0 0.0
+	lookat 0.0 0.04 0.0
+end
+
+/*
+camera
+	fov 3
+	origin 0.7 0.53 1.75
+	#origin 0.66 0.6 1.75
+	#origin 0.46 0.42 1.225
+	#origin 0.437 0.399 1.16375
+	updir 0.0 1.0 0.0
+	lookat 0.0 0.04 0.0
+end
+*/
 
 ###############
 # Materialien #
 ###############
 
 mat july
-	diffuse 1.0 0.7 0.0
-	shininess 1.0
+	#diffuse 1.0 0.688 0.604
+	diffuse 0.0 1.0 0.3
+	shininess 2.0
 	shininessSharpness 10.0
 	#specularity 0.6
 	#transparency 0.9
@@ -53,10 +79,11 @@ end
 mandelbulb
 	mat july
 
-	step 0.005
-	nmax 10
-	normalEps 0.02
-	accuracy 1e-8
+	step 0.0025
+	nmax 7
+	normalEps 1e-8
+	bailout 2
+	order 8
 end
 
 /*
@@ -89,11 +116,25 @@ pointlight
 end
 */
 
+/*
 pointlight
 #spherelight
 	intensity 0.7
 	decayRate 0.1
-	origin -5.0 5.0 10.0
+	#origin -5.0 5.0 10.0
+	origin 0.0 7.0 10.0
+	color 1.0 1.0 1.0
+	radius 1.0
+	numrays 1
+end
+*/
+
+pointlight
+#spherelight
+	intensity 0.8
+	decayRate 0.1
+	origin 2.0 1.5 5.0
+	origin 0.0 7.0 10.0
 	color 1.0 1.0 1.0
 	radius 1.0
 	numrays 1
