@@ -1,0 +1,73 @@
+##################
+# Rendersettings #
+##################
+
+sizeX 800
+sizeY 600
+maxdepth 4
+AARays 0
+
+camera
+	fov 40
+	origin 0.0 0.0 20.0
+	updir 0.0 1.0 0.0
+	#viewdir 0.0 0.0 -1.0
+	lookat 0.0 0.0 0.0
+
+	#focalDistance 0.05
+	#dofAmount 0.1
+	#dofRays 3
+end
+
+
+###############
+# Materialien #
+###############
+
+mat default
+	diffuse 0.78 0.66 0.29
+	shininess 0.2
+	shininessSharpness 2.0
+end
+
+
+###########
+# Objekte #
+###########
+
+blob
+	mat default
+	c 1.0 x -6.5 1.4 0.0
+	c 1.0 x -6.5 -1.4 0.0
+end
+blob
+	mat default
+	c 1.0 x -3.25 1.25 0.0
+	c 1.0 x -3.25 -1.25 0.0
+end
+blob
+	mat default
+	c 1.0 x 0.0 1.0 0.0
+	c 1.0 x 0.0 -1.0 0.0
+end
+blob
+	mat default
+	c 1.0 x 3.25 0.5 0.0
+	c 1.0 x 3.25 -0.5 0.0
+end
+blob
+	mat default
+	c 1.0 x 6.5 0.25 0.0
+	c 1.0 x 6.5 -0.25 0.0
+end
+
+
+###########
+# Lichter #
+###########
+
+pointlight
+	origin 0.0 0.0 10.0
+	intensity 1.0
+	decayRate 0.1
+end
