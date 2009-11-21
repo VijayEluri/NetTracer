@@ -1069,6 +1069,19 @@ public class Scene
 							}
 						}
 						
+						// Mandelbulb fängt an
+						if (tokens[0].equals("mandelbulb"))
+						{
+							try
+							{
+								nobjs.add(new Mandelbulb(in, nmats));
+							}
+							catch (Exception e)
+							{
+								return false;
+							}
+						}
+						
 						// PointLight fängt an
 						if (tokens[0].equals("pointlight"))
 						{
