@@ -12,7 +12,6 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 	private double step = 0.01;
 	private int nmax = 10;
 	private double normalEps = 0.01;
-	private double accuracy = 1e-5;
 
 	private RenderingPrimitive[] prims;
 	private Material mat = null;
@@ -49,8 +48,6 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 						nmax = new Integer(tokens[1]);
 					if (tokens[0].equals("normalEps"))
 						normalEps = new Double(tokens[1]);
-					if (tokens[0].equals("accuracy"))
-						accuracy = new Double(tokens[1]);
 					break;
 			}
 		}
@@ -171,52 +168,22 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 
 		double alpha = alpha0arr[0] + 0.01;
 
-		// Bisektion: Anfangssituation merken!
-		boolean sitStart = (evalAtPoint(ray.evaluate(alpha)) == nmax);
-		boolean sitNow = false;
-		double cstep = step;
-
 		// Wandere am Strahl entlang, aber nur innerhalb der Box
 		while (alpha < alpha0arr[1])
 		{
 			// Hole den aktuellen Punkt ...
 			Vec3 hitpoint = ray.evaluate(alpha);
 
-			// Schau dir die Situation an diesem Punkt an.
-			sitNow = (evalAtPoint(hitpoint) == nmax);
-
-			// Hat sie sich verändert? Dann starte Bisektion.
-			if (sitNow != sitStart)
+			// Innen oder außen?
+			if (evalAtPoint(hitpoint) != nmax)
 			{
-				double a1 = alpha - cstep, a2 = alpha;
-
-				while (cstep > accuracy)
-				{
-					// Gehe zum Mittelpunkt des aktuellen Stückes und
-					// sample dort.
-					cstep *= 0.5;
-					alpha = a1 + cstep;
-
-					hitpoint = ray.evaluate(alpha);
-					sitNow = (evalAtPoint(hitpoint) == nmax);
-
-					/*
-					// Original: bei "a2 = alpha" passiert effektiv nix.
-					if (sitNow != sitStart)
-					{
-						a2 = alpha;
-					}
-					else
-					{
-						a1 = alpha;
-					}
-					*/
-
-					if (sitNow == sitStart)
-						a1 = alpha;
-				}
-
-				// Genauigkeit erreicht.
+				//System.out.println("Miss");
+				// Hier ist nix. Weitermachen.
+				alpha += step;
+			}
+			else
+			{
+				//System.out.println("Hit " + n + ", " + zx + ", " + zy + ", " + zz);
 				Vec3 normal = normalAtPoint(hitpoint);
 				return new Intersection(this, hitpoint, normal,
 										alpha,
@@ -224,9 +191,6 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 										mat.getSpecularColor(hitpoint),
 										mat.getTransparentColor(hitpoint));
 			}
-
-			// Wir sind noch auf derselben Seite, weitermachen.
-			alpha += cstep;
 		}
 
 		return null;
