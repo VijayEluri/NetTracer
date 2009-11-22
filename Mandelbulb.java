@@ -118,7 +118,10 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 			// Potenzierung
 			r = Math.sqrt(zx2 + zy2 + zz2);
 			if (r >= bailout)
+			{
+				n--;
 				break;
+			}
 
 			theta = Math.atan2(Math.sqrt(zx2 + zy2), zz);
 			phi = Math.atan2(zy, zx);
