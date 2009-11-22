@@ -191,9 +191,14 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 			return null;
 
 		double alpha = alpha0arr[0] + 0.01;
+		double[] carrier = new double[1];
+		boolean debug = true;
+
+		if (debug) System.err.println("New ray");
 
 		// Bisektion: Anfangssituation merken!
-		boolean sitStart = (evalAtPoint(ray.evaluate(alpha), null) == nmax);
+		boolean sitStart = (evalAtPoint(ray.evaluate(alpha), carrier) == nmax);
+		if (debug) System.err.println("\t" + carrier[0]);
 		boolean sitNow = false;
 		double cstep = step;
 
@@ -204,11 +209,14 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 			Vec3 hitpoint = ray.evaluate(alpha);
 
 			// Schau dir die Situation an diesem Punkt an.
-			sitNow = (evalAtPoint(hitpoint, null) == nmax);
+			sitNow = (evalAtPoint(hitpoint, carrier) == nmax);
+			if (debug) System.err.println("\t" + carrier[0]);
 
 			// Hat sie sich verändert? Dann starte Bisektion.
 			if (sitNow != sitStart)
 			{
+				if (debug) System.err.println("\t* Bisection started");
+
 				double a1 = alpha - cstep, a2 = alpha;
 
 				while (cstep > accuracy)
@@ -219,7 +227,8 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 					alpha = a1 + cstep;
 
 					hitpoint = ray.evaluate(alpha);
-					sitNow = (evalAtPoint(hitpoint, null) == nmax);
+					sitNow = (evalAtPoint(hitpoint, carrier) == nmax);
+					if (debug) System.err.println("\t" + carrier[0]);
 
 					/*
 					// Original: bei "a2 = alpha" passiert effektiv nix.
@@ -237,6 +246,8 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 						a1 = alpha;
 				}
 
+				if (debug) System.err.println("\t* Accu reached");
+
 				// Genauigkeit erreicht.
 				Vec3 normal = normalAtPoint(hitpoint);
 				return new Intersection(this, hitpoint, normal,
@@ -249,6 +260,8 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 			// Wir sind noch auf derselben Seite, weitermachen.
 			alpha += cstep;
 		}
+
+		if (debug) System.err.println("\tMISS");
 
 		return null;
 	}
