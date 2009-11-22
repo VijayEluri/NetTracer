@@ -192,7 +192,7 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 
 		double alpha = alpha0arr[0] + 0.01;
 		double[] carrier = new double[1];
-		boolean debug = true;
+		boolean debug = false;
 
 		if (debug) System.err.println("New ray");
 
