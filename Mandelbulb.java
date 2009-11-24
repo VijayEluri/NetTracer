@@ -72,7 +72,7 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 		throw new Exception();
 	}
 
-	private int evalAtPoint(Vec3 hitpoint, double[] outR)
+	private double evalAtPoint(Vec3 hitpoint)
 	{
 		double zx = 0;
 		double zy = 0;
@@ -81,8 +81,6 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 		double cx = 0;
 		double cy = 0;
 		double cz = 0;
-
-		int n = 0;
 
 		double r = 0;
 		double theta = 0;
@@ -107,20 +105,18 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 		cy = hitpoint.y;
 		cz = hitpoint.z;
 
-		n = 0;
 		r = 0;
 
 		zx2 = zx*zx;
 		zy2 = zy*zy;
 		zz2 = zz*zz;
-		while (n < nmax)
+		for (int n = 0; n < nmax; n++)
 		{
 			// Potenzierung
 			r = Math.sqrt(zx2 + zy2 + zz2);
 			if (r >= bailout)
 			{
-				n--;
-				break;
+				return r;
 			}
 
 			theta = Math.atan2(Math.sqrt(zx2 + zy2), zz);
@@ -145,43 +141,43 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 			zx2 = zx*zx;
 			zy2 = zy*zy;
 			zz2 = zz*zz;
-
-			n++;
 		}
 
-		if (outR != null)
-			outR[0] = r;
-
-		if (r < bailout)
-			return 0;
-		else
-			return nmax;
+		return r;
 	}
 
 	private Vec3 normalAtPoint(Vec3 hitpoint)
 	{
-		Vec3 temp = null;
-
 		double xr, xl, yr, yl, zr, zl;
-		double[] carrier = new double[1];
 
-		temp = new Vec3(hitpoint); temp.x += normalEps;
-		evalAtPoint(temp, carrier); xl = carrier[0];
-		temp = new Vec3(hitpoint); temp.x -= normalEps;
-		evalAtPoint(temp, carrier); xr = carrier[0];
+		xl = evalAtPoint(new Vec3(
+			hitpoint.x + normalEps,
+			hitpoint.y,
+			hitpoint.z));
+		xr = evalAtPoint(new Vec3(
+			hitpoint.x - normalEps,
+			hitpoint.y,
+			hitpoint.z));
 
-		temp = new Vec3(hitpoint); temp.y += normalEps;
-		evalAtPoint(temp, carrier); yl = carrier[0];
-		temp = new Vec3(hitpoint); temp.y -= normalEps;
-		evalAtPoint(temp, carrier); yr = carrier[0];
+		yl = evalAtPoint(new Vec3(
+			hitpoint.x,
+			hitpoint.y + normalEps,
+			hitpoint.z));
+		yr = evalAtPoint(new Vec3(
+			hitpoint.x,
+			hitpoint.y - normalEps,
+			hitpoint.z));
 
-		temp = new Vec3(hitpoint); temp.z += normalEps;
-		evalAtPoint(temp, carrier); zl = carrier[0];
-		temp = new Vec3(hitpoint); temp.z -= normalEps;
-		evalAtPoint(temp, carrier); zr = carrier[0];
+		zl = evalAtPoint(new Vec3(
+			hitpoint.x,
+			hitpoint.y,
+			hitpoint.z + normalEps));
+		zr = evalAtPoint(new Vec3(
+			hitpoint.x,
+			hitpoint.y,
+			hitpoint.z - normalEps));
 
-		Vec3 normal = new Vec3(xl - xr, yl - yr, zl - zr).normalized();
-		return normal;
+		return new Vec3(xl - xr, yl - yr, zl - zr).normalized();
 	}
 
 	/**
@@ -195,14 +191,13 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 			return null;
 
 		double alpha = alpha0arr[0] + 0.01;
-		double[] carrier = new double[1];
 		boolean debug = false;
 
 		if (debug) System.err.println("New ray");
 
 		// Bisektion: Anfangssituation merken!
-		boolean sitStart = (evalAtPoint(ray.evaluate(alpha), carrier) == nmax);
-		if (debug) System.err.println("\t" + carrier[0] + ", " + sitStart);
+		boolean sitStart = (evalAtPoint(ray.evaluate(alpha)) < bailout);
+		if (debug) System.err.println("\t" + "r" + ", " + sitStart);
 		boolean sitNow = false;
 		double cstep = step;
 
@@ -213,8 +208,8 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 			Vec3 hitpoint = ray.evaluate(alpha);
 
 			// Schau dir die Situation an diesem Punkt an.
-			sitNow = (evalAtPoint(hitpoint, carrier) == nmax);
-			if (debug) System.err.println("\t" + carrier[0]);
+			sitNow = (evalAtPoint(hitpoint) < bailout);
+			if (debug) System.err.println("\t" + "r");
 
 			// Hat sie sich verändert? Dann starte Bisektion.
 			if (sitNow != sitStart)
@@ -231,8 +226,8 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 					alpha = a1 + cstep;
 
 					hitpoint = ray.evaluate(alpha);
-					sitNow = (evalAtPoint(hitpoint, carrier) == nmax);
-					if (debug) System.err.println("\t" + carrier[0]);
+					sitNow = (evalAtPoint(hitpoint) < bailout);
+					if (debug) System.err.println("\t" + "r");
 
 					/*
 					// Original: bei "a2 = alpha" passiert effektiv nix.
