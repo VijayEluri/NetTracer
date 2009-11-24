@@ -20,6 +20,7 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 	private double bailout = 2;
 	private double accuracy = 1e-5;
 	private double order = 8;
+	private boolean debug = false;
 
 	private RenderingPrimitive[] prims;
 	private Material mat = null;
@@ -32,6 +33,9 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 			switch (tokens.length)
 			{
 				case 1:
+					if (tokens[0].equals("debug"))
+						debug = true;
+
 					if (tokens[0].equals("end"))
 					{
 						prims = new RenderingPrimitive[] {this};
@@ -116,6 +120,7 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 			r = Math.sqrt(zx2 + zy2 + zz2);
 			if (r >= bailout)
 			{
+				if (debug) System.err.println("\tr = " + r);
 				return r;
 			}
 
@@ -143,6 +148,7 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 			zz2 = zz*zz;
 		}
 
+		if (debug) System.err.println("\tr = " + r);
 		return r;
 	}
 
@@ -191,13 +197,12 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 			return null;
 
 		double alpha = alpha0arr[0] + 0.01;
-		boolean debug = false;
 
 		if (debug) System.err.println("New ray");
 
 		// Bisektion: Anfangssituation merken!
 		boolean sitStart = (evalAtPoint(ray.evaluate(alpha)) < bailout);
-		if (debug) System.err.println("\t" + "r" + ", " + sitStart);
+		if (debug) System.err.println("\t" + "sitStart = " + sitStart);
 		boolean sitNow = false;
 		double cstep = step;
 
@@ -209,12 +214,12 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 
 			// Schau dir die Situation an diesem Punkt an.
 			sitNow = (evalAtPoint(hitpoint) < bailout);
-			if (debug) System.err.println("\t" + "r");
 
 			// Hat sie sich verändert? Dann starte Bisektion.
 			if (sitNow != sitStart)
 			{
-				if (debug) System.err.println("\t* Bisection started: " + sitNow);
+				if (debug) System.err.println("\t* Bisecting. "
+						+ "sitNow = " + sitNow);
 
 				double a1 = alpha - cstep, a2 = alpha;
 
@@ -227,7 +232,6 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 
 					hitpoint = ray.evaluate(alpha);
 					sitNow = (evalAtPoint(hitpoint) < bailout);
-					if (debug) System.err.println("\t" + "r");
 
 					/*
 					// Original: bei "a2 = alpha" passiert effektiv nix.
