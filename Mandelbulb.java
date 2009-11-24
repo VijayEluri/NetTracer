@@ -151,7 +151,11 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 
 		if (outR != null)
 			outR[0] = r;
-		return n;
+
+		if (r < bailout)
+			return 0;
+		else
+			return nmax;
 	}
 
 	private Vec3 normalAtPoint(Vec3 hitpoint)
@@ -198,7 +202,7 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 
 		// Bisektion: Anfangssituation merken!
 		boolean sitStart = (evalAtPoint(ray.evaluate(alpha), carrier) == nmax);
-		if (debug) System.err.println("\t" + carrier[0]);
+		if (debug) System.err.println("\t" + carrier[0] + ", " + sitStart);
 		boolean sitNow = false;
 		double cstep = step;
 
@@ -215,7 +219,7 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 			// Hat sie sich verändert? Dann starte Bisektion.
 			if (sitNow != sitStart)
 			{
-				if (debug) System.err.println("\t* Bisection started");
+				if (debug) System.err.println("\t* Bisection started: " + sitNow);
 
 				double a1 = alpha - cstep, a2 = alpha;
 

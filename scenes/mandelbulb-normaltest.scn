@@ -48,7 +48,7 @@ mandelbulb
 	mat july
 
 	step 0.01
-	nmax 3
+	nmax 6
 	normalEps 1e-8
 	bailout 2
 	order 8
