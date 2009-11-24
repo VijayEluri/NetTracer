@@ -15,6 +15,7 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 {
 	private AABB cachedAABB = null;
 	private double step = 0.01;
+	private double firststep = 0.01;
 	private int nmax = 10;
 	private double normalEps = 1e-8;
 	private double bailout = 2;
@@ -56,6 +57,8 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 					}
 					if (tokens[0].equals("step"))
 						step = new Double(tokens[1]);
+					if (tokens[0].equals("firststep"))
+						firststep = new Double(tokens[1]);
 					if (tokens[0].equals("nmax"))
 						nmax = new Integer(tokens[1]);
 					if (tokens[0].equals("normalEps"))
@@ -196,7 +199,7 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 		if (!cachedAABB.alphaEntryExit(ray, alpha0arr))
 			return null;
 
-		double alpha = alpha0arr[0] + 0.01;
+		double alpha = alpha0arr[0] + firststep;
 
 		if (debug) System.err.println("New ray");
 
