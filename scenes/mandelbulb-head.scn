@@ -20,10 +20,16 @@ camera
 	#updir 0.0 1.0 0.0
 	
 	# Top down:
-	origin 0.0 5.0 0.0
+	#origin 0.0 5.0 0.0
+	#updir 1.0 0.0 0.0
+	
+	#lookat 0.0 0.04 0.0
+	
+	# Show the bulbs head:
+	origin 0.0 1.25 -1.0
 	updir 1.0 0.0 0.0
+	lookat 0.0 0.0 -1.0
 
-	lookat 0.0 0.04 0.0
 end
 
 ###############
