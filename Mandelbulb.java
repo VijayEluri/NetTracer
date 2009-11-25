@@ -81,6 +81,9 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 
 	private double evalAtPoint(Vec3 hitpoint)
 	{
+		if (hitpoint.y > 0.0 && hitpoint.x > 0.0)
+			return bailout + 1;
+
 		double zx = 0;
 		double zy = 0;
 		double zz = 0;
