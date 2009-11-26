@@ -81,6 +81,11 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 
 	private double evalAtPoint(Vec3 hitpoint)
 	{
+		return evalAtPoint(hitpoint, null);
+	}
+
+	private double evalAtPoint(Vec3 hitpoint, int[] carrier)
+	{
 		/*
 		if (hitpoint.y > 0.0 && hitpoint.x > 0.0)
 			return bailout + 1;
@@ -120,8 +125,9 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 		cy = hitpoint.y;
 		cz = hitpoint.z;
 
+		int n = 0;
 		r = 0;
-		for (int n = 0; n < nmax; n++)
+		for (n = 0; n < nmax; n++)
 		{
 			// Potenzen vorberechnen
 			zx2 = zx * zx;
@@ -133,7 +139,8 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 			if (r >= bailout)
 			{
 				if (debug) System.err.println("\tr = " + r);
-				return r;
+				n--;
+				break;
 			}
 
 			// Neu: Cascade - Selbst hergeleitet anhand der
@@ -181,6 +188,10 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 		}
 
 		if (debug) System.err.println("\tr = " + r);
+
+		if (carrier != null)
+			carrier[0] = n;
+
 		return r;
 	}
 
@@ -216,6 +227,13 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 			hitpoint.z - normalEps));
 
 		return new Vec3(xl - xr, yl - yr, zl - zr).normalized();
+	}
+
+	public double smoothItValue(double r, int n)
+	{
+		double mu = n + Math.log(Math.log(r)) / Math.log(1 << cascadeLevel);
+		if (debug) System.err.println("\tmu = " + mu);
+		return mu;
 	}
 
 	/**
