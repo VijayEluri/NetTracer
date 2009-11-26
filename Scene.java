@@ -44,6 +44,7 @@ public class Scene
 		
 		public boolean useBVT = true;
 		public boolean noLighting = false;
+		public boolean noShadowFeelers = false;
 		public int AARays = 0, threads = 2, rowstep = 6;
 		
 		// Bestimmt, wann zwei Pixel als "unterschiedlich" erkannt werden
@@ -183,6 +184,9 @@ public class Scene
 	 */
 	public double doShadowFeeling(Ray r, double maxdist)
 	{
+		if (set.noShadowFeelers)
+			return 1.0;
+
 		double lightscale = 1.0;
 		
 		if (bvroot != null)
@@ -1125,6 +1129,8 @@ public class Scene
 							nset.useBVT = (new Integer(tokens[1]) == 1);
 						if (tokens[0].equals("noLighting"))
 							nset.noLighting = (new Integer(tokens[1]) == 1);
+						if (tokens[0].equals("noShadowFeelers"))
+							nset.noShadowFeelers = (new Integer(tokens[1]) == 1);
 						if (tokens[0].equals("threads"))
 							nset.threads = new Integer(tokens[1]);
 						if (tokens[0].equals("rowstep"))
