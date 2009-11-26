@@ -45,6 +45,9 @@ public class Scene
 		public boolean useBVT = true;
 		public boolean noLighting = false;
 		public boolean noShadowFeelers = false;
+		public boolean fakeDistanceShadow = false;
+		public double fakeDistanceScale = 1.0;
+		public double fakeDistanceExp = 1.0;
 		public int AARays = 0, threads = 2, rowstep = 6;
 		
 		// Bestimmt, wann zwei Pixel als "unterschiedlich" erkannt werden
@@ -186,6 +189,12 @@ public class Scene
 	{
 		if (set.noShadowFeelers)
 			return 1.0;
+
+		if (set.fakeDistanceShadow)
+		{
+			double distanceFromEye = r.origin.minus(eye.origin).length();
+			return set.fakeDistanceScale / Math.pow(distanceFromEye, set.fakeDistanceExp);
+		}
 
 		double lightscale = 1.0;
 		
@@ -1127,10 +1136,18 @@ public class Scene
 							nset.AARays = new Integer(tokens[1]);
 						if (tokens[0].equals("useBVT"))
 							nset.useBVT = (new Integer(tokens[1]) == 1);
+
 						if (tokens[0].equals("noLighting"))
 							nset.noLighting = (new Integer(tokens[1]) == 1);
 						if (tokens[0].equals("noShadowFeelers"))
 							nset.noShadowFeelers = (new Integer(tokens[1]) == 1);
+						if (tokens[0].equals("fakeDistanceShadow"))
+							nset.fakeDistanceShadow = (new Integer(tokens[1]) == 1);
+						if (tokens[0].equals("fakeDistanceScale"))
+							nset.fakeDistanceScale = new Double(tokens[1]);
+						if (tokens[0].equals("fakeDistanceExp"))
+							nset.fakeDistanceExp = new Double(tokens[1]);
+
 						if (tokens[0].equals("threads"))
 							nset.threads = new Integer(tokens[1]);
 						if (tokens[0].equals("rowstep"))
