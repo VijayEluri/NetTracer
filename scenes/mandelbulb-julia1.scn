@@ -1,0 +1,104 @@
+##################
+# Rendersettings #
+##################
+
+#sizeX 1920
+#sizeY 1440
+sizeX 1024
+sizeY 768
+maxdepth 32
+AARays 0
+noLighting 0
+colorDelta 2.0
+
+# overview 1 and 2 with fov 25, zoom on 2 with fov 5
+camera
+	fov 18
+	#origin 0.2 3.0 5.0  <---- dunno, old crap
+	#origin 5.0 3.0 -0.2 <---- original parameters
+	#origin 5.0 5.0 -5.0 <---- 45°
+	#updir 0.0 1.0 0.0
+	
+	origin -3.0 5.0 5.0
+	updir 0.0 1.0 0.0
+
+	lookat 0.0 0.0 0.0
+end
+
+###############
+# Materialien #
+###############
+
+mat july
+	#diffuse 1.0 0.688 0.604
+	#diffuse 0.0 1.0 0.3
+	diffuse 1.0 0.7 0.0
+	shininess 1.0
+	shininessSharpness 10.0
+	#specularity 0.6
+	#transparency 0.9
+	#ior 1.5
+end
+
+procmat checker
+	diffusePattern checker
+	end
+end
+
+###########
+# Objekte #
+###########
+
+mandelbulb
+	mat july
+
+	step 0.01
+	nmax 6
+	normalEps 1e-8
+	bailout 2
+	order 8
+
+	juliaMode 1
+	juliax 0.65
+	juliay 0.1
+	juliaz 0.65
+end
+
+/*
+sphere
+	mat july
+	origin 0.0 0.0 0.0
+	radius 1.0
+end
+*/
+
+/*
+offreader
+	mat checker
+	file off/plane.off
+	origin 0.0 -1.25 0.0
+end
+*/
+
+###########
+# Lichter #
+###########
+
+#pointlight
+spherelight
+	intensity 0.7
+	decayRate 0.1
+	origin -5 10 0
+	color 0 0.89 1.0
+	radius 4
+	numrays 8
+end
+#pointlight
+spherelight
+	intensity 0.7
+	decayRate 0.1
+	origin 5 10 0
+	color 1.0 0.8 0.0
+	radius 4
+	numrays 8
+end

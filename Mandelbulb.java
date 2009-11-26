@@ -23,6 +23,11 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 	private int cascadeLevel = 3;
 	private boolean debug = false;
 
+	private boolean julia = false;
+	private double juliax = 0.0;
+	private double juliay = 0.0;
+	private double juliaz = 0.0;
+
 	private RenderingPrimitive[] prims;
 	private Material mat = null;
 
@@ -34,6 +39,7 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 			switch (tokens.length)
 			{
 				case 1:
+					// DEPRECATED
 					if (tokens[0].equals("debug"))
 						debug = true;
 
@@ -60,7 +66,7 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 					if (tokens[0].equals("firststep"))
 						firststep = new Double(tokens[1]);
 					if (tokens[0].equals("nmax"))
-						nmax = new Integer(tokens[1]);
+						nmax = new Integer(tokens[1]) - 1;
 					if (tokens[0].equals("normalEps"))
 						normalEps = new Double(tokens[1]);
 					if (tokens[0].equals("bailout"))
@@ -69,6 +75,15 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 						accuracy = new Double(tokens[1]);
 					if (tokens[0].equals("cascadeLevel"))
 						cascadeLevel = new Integer(tokens[1]);
+
+					if (tokens[0].equals("juliaMode"))
+						julia = (new Integer(tokens[1]) == 1);
+					if (tokens[0].equals("juliax"))
+						juliax = new Double(tokens[1]);
+					if (tokens[0].equals("juliay"))
+						juliay = new Double(tokens[1]);
+					if (tokens[0].equals("juliaz"))
+						juliaz = new Double(tokens[1]);
 					break;
 			}
 		}
@@ -116,14 +131,24 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 		// Außerdem werden "triplex"-Zahlen verwendet statt den
 		// normalen komplexen Zahlen.
 
-		// Wir starten also mit z = 0 und c = hitpoint.
-		zx = 0;
-		zy = 0;
-		zz = 0;
+		// Wir starten also mit z = 0 und c = hitpoint. Das heißt, im
+		// ersten Durchlauf passiert außer der Addition gar nix. Die
+		// erste Iteration kann man also komplett auslassen und direkt
+		// z = c setzen.
 
-		cx = hitpoint.x;
-		cy = hitpoint.y;
-		cz = hitpoint.z;
+		// Um leicht zum Julia-Mode umschalten zu können, setze es
+		// explizit aus hitpoint heraus.
+		zx = cx = hitpoint.x;
+		zy = cy = hitpoint.y;
+		zz = cz = hitpoint.z;
+
+		// Julia
+		if (julia)
+		{
+			cx = juliax;
+			cy = juliay;
+			cz = juliaz;
+		}
 
 		int n = 0;
 		r = 0;
