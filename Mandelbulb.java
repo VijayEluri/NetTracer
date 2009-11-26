@@ -254,7 +254,19 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 		boolean sitStart = (evalAtPoint(ray.evaluate(alpha)) < bailout);
 		if (debug) System.err.println("\t" + "sitStart = " + sitStart);
 		boolean sitNow = false;
+		int[] carrier = new int[1];
+
 		double cstep = step;
+		double r1;
+		/*
+		// David Makin-Ansatz
+		double r1, r2;
+		double cstep = 1e200, DE;
+		int n1, n2;
+		double[] maxd = new double[nmax + 1]; // +1 ist workaround
+		for (int i = 0; i < maxd.length; i++)
+			maxd[i] = 1e200;
+		*/
 
 		// Wandere am Strahl entlang, aber nur innerhalb der Box
 		while (alpha < alpha0arr[1])
@@ -263,7 +275,7 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 			Vec3 hitpoint = ray.evaluate(alpha);
 
 			// Schau dir die Situation an diesem Punkt an.
-			sitNow = (evalAtPoint(hitpoint) < bailout);
+			sitNow = ((r1 = evalAtPoint(hitpoint, carrier)) < bailout);
 
 			// Hat sie sich verändert? Dann starte Bisektion.
 			if (sitNow != sitStart)
@@ -309,6 +321,36 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 										mat.getSpecularColor(hitpoint),
 										mat.getTransparentColor(hitpoint));
 			}
+
+			/*
+			// David Makin-Ansatz
+			if (cstep > 1e-6)
+			{
+				n1 = carrier[0];
+
+				hitpoint = ray.evaluate(alpha + 1e-10);
+				r2 = evalAtPoint(hitpoint, carrier);
+				n2 = carrier[0];
+
+				r1 = smoothItValue(r1, n1);
+				r2 = smoothItValue(r2, n2);
+
+				DE = 1.0 / (1.0 + Math.abs(r1 - r2) * 1e10);
+
+				if (maxd[n1] < DE)
+					DE = maxd[n1];
+				else
+					maxd[n1] = DE;
+
+				if (n1 < nmax - 1 && DE < maxd[n1 + 1])
+					maxd[n1 + 1] = DE;
+
+				DE /= 1.0;
+
+				if (DE > 1e-6)
+					cstep = DE;
+			}
+			*/
 
 			// Wir sind noch auf derselben Seite, weitermachen.
 			alpha += cstep;
