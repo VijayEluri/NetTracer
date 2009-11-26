@@ -20,7 +20,7 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 	private double normalEps = 1e-8;
 	private double bailout = 2;
 	private double accuracy = 1e-5;
-	private double order = 8;
+	private int cascadeLevel = 3;
 	private boolean debug = false;
 
 	private RenderingPrimitive[] prims;
@@ -67,8 +67,8 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 						bailout = new Double(tokens[1]);
 					if (tokens[0].equals("accuracy"))
 						accuracy = new Double(tokens[1]);
-					if (tokens[0].equals("order"))
-						order = new Double(tokens[1]);
+					if (tokens[0].equals("cascadeLevel"))
+						cascadeLevel = new Integer(tokens[1]);
 					break;
 			}
 		}
@@ -100,7 +100,10 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 
 		double rPow = 0;
 		double sinThe, cosThe, sinPhi, cosPhi;
+		double sinThe2, cosThe2, sinPhi2, cosPhi2;
 		double zx2, zy2, zz2;
+		double planeXY;
+		double minEps = 1e-14, rEpsed;
 
 		// Das Mandelbulb selbst funktioniert genauso wie das
 		// Mandelbrot, der einzige Unterschied ist eine andere
@@ -118,13 +121,14 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 		cz = hitpoint.z;
 
 		r = 0;
-
-		zx2 = zx*zx;
-		zy2 = zy*zy;
-		zz2 = zz*zz;
 		for (int n = 0; n < nmax; n++)
 		{
-			// Potenzierung
+			// Potenzen vorberechnen
+			zx2 = zx * zx;
+			zy2 = zy * zy;
+			zz2 = zz * zz;
+
+			// Testen, ob die Folge divergieren wird.
 			r = Math.sqrt(zx2 + zy2 + zz2);
 			if (r >= bailout)
 			{
@@ -132,28 +136,48 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 				return r;
 			}
 
-			theta = Math.atan2(Math.sqrt(zx2 + zy2), zz);
-			phi = Math.atan2(zy, zx);
+			// Neu: Cascade - Selbst hergeleitet anhand der
+			// "Doppelwinkelfunktionen" -- die Idee kam aber von Deltor!
+			// Berechne über Trigonometrie direkt Sinus und Cosinus der
+			// Winkel anstatt die Winkel als solche zu bestimmen.
+			// -------------------------------------------------
 
-			sinThe = Math.sin(theta * order);
-			cosThe = Math.cos(theta * order);
-			sinPhi = Math.sin(phi * order);
-			cosPhi = Math.cos(phi * order);
+			// Die Epsilons hier sind wichtig, damit keine Div durch 0.
+			planeXY = Math.sqrt(zx2 + zy2) + minEps;
+			rEpsed = r + minEps;
 
-			rPow = Math.pow(r, order);
+			// Sinus/Cosinus über Dreiecke.
+			// Phi ist der horizontale Winkel, Theta der vertikale.
+			sinPhi = zy / planeXY;
+			cosPhi = zx / planeXY;
+			sinThe = planeXY / rEpsed;
+			cosThe = zz / rEpsed;
 
-			zx = rPow * sinThe * cosPhi;
-			zy = rPow * sinThe * sinPhi;
-			zz = rPow * cosThe;
+			// Bestimme "rekursiv" über Doppelwinkelfunktionen die
+			// multiplizierten Winkel. Dabei kann man auch gleich das r
+			// mitpotenzieren.
+			rPow = r;
+			for (int cascade = 0; cascade < cascadeLevel; cascade++)
+			{
+				sinPhi2 = 2.0 * sinPhi * cosPhi;
+				cosPhi2 = 2.0 * cosPhi * cosPhi - 1.0;
 
-			// Addition
-			zx += cx;
-			zy += cy;
-			zz += cz;
+				sinThe2 = 2.0 * sinThe * cosThe;
+				cosThe2 = 2.0 * cosThe * cosThe - 1.0;
 
-			zx2 = zx*zx;
-			zy2 = zy*zy;
-			zz2 = zz*zz;
+				sinPhi = sinPhi2;
+				cosPhi = cosPhi2;
+				sinThe = sinThe2;
+				cosThe = cosThe2;
+
+				rPow *= rPow;
+			}
+			// -------------------------------------------------
+
+			// Neue Werte setzen:
+			zx = rPow * sinThe * cosPhi  +  cx;
+			zy = rPow * sinThe * sinPhi  +  cy;
+			zz = rPow * cosThe           +  cz;
 		}
 
 		if (debug) System.err.println("\tr = " + r);
