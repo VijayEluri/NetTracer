@@ -14,14 +14,13 @@ import java.util.LinkedList;
 public class Mandelbulb implements Object3D, RenderingPrimitive
 {
 	private AABB cachedAABB = null;
-	private double step = 0.01;
 	private double firststep = 0.01;
 	private int nmax = 10;
 	private double normalEps = 1e-8;
 	private double bailout = 2;
 	private double accuracy = 1e-5;
 	private int cascadeLevel = 3;
-	private boolean debug = false;
+	private double order;
 
 	private boolean julia = false;
 	private double juliax = 0.0;
@@ -43,13 +42,10 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 			switch (tokens.length)
 			{
 				case 1:
-					// DEPRECATED
-					if (tokens[0].equals("debug"))
-						debug = true;
-
 					if (tokens[0].equals("end"))
 					{
 						prims = new RenderingPrimitive[] {this};
+						order = (1 << cascadeLevel);
 						return;
 					}
 					break;
@@ -65,8 +61,6 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 							throw new Exception();
 						}
 					}
-					if (tokens[0].equals("step"))
-						step = new Double(tokens[1]);
 					if (tokens[0].equals("firststep"))
 						firststep = new Double(tokens[1]);
 					if (tokens[0].equals("nmax"))
@@ -109,17 +103,17 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 		return evalAtPoint(hitpoint, null, null);
 	}
 
-	private double evalAtPoint(Vec3 hitpoint, int[] carrier)
-	{
-		return evalAtPoint(hitpoint, carrier, null);
-	}
-
 	private double evalAtPoint(Vec3 hitpoint, int[] carrier, double[] dr)
 	{
 		/*
 		if (hitpoint.y > 0.0 && hitpoint.x > 0.0)
 			return bailout + 1;
 		*/
+
+		if (carrier == null)
+			carrier = new int[1];
+		if (dr == null)
+			dr = new double[1];
 
 		double zx = 0;
 		double zy = 0;
@@ -140,10 +134,8 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 		double planeXY;
 		double minEps = 1e-14, rEpsed;
 
-		// Zwecks Ableitung:
-		double order = (1 << cascadeLevel);
-		if (dr != null)
-			dr[0] = 1;
+		// Zwecks Ableitung initialisieren:
+		dr[0] = 1;
 
 		// Das Mandelbulb selbst funktioniert genauso wie das
 		// Mandelbrot, der einzige Unterschied ist eine andere
@@ -183,7 +175,6 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 			r = Math.sqrt(zx2 + zy2 + zz2);
 			if (r >= bailout)
 			{
-				if (debug) System.err.println("\tr = " + r);
 				n--;
 				break;
 			}
@@ -206,8 +197,7 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 			cosThe = zz / rEpsed;
 
 			// Bestimme "rekursiv" über Doppelwinkelfunktionen die
-			// multiplizierten Winkel. Dabei kann man auch gleich das r
-			// mitpotenzieren.
+			// multiplizierten Winkel.
 			for (int cascade = 0; cascade < cascadeLevel; cascade++)
 			{
 				sinPhi2 = 2.0 * sinPhi * cosPhi;
@@ -221,16 +211,29 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 				sinThe = sinThe2;
 				cosThe = cosThe2;
 			}
+
 			// -------------------------------------------------
 
-			if (dr != null)
-			{
-				rPow = Math.pow(r, order - 1);
-				dr[0] = rPow * dr[0] * order + 1;
+			// "Scalar derivative" mitberechnen, stammt von hier:
+			// http://www.fractalforums.com/mandelbulb-implementation/realtime-renderingoptimisations/
+
+			// Dafür brauchen wir zwischenzeitlich nicht r^order sondern
+			// r^{order - 1}.
+
+			// Anstatt:
+			//    rPow = Math.pow(r, order - 1);
+			// Machen wir das hier, was mehr als doppelt so schnell ist:
+			rPow = 1;
+			for (int i = 0; i < order - 1; i++)
 				rPow *= r;
-			}
-			else
-				rPow = Math.pow(r, order);
+
+			// Herein lies the magic:
+			dr[0] = rPow * dr[0] * order + 1;
+
+			// Letztes Potenzieren von r:
+			rPow *= r;
+
+			// -------------------------------------------------
 
 			// Neue Werte setzen:
 			zx = rPow * sinThe * cosPhi  +  cx;
@@ -238,13 +241,12 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 			zz = rPow * cosThe           +  cz;
 		}
 
-		if (debug) System.err.println("\tr = " + r);
+		// Anzahl der Iterationen speichern.
+		carrier[0] = n;
 
-		if (carrier != null)
-			carrier[0] = n;
-
-		if (dr != null)
-			dr[0] = 0.5 * Math.log(r) * r / dr[0];
+		// Magic, part two: Unser Distanzschätzer!
+		// TODO: Erklärung?
+		dr[0] = 0.5 * Math.log(r) * r / dr[0];
 
 		return r;
 	}
@@ -281,13 +283,6 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 			hitpoint.z - normalEps));
 
 		return new Vec3(xl - xr, yl - yr, zl - zr).normalized();
-	}
-
-	public double smoothItValue(double r, int n)
-	{
-		double mu = n + Math.log(Math.log(r)) / Math.log(1 << cascadeLevel);
-		if (debug) System.err.println("\tmu = " + mu);
-		return mu;
 	}
 
 	private boolean sphereEntryExit(Ray r, double[] alphas)
@@ -330,41 +325,34 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 	 */
 	public Intersection intersectionTest(Ray ray)
 	{
-		// Eintritts- und Austrittsalpha für die Clipping-Box suchen
+		// Eintritts- und Austrittsalpha für die Clipping-Sphäre suchen
 		double[] alpha0arr = new double[2];
-		//if (!cachedAABB.alphaEntryExit(ray, alpha0arr))
 		if (!sphereEntryExit(ray, alpha0arr))
 			return null;
 
+		// Wenn der Strahl in der Sphäre startet (alpha[0] = 0), dann
+		// ist es sehr wahrscheinlich, dass es ein ShadowFeeler ist, der
+		// vom Objekt ausgeht. Dann pushe ihn ein bisschen nach oben.
+		// Ansonsten setze den Strahl genau an den Anfang der Sphäre.
 		double alpha;
 		if (alpha0arr[0] == 0.0)
 			alpha = alpha0arr[0] + firststep;
 		else
 			alpha = alpha0arr[0];
 
-		if (debug) System.err.println("New ray");
+		// Ein paar Carrier, die wir brauchen.
+		int[] carrier = new int[1];
+		double[] DEcarrier = new double[1];
 
 		// Bisektion: Anfangssituation merken!
-		int[] carrier = new int[1];
-		evalAtPoint(ray.evaluate(alpha), carrier);
+		evalAtPoint(ray.evaluate(alpha), carrier, DEcarrier);
 		boolean sitStart = (carrier[0] == nmax);
-		if (debug) System.err.println("\t" + "sitStart = " + sitStart);
 		boolean sitNow = false;
 
 		double cstep = 1e200;
 		double r1;
-		double[] DEcarrier = new double[1];
-		/*
-		// David Makin-Ansatz
-		double r1, r2;
-		double cstep = 1e200, DE;
-		int n1, n2;
-		double[] maxd = new double[nmax + 1]; // +1 ist workaround
-		for (int i = 0; i < maxd.length; i++)
-			maxd[i] = 1e200;
-		*/
 
-		// Wandere am Strahl entlang, aber nur innerhalb der Box
+		// Wandere am Strahl entlang, aber nur innerhalb der Sphäre
 		while (alpha < alpha0arr[1])
 		{
 			// Hole den aktuellen Punkt ...
@@ -377,11 +365,15 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 			// Hat sie sich verändert? Dann starte Bisektion.
 			if (cstep <= accuracy || sitNow != sitStart)
 			{
-				if (debug) System.err.println("\t* Bisecting. "
-						+ "sitNow = " + sitNow);
-
 				double a1 = alpha - cstep, a2 = alpha;
 
+				// Eigentlich ist die Bisektion "nicht unbedingt"
+				// notwendig. Wenn die accuracy ohnehin schon erreicht
+				// wurde durch den Estimator, dann passiert hier auch
+				// nichts mehr. Wenn sich der Estimator aber verschätzt
+				// und wir unerwartet doch im Objekt landen (was
+				// vorkommt!), dann finden wir so wieder sauber einen
+				// Punkt auf der Oberfläche.
 				while (cstep > accuracy)
 				{
 					// Gehe zum Mittelpunkt des aktuellen Stückes und
@@ -390,14 +382,12 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 					alpha = a1 + cstep;
 
 					hitpoint = ray.evaluate(alpha);
-					evalAtPoint(hitpoint, carrier);
+					evalAtPoint(hitpoint, carrier, DEcarrier);
 					sitNow = (carrier[0] == nmax);
 
 					if (sitNow == sitStart)
 						a1 = alpha;
 				}
-
-				if (debug) System.err.println("\t* Accu reached");
 
 				// Genauigkeit erreicht.
 				Vec3 normal = normalAtPoint(hitpoint);
@@ -408,49 +398,11 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 										mat.getTransparentColor(hitpoint));
 			}
 
-			/*
-			// David Makin-Ansatz
-			if (cstep > 1e-6)
-			{
-				n1 = carrier[0];
-
-				hitpoint = ray.evaluate(alpha + 1e-10);
-				r2 = evalAtPoint(hitpoint, carrier);
-				n2 = carrier[0];
-
-				r1 = smoothItValue(r1, n1);
-				r2 = smoothItValue(r2, n2);
-
-				DE = 1.0 / (1.0 + Math.abs(r1 - r2) * 1e10);
-
-				if (maxd[n1] < DE)
-					DE = maxd[n1];
-				else
-					maxd[n1] = DE;
-
-				if (n1 < nmax - 1 && DE < maxd[n1 + 1])
-					maxd[n1 + 1] = DE;
-
-				DE /= 2.5;
-
-				if (DE > 1e-6)
-				{
-					cstep = DE;
-					if (debug)
-					{
-						System.err.println("\t" + cstep + ", " + (hitpoint.length() - 1.0));
-					}
-				}
-			}
-			*/
-
-			// Wir sind noch auf derselben Seite, weitermachen.
+			// Wir sind noch auf derselben Seite oder die Genauigkeit
+			// wurde noch nicht erreicht, weitermachen.
 			cstep = DEcarrier[0];
-			if (debug) System.err.println("\tcstep: " + cstep);
 			alpha += cstep;
 		}
-
-		if (debug) System.err.println("\tMISS");
 
 		return null;
 	}
