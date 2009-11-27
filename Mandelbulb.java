@@ -28,6 +28,10 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 	private double juliay = 0.0;
 	private double juliaz = 0.0;
 
+	// Nur sphereEntryExit bis jetzt
+	private Vec3 origin = new Vec3(0, 0, 0);
+	private double clipRadius2 = 1.2 * 1.2;
+
 	private RenderingPrimitive[] prims;
 	private Material mat = null;
 
@@ -84,6 +88,12 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 						juliay = new Double(tokens[1]);
 					if (tokens[0].equals("juliaz"))
 						juliaz = new Double(tokens[1]);
+
+					if (tokens[0].equals("clipRadius"))
+					{
+						clipRadius2 = new Double(tokens[1]);
+						clipRadius2 *= clipRadius2;
+					}
 					break;
 			}
 		}
@@ -261,6 +271,41 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 		return mu;
 	}
 
+	private boolean sphereEntryExit(Ray r, double[] alphas)
+	{
+		// Kopiert aus Sphere3D und vereinfacht.
+
+		// Wo ist der Punkt auf dem Strahl, der am nächsten an mir liegt?
+		double alpha = -r.direction.dot(r.origin.minus(this.origin));
+		Vec3 q = r.evaluate(alpha);
+
+		// Abstand zum Kugelmittelpunkt?
+		q.subtract(this.origin);
+		double distToCenter2 = q.lengthSquared();
+
+		if (distToCenter2 > clipRadius2)
+			return false;
+
+		// Über Pythagoras zu den beiden Schnittpunkten
+		double a = Math.sqrt(clipRadius2 - distToCenter2);
+
+		// Leicht umsortiert, um Unnötiges zu vermeiden.
+		alphas[1] = alpha + a;
+
+		// Wäre auch der zweite Punkt im Negativen, dann startete der
+		// Ray schon außerhalb der Kugel. Kein Schnittpunkt!
+		if (alphas[1] < 0.0)
+			return false;
+
+		// Frühestens am Ray-Ursprung starten.
+		alphas[0] = alpha - a;
+		if (alphas[0] < 0.0)
+			alphas[0] = 0.0;
+
+		// Okay.
+		return true;
+	}
+
 	/**
 	 * Führe mit diesem Strahl einen Schnitttest mit dir selbst durch
 	 */
@@ -268,10 +313,15 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 	{
 		// Eintritts- und Austrittsalpha für die Clipping-Box suchen
 		double[] alpha0arr = new double[2];
-		if (!cachedAABB.alphaEntryExit(ray, alpha0arr))
+		//if (!cachedAABB.alphaEntryExit(ray, alpha0arr))
+		if (!sphereEntryExit(ray, alpha0arr))
 			return null;
 
-		double alpha = alpha0arr[0] + firststep;
+		double alpha;
+		if (alpha0arr[0] == 0.0)
+			alpha = alpha0arr[0] + firststep;
+		else
+			alpha = alpha0arr[0];
 
 		if (debug) System.err.println("New ray");
 
@@ -394,8 +444,9 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 		// AABB wird gecached, da sonst der Tree-Bau Jahrhunderte benötigt
 		if (cachedAABB == null)
 		{
+			double squirt = Math.sqrt(clipRadius2);
 			cachedAABB = new AABB(new Vec3(0, 0, 0),
-					new Vec3(1.1, 1.1, 1.1));
+					new Vec3(squirt, squirt, squirt));
 		}
 
 		return cachedAABB;
