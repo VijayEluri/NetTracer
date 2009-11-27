@@ -106,10 +106,15 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 
 	private double evalAtPoint(Vec3 hitpoint)
 	{
-		return evalAtPoint(hitpoint, null);
+		return evalAtPoint(hitpoint, null, null);
 	}
 
 	private double evalAtPoint(Vec3 hitpoint, int[] carrier)
+	{
+		return evalAtPoint(hitpoint, carrier, null);
+	}
+
+	private double evalAtPoint(Vec3 hitpoint, int[] carrier, double[] dr)
 	{
 		/*
 		if (hitpoint.y > 0.0 && hitpoint.x > 0.0)
@@ -134,6 +139,11 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 		double zx2, zy2, zz2;
 		double planeXY;
 		double minEps = 1e-14, rEpsed;
+
+		// Zwecks Ableitung:
+		double order = (1 << cascadeLevel);
+		if (dr != null)
+			dr[0] = 1;
 
 		// Das Mandelbulb selbst funktioniert genauso wie das
 		// Mandelbrot, der einzige Unterschied ist eine andere
@@ -198,7 +208,6 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 			// Bestimme "rekursiv" über Doppelwinkelfunktionen die
 			// multiplizierten Winkel. Dabei kann man auch gleich das r
 			// mitpotenzieren.
-			rPow = r;
 			for (int cascade = 0; cascade < cascadeLevel; cascade++)
 			{
 				sinPhi2 = 2.0 * sinPhi * cosPhi;
@@ -211,10 +220,17 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 				cosPhi = cosPhi2;
 				sinThe = sinThe2;
 				cosThe = cosThe2;
-
-				rPow *= rPow;
 			}
 			// -------------------------------------------------
+
+			if (dr != null)
+			{
+				rPow = Math.pow(r, order - 1);
+				dr[0] = rPow * dr[0] * order + 1;
+				rPow *= r;
+			}
+			else
+				rPow = Math.pow(r, order);
 
 			// Neue Werte setzen:
 			zx = rPow * sinThe * cosPhi  +  cx;
@@ -226,6 +242,9 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 
 		if (carrier != null)
 			carrier[0] = n;
+
+		if (dr != null)
+			dr[0] = 0.5 * Math.log(r) * r / dr[0];
 
 		return r;
 	}
@@ -332,8 +351,9 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 		if (debug) System.err.println("\t" + "sitStart = " + sitStart);
 		boolean sitNow = false;
 
-		double cstep = step;
+		double cstep = 1e200;
 		double r1;
+		double[] DEcarrier = new double[1];
 		/*
 		// David Makin-Ansatz
 		double r1, r2;
@@ -351,11 +371,11 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 			Vec3 hitpoint = ray.evaluate(alpha);
 
 			// Schau dir die Situation an diesem Punkt an.
-			r1 = evalAtPoint(hitpoint, carrier);
+			r1 = evalAtPoint(hitpoint, carrier, DEcarrier);
 			sitNow = (carrier[0] == nmax);
 
 			// Hat sie sich verändert? Dann starte Bisektion.
-			if (sitNow != sitStart)
+			if (cstep <= accuracy || sitNow != sitStart)
 			{
 				if (debug) System.err.println("\t* Bisecting. "
 						+ "sitNow = " + sitNow);
@@ -425,6 +445,8 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 			*/
 
 			// Wir sind noch auf derselben Seite, weitermachen.
+			cstep = DEcarrier[0];
+			if (debug) System.err.println("\tcstep: " + cstep);
 			alpha += cstep;
 		}
 
