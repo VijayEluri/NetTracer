@@ -70,7 +70,7 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 					if (tokens[0].equals("firststep"))
 						firststep = new Double(tokens[1]);
 					if (tokens[0].equals("nmax"))
-						nmax = new Integer(tokens[1]) - 1;
+						nmax = new Integer(tokens[1]);
 					if (tokens[0].equals("normalEps"))
 						normalEps = new Double(tokens[1]);
 					if (tokens[0].equals("bailout"))
@@ -162,7 +162,7 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 
 		int n = 0;
 		r = 0;
-		for (n = 0; n < nmax; n++)
+		for (n = 1; n < nmax; n++)
 		{
 			// Potenzen vorberechnen
 			zx2 = zx * zx;
@@ -326,10 +326,11 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 		if (debug) System.err.println("New ray");
 
 		// Bisektion: Anfangssituation merken!
-		boolean sitStart = (evalAtPoint(ray.evaluate(alpha)) < bailout);
+		int[] carrier = new int[1];
+		evalAtPoint(ray.evaluate(alpha), carrier);
+		boolean sitStart = (carrier[0] == nmax);
 		if (debug) System.err.println("\t" + "sitStart = " + sitStart);
 		boolean sitNow = false;
-		int[] carrier = new int[1];
 
 		double cstep = step;
 		double r1;
@@ -350,7 +351,8 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 			Vec3 hitpoint = ray.evaluate(alpha);
 
 			// Schau dir die Situation an diesem Punkt an.
-			sitNow = ((r1 = evalAtPoint(hitpoint, carrier)) < bailout);
+			r1 = evalAtPoint(hitpoint, carrier);
+			sitNow = (carrier[0] == nmax);
 
 			// Hat sie sich verändert? Dann starte Bisektion.
 			if (sitNow != sitStart)
@@ -368,19 +370,8 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 					alpha = a1 + cstep;
 
 					hitpoint = ray.evaluate(alpha);
-					sitNow = (evalAtPoint(hitpoint) < bailout);
-
-					/*
-					// Original: bei "a2 = alpha" passiert effektiv nix.
-					if (sitNow != sitStart)
-					{
-						a2 = alpha;
-					}
-					else
-					{
-						a1 = alpha;
-					}
-					*/
+					evalAtPoint(hitpoint, carrier);
+					sitNow = (carrier[0] == nmax);
 
 					if (sitNow == sitStart)
 						a1 = alpha;
@@ -420,10 +411,16 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 				if (n1 < nmax - 1 && DE < maxd[n1 + 1])
 					maxd[n1 + 1] = DE;
 
-				DE /= 1.0;
+				DE /= 2.5;
 
 				if (DE > 1e-6)
+				{
 					cstep = DE;
+					if (debug)
+					{
+						System.err.println("\t" + cstep + ", " + (hitpoint.length() - 1.0));
+					}
+				}
 			}
 			*/
 
