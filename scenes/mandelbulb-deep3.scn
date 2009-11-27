@@ -4,20 +4,19 @@
 
 #sizeX 1920
 #sizeY 1440
-sizeX 1024
-sizeY 768
+sizeX 640
+sizeY 480
 maxdepth 32
-AARays 16
+AARays 8
 noLighting 0
 noShadowFeelers 0
 colorDelta 2.0
 
 camera
-	# 0.7 und nmax 9 war der alte stand (MBulb-12)
-	fov 0.007
-	origin 0.0 7.0 -5.0
+	fov 1
+	origin 0.0 7.0 2.0
 	updir 0.0 1.0 0.0
-	lookat 0.0 0.0 0.1
+	lookat 0.0 0.0 0.0
 end
 
 ###############
@@ -28,7 +27,7 @@ mat july
 	#diffuse 1.0 0.688 0.604
 	#diffuse 0.0 1.0 0.3
 	#diffuse 1.0 0.7 0.0
-	diffuse 1.0 1.0 1.0
+	diffuse 1.0 0.7 0.0
 	shininess 1.0
 	shininessSharpness 10.0
 	#specularity 0.6
@@ -48,9 +47,8 @@ end
 mandelbulb
 	mat july
 
-	step 3.125e-4
 	firststep 1e-4
-	accuracy 1e-8
+	accuracy 1e-5
 
 	nmax 11
 
@@ -83,17 +81,18 @@ end
 spherelight
 	intensity 0.7
 	decayRate 0.1
-	origin -5 10 0
+	origin -1 10 0
 	color 0 0.89 1.0
 	radius 4
-	numrays 8
+	numrays 2
 end
 #pointlight
 spherelight
 	intensity 0.7
 	decayRate 0.1
-	origin 5 10 0
-	color 0.9 1.0 0.0
+	origin 1 10 0
+	color 0.5 0.0 0.5
+	color 1.0 0.8 0.0
 	radius 4
-	numrays 8
+	numrays 2
 end
