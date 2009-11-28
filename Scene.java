@@ -1120,6 +1120,19 @@ public class Scene
 								return false;
 							}
 						}
+
+						// Headlight an Position der Kamera
+						if (tokens[0].equals("headlight"))
+						{
+							try
+							{
+								nlights.add(new Headlight(in, eye));
+							}
+							catch (Exception e)
+							{
+								return false;
+							}
+						}
 						
 						break;
 					
