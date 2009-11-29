@@ -71,6 +71,8 @@ public class ProceduralMaterial extends Material
 							diffusePattern = new ProceduralModule.Noise(in);
 						if (tokens[1].equals("grid"))
 							diffusePattern = new ProceduralModule.Grid(in);
+						if (tokens[1].equals("hatch"))
+							diffusePattern = new ProceduralModule.Hatch(in);
 					}
 					
 					break;

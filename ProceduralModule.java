@@ -254,4 +254,26 @@ public interface ProceduralModule
 		}
 	}
 	
+	// Der "Punkt" p wird als Farbwert übernommen. Für intelligentere
+	// Objekte gedacht (ursprünglich Mandelbulb).
+	public class Hatch implements ProceduralModule
+	{
+		public String toString() { return "Hatch"; }
+
+		public RGBColor getColor(Vec3 p)
+		{
+			return new RGBColor(p.x, p.y, p.z);
+		}
+
+		// FIXME: Wozu gibt es diese Funktion im Interface überhaupt?
+		public double getValue(Vec3 p)
+		{
+			return 0.5;
+		}
+
+		public Hatch(SceneReader in) throws Exception
+		{
+			return;
+		}
+	}
 }
