@@ -74,19 +74,20 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 					if (tokens[0].equals("cascadeLevel"))
 						cascadeLevel = new Integer(tokens[1]);
 
-					if (tokens[0].equals("juliaMode"))
-						julia = (new Integer(tokens[1]) == 1);
-					if (tokens[0].equals("juliax"))
-						juliax = new Double(tokens[1]);
-					if (tokens[0].equals("juliay"))
-						juliay = new Double(tokens[1]);
-					if (tokens[0].equals("juliaz"))
-						juliaz = new Double(tokens[1]);
-
 					if (tokens[0].equals("clipRadius"))
 					{
 						clipRadius2 = new Double(tokens[1]);
 						clipRadius2 *= clipRadius2;
+					}
+					break;
+
+				case 4:
+					if (tokens[0].equals("julia"))
+					{
+						julia = true;
+						juliax = new Double(tokens[1]);
+						juliay = new Double(tokens[2]);
+						juliaz = new Double(tokens[3]);
 					}
 					break;
 			}

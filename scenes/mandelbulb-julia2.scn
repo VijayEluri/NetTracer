@@ -53,34 +53,18 @@ mandelbulb
 	bailout 2
 	cascadeLevel 2
 
-	juliaMode 1
+	#julia 0.65 0.1 0.65
 
-	/*
-	juliax 0.65
-	juliay 0.1
-	juliaz 0.65
-	*/
-
-	/*
 	# cascadeLevel 2 and nmax 7 for this one gives a quite interesting
 	# result.
-	juliax 1.0
-	juliay 0.0
-	juliaz 0.0
-	*/
+	#julia 1.0 0.0 0.0
 
-	/*
 	# cantor staub
-	juliax 1.0
-	juliay 0.5
-	juliaz 0.0
-	*/
+	#julia 1.0 0.5 0.0
 
 	# cascadeLevel 2 and nmax 7 for this one gives a quite interesting
 	# result.
-	juliax -0.2
-	juliay 0.5
-	juliaz 0.7
+	julia -0.2 0.5 0.7
 end
 
 /*

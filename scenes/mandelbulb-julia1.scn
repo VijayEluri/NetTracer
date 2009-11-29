@@ -58,10 +58,7 @@ mandelbulb
 	bailout 2
 	order 8
 
-	juliaMode 1
-	juliax 0.65
-	juliay 0.1
-	juliaz 0.65
+	julia 0.65 0.1 0.65
 end
 
 /*
