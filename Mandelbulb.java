@@ -245,7 +245,9 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 		carrier[0] = n;
 
 		// Magic, part two: Unser Distanzschätzer!
-		// TODO: Erklärung?
+		// Im Endeffekt läuft das auf denselben Schätzer wie in der
+		// 2D-Version hinaus.
+		// TODO: Checken, ob der auf order 8 festgetrimmt ist!
 		dr[0] = 0.5 * Math.log(r) * r / dr[0];
 
 		return r;
@@ -382,7 +384,7 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 					alpha = a1 + cstep;
 
 					hitpoint = ray.evaluate(alpha);
-					evalAtPoint(hitpoint, carrier, DEcarrier);
+					r1 = evalAtPoint(hitpoint, carrier, DEcarrier);
 					sitNow = (carrier[0] == nmax);
 
 					if (sitNow == sitStart)
@@ -391,11 +393,37 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 
 				// Genauigkeit erreicht.
 				Vec3 normal = normalAtPoint(hitpoint);
-				return new Intersection(this, hitpoint, normal,
-										alpha,
-										mat, mat.getDiffuseColor(hitpoint),
-										mat.getSpecularColor(hitpoint),
-										mat.getTransparentColor(hitpoint));
+				if (mat instanceof ProceduralMaterial)
+				{
+					// Einfaches radiales Mapping vorerst...
+					double hitLen = hitpoint.length();
+
+					double minval = 0.2;
+					double rad1 = Math.sin(hitLen * 19);
+					rad1 *= rad1;
+					rad1 = (rad1 < minval ? minval : rad1);
+
+					double rad2 = Math.sin(hitLen * 23);
+					rad2 *= rad2;
+					rad2 = (rad2 < minval ? minval : rad2);
+
+					double rad3 = Math.sin(hitLen * 29);
+					rad3 *= rad3;
+					rad3 = (rad3 < minval ? minval : rad3);
+
+					Vec3 colvec = new Vec3(rad1, minval, rad2);
+					return new Intersection(this, hitpoint, normal,
+								alpha, mat, mat.getDiffuseColor(colvec),
+								mat.getSpecularColor(hitpoint),
+								mat.getTransparentColor(hitpoint));
+				}
+				else
+				{
+					return new Intersection(this, hitpoint, normal,
+								alpha, mat, mat.getDiffuseColor(hitpoint),
+								mat.getSpecularColor(hitpoint),
+								mat.getTransparentColor(hitpoint));
+				}
 			}
 
 			// Wir sind noch auf derselben Seite oder die Genauigkeit
