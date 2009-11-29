@@ -27,6 +27,13 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 	private double juliay = 0.0;
 	private double juliaz = 0.0;
 
+	private double[] colorFreqs   = new double[] { 19, 23, 29 };
+	private double[] colorPhases  = new double[] {  0,  0,  0 };
+	private Vec3     colorWeightR = new Vec3(1, 0, 0);
+	private Vec3     colorWeightG = new Vec3(0, 1, 0);
+	private Vec3     colorWeightB = new Vec3(0, 0, 1);
+	private double   colorMin     = 0.2;
+
 	// Nur sphereEntryExit bis jetzt
 	private Vec3 origin = new Vec3(0, 0, 0);
 	private double clipRadius2 = 1.2 * 1.2;
@@ -79,6 +86,9 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 						clipRadius2 = new Double(tokens[1]);
 						clipRadius2 *= clipRadius2;
 					}
+
+					if (tokens[0].equals("colorMin"))
+						colorMin = new Double(tokens[1]);
 					break;
 
 				case 4:
@@ -88,6 +98,40 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 						juliax = new Double(tokens[1]);
 						juliay = new Double(tokens[2]);
 						juliaz = new Double(tokens[3]);
+					}
+
+					if (tokens[0].equals("colorFreqs"))
+					{
+						colorFreqs[0] = new Double(tokens[1]);
+						colorFreqs[1] = new Double(tokens[2]);
+						colorFreqs[2] = new Double(tokens[3]);
+					}
+					if (tokens[0].equals("colorPhases"))
+					{
+						colorPhases[0] = new Double(tokens[1]);
+						colorPhases[1] = new Double(tokens[2]);
+						colorPhases[2] = new Double(tokens[3]);
+					}
+					if (tokens[0].equals("colorWeightR"))
+					{
+						colorWeightR = new Vec3(
+								new Double(tokens[1]),
+								new Double(tokens[2]),
+								new Double(tokens[3]));
+					}
+					if (tokens[0].equals("colorWeightG"))
+					{
+						colorWeightG = new Vec3(
+								new Double(tokens[1]),
+								new Double(tokens[2]),
+								new Double(tokens[3]));
+					}
+					if (tokens[0].equals("colorWeightB"))
+					{
+						colorWeightB = new Vec3(
+								new Double(tokens[1]),
+								new Double(tokens[2]),
+								new Double(tokens[3]));
 					}
 					break;
 			}
@@ -399,20 +443,45 @@ public class Mandelbulb implements Object3D, RenderingPrimitive
 					// Einfaches radiales Mapping vorerst...
 					double hitLen = hitpoint.length();
 
-					double minval = 0.2;
-					double rad1 = Math.sin(hitLen * 19);
+					// Grundsätzlich mal 'nen Sinus auf den Radius
+					// loslassen, damit wir saubere Werte haben.
+					// Frequenz und Phase sind vom Nutzer wählbar.
+					double rad1 = Math.sin(hitLen * colorFreqs[0]
+							+ colorPhases[0]);
+					double rad2 = Math.sin(hitLen * colorFreqs[1]
+							+ colorPhases[1]);
+					double rad3 = Math.sin(hitLen * colorFreqs[2]
+							+ colorPhases[2]);
+
+					// In jedem Fall quadrieren wir die, damit sie nicht
+					// negativ sind.
 					rad1 *= rad1;
-					rad1 = (rad1 < minval ? minval : rad1);
-
-					double rad2 = Math.sin(hitLen * 23);
 					rad2 *= rad2;
-					rad2 = (rad2 < minval ? minval : rad2);
-
-					double rad3 = Math.sin(hitLen * 29);
 					rad3 *= rad3;
-					rad3 = (rad3 < minval ? minval : rad3);
 
-					Vec3 colvec = new Vec3(rad1, minval, rad2);
+					// Erstmal 'nen Farbvektor aufstellen.
+					Vec3 colvec = new Vec3(rad1, rad2, rad3);
+
+					// Der Nutzer kann sich dann aus den drei
+					// verfügbaren Werten für jeden Kanal etwas
+					// zusammenstellen.
+					double cR = colvec.dot(colorWeightR);
+					double cG = colvec.dot(colorWeightG);
+					double cB = colvec.dot(colorWeightB);
+
+					// Nach unten begrenzen.
+					cR = (cR < colorMin ? colorMin : cR);
+					cG = (cG < colorMin ? colorMin : cG);
+					cB = (cB < colorMin ? colorMin : cB);
+
+					// Das ist dann der finale Farbvektor, der an das
+					// prozedurale Modul ("hatch" am sinnvollsten)
+					// übergeben wird.
+					colvec.x = cR;
+					colvec.y = cG;
+					colvec.z = cB;
+
+
 					return new Intersection(this, hitpoint, normal,
 								alpha, mat, mat.getDiffuseColor(colvec),
 								mat.getSpecularColor(hitpoint),
