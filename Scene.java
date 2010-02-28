@@ -28,7 +28,7 @@ public class Scene
 	// Thread-Koordination
 	private int[] nextFreeRow = new int[1];
 	public ThreadPositions tpos = null;
-	private Boolean running = false;
+	public Boolean running = false;
 	
 	// Für jegliche Random-Werte, dieses Objekt ist threadsafe.
 	// Liefert eine schönere Verteilung als Math.random(), was vorallem
@@ -670,6 +670,10 @@ public class Scene
 				}
 			});
 		}
+		else
+		{
+			new ShellProgress(this, set.sizeY);
+		}
 		
 		
 		// ############################################################
@@ -760,6 +764,11 @@ public class Scene
 			{
 				e.printStackTrace();
 			}
+
+			// Wenn wir headless rendern, dann sind wir jetzt garantiert
+			// fertig, also können alle Threads runtergefahren werden
+			// etc.
+			System.exit(0);
 		}
 	}
 	
@@ -896,11 +905,16 @@ public class Scene
 				break;
 		}
 		
-		System.out.println("Fertig. " + ((System.currentTimeMillis() - startTime) / 1000.0) + " Sekunden.\n");
-		
 		synchronized (running)
 		{
 			running = false;
+
+			// Falls eine Progress bar an der Shell benutzt wurde, dann
+			// wird die jetzt "gelöscht". Andernfalls hat das überhaupt
+			// keinen Effekt.
+			ShellProgress.clearLine();
+
+			System.out.println("Fertig. " + ((System.currentTimeMillis() - startTime) / 1000.0) + " Sekunden.\n");
 		}
 	}
 	
