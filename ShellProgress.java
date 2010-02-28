@@ -14,6 +14,7 @@ public class ShellProgress
 			public void run()
 			{
 				int lastdone = -1;
+				long start = System.currentTimeMillis();
 
 				while (true)
 				{
@@ -68,8 +69,34 @@ public class ShellProgress
 										System.out.print("#");
 									for (int i = 0; i < todo; i++)
 										System.out.print("-");
-									System.out.print("]\r");
+									System.out.print("]");
 
+									// Zeit linear abschätzen.
+									long now = System.currentTimeMillis();
+									long diff = now - start;
+									long total = (long)((double)diff / frac);
+									long s = total - diff;
+
+									System.out.print(" ");
+
+									s /= 1000;
+
+									if (s > 0)
+									{
+										long h = s / 3600;
+										s -= 3600 * h;
+
+										long m = s / 60;
+										s -= 60 * m;
+
+										System.out.print(
+													(h < 10 ? "0" : "") + h + ":" +
+													(m < 10 ? "0" : "") + m + ":" +
+													(s < 10 ? "0" : "") + s
+												);
+									}
+
+									System.out.print("\r");
 									lastdone = done;
 								}
 							}
