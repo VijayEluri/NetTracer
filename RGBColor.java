@@ -123,26 +123,22 @@ public class RGBColor
 	 */
 	public int toRGB()
 	{
-		int outR = (int)(r * 255.0 / samples);
-		int outG = (int)(g * 255.0 / samples);
-		int outB = (int)(b * 255.0 / samples);
-		
-		if (outR < 0)
-			outR = 0;
-		else if (outR > 255)
-			outR = 255;
-		
-		if (outG < 0)
-			outG = 0;
-		else if (outG > 255)
-			outG = 255;
-		
-		if (outB < 0)
-			outB = 0;
-		else if (outB > 255)
-			outB = 255;
-		
-		return 0xFF000000 + (outR << 16) + (outG << 8) + outB;
+		return 0xFF000000
+			+ (toInteger(r / samples) << 16)
+			+ (toInteger(g / samples) << 8)
+			+ toInteger(b / samples);
+	}
+
+	public static int toInteger(double c)
+	{
+		int out = (int)(c * 255.0);
+
+		if (out < 0)
+			out = 0;
+		else if (out > 255)
+			out = 255;
+
+		return out;
 	}
 	
 	/**

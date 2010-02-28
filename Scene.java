@@ -734,7 +734,14 @@ public class Scene
 
 		if (set.headless != null)
 		{
-			new TIFFWriter(this).save(set.headless);
+			try
+			{
+				TIFFWriter.writeRGBImage(this, set.headless);
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
 		}
 	}
 	
