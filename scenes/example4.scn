@@ -2,10 +2,11 @@
 # Rendersettings #
 ##################
 
+headless /tmp/bla.tiff
 sizeX 800
 sizeY 600
 maxdepth 4
-AARays 0
+AARays 16
 noLighting 0
 colorDelta 2.0
 

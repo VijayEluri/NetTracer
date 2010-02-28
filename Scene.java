@@ -2,6 +2,7 @@ import java.util.Random;
 import java.util.List;
 import java.util.LinkedList;
 import java.util.ArrayList;
+import java.io.*;
 
 /**
  * Die ganze Szene, die dann auch gerendert werden kann
@@ -42,6 +43,7 @@ public class Scene
 		public int sizeX = 640, sizeY = 480;
 		public int maxdepth = 4;
 		
+		public File headless = null;
 		public boolean useBVT = true;
 		public boolean noLighting = false;
 		public boolean noShadowFeelers = false;
@@ -639,14 +641,17 @@ public class Scene
 			criticalPixels[i] = new boolean[set.sizeY];
 		
 		// Ausgabefenster hochfeuern
-		final Scene me = this;
-		java.awt.EventQueue.invokeLater(new Runnable()
+		if (set.headless == null)
 		{
-			public void run()
+			final Scene me = this;
+			java.awt.EventQueue.invokeLater(new Runnable()
 			{
-				new OutputWindow(me).setVisible(true);
-			}
-		});
+				public void run()
+				{
+					new OutputWindow(me).setVisible(true);
+				}
+			});
+		}
 		
 		
 		// ############################################################
@@ -726,6 +731,11 @@ public class Scene
 		renderPhase(2, set.AARays);
 		
 		System.out.println("Rendern beendet.\n");
+
+		if (set.headless != null)
+		{
+			new TIFFWriter(this).save(set.headless);
+		}
 	}
 	
 	/**
@@ -1149,6 +1159,16 @@ public class Scene
 							nset.AARays = new Integer(tokens[1]);
 						if (tokens[0].equals("useBVT"))
 							nset.useBVT = (new Integer(tokens[1]) == 1);
+
+						if (tokens[0].equals("headless"))
+						{
+							nset.headless = new File(tokens[1]);
+							if (!nset.headless.getParentFile().canWrite())
+							{
+								System.err.println("Kann nach `" + nset.headless + "' nicht schreiben.");
+								System.exit(1);
+							}
+						}
 
 						if (tokens[0].equals("noLighting"))
 							nset.noLighting = (new Integer(tokens[1]) == 1);
