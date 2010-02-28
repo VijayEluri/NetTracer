@@ -43,6 +43,18 @@ public class RaytracerApplication
 			System.exit(1);
 		}
 
+		if (!theScene.initPixbufs())
+		{
+			System.err.println("Konnte Pixelbuffer nicht erstellen.");
+			System.exit(1);
+		}
+
+		if (!theScene.initUI())
+		{
+			System.err.println("Konnte User-Interface nicht erstellen.");
+			System.exit(1);
+		}
+
 		theScene.renderAll();
 	}
 }

@@ -638,49 +638,14 @@ public class Scene implements Serializable
 		System.out.println("Lichter: " + lights.length);
 		System.out.println();
 		
-		// Grundlegendes
-		long startTime = 0;
-		
-		// Ausgabearray fertig machen
-		pixels = new RGBColor[set.sizeX][];
-		for (int x = 0; x < set.sizeX; x++)
-		{
-			pixels[x] = new RGBColor[set.sizeY];
-			for (int y = 0; y < set.sizeY; y++)
-			{
-				// Am Anfang alles schwarz, damit das Fenster jederzeit
-				// ungehindert irgendein Bild darstellen kann
-				pixels[x][y] = RGBColor.black();
-			}
-		}
-		
-		// AA-Infoarray: Kritische Pixel
-		criticalPixels = new boolean[set.sizeX][];
-		for (int i = 0; i < set.sizeX; i++)
-			criticalPixels[i] = new boolean[set.sizeY];
-		
-		// Ausgabefenster hochfeuern
-		if (set.hasGUI)
-		{
-			final Scene me = this;
-			java.awt.EventQueue.invokeLater(new Runnable()
-			{
-				public void run()
-				{
-					new OutputWindow(me).setVisible(true);
-				}
-			});
-		}
-		else
-		{
-			new ShellProgress(this, set.sizeY);
-		}
 		
 		// ############################################################
 		// Vorarbeit: Erstelle BV-Tree
 		
 		if (set.useBVT)
 		{
+			long startTime = 0;
+
 			System.out.print("Baue große BoundingBox um ");
 			startTime = System.currentTimeMillis();
 			
@@ -735,6 +700,51 @@ public class Scene implements Serializable
 		else
 		{
 			bvroot = null;
+		}
+
+		return true;
+	}
+
+	public boolean initPixbufs()
+	{
+		// Ausgabearray fertig machen
+		pixels = new RGBColor[set.sizeX][];
+		for (int x = 0; x < set.sizeX; x++)
+		{
+			pixels[x] = new RGBColor[set.sizeY];
+			for (int y = 0; y < set.sizeY; y++)
+			{
+				// Am Anfang alles schwarz, damit das Fenster jederzeit
+				// ungehindert irgendein Bild darstellen kann
+				pixels[x][y] = RGBColor.black();
+			}
+		}
+
+		// AA-Infoarray: Kritische Pixel
+		criticalPixels = new boolean[set.sizeX][];
+		for (int i = 0; i < set.sizeX; i++)
+			criticalPixels[i] = new boolean[set.sizeY];
+
+		return true;
+	}
+
+	public boolean initUI()
+	{
+		// Ausgabefenster hochfeuern
+		if (set.hasGUI)
+		{
+			final Scene me = this;
+			java.awt.EventQueue.invokeLater(new Runnable()
+			{
+				public void run()
+				{
+					new OutputWindow(me).setVisible(true);
+				}
+			});
+		}
+		else
+		{
+			new ShellProgress(this, set.sizeY);
 		}
 
 		return true;
