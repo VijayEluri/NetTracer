@@ -11,5 +11,6 @@ else
 fi
 
 cd build
-java -Xms1884m -Xmx1885m RaytracerApplication -h "$TARGET" "$RENDERFILE"
+java -Xms1884m -Xmx1885m -XX:+UseConcMarkSweepGC -XX:+UseParNewGC \
+	RaytracerApplication -h "$TARGET" "$RENDERFILE"
 cd -
