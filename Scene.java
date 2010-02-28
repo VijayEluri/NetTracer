@@ -44,6 +44,7 @@ public class Scene
 		public int maxdepth = 4;
 		
 		public File headless = null;
+		public boolean hasGUI = true;
 		public boolean useBVT = true;
 		public boolean noLighting = false;
 		public boolean noShadowFeelers = false;
@@ -598,39 +599,35 @@ public class Scene
 		}
 	}
 
-	private File initHeadlessTarget(String path)
+	public boolean initHeadlessTarget(String path)
 	{
 		File f = new File(path);
 		if (!f.getParentFile().canWrite())
 		{
 			System.err.println("Kann nach `" + f + "' nicht schreiben.");
-			System.exit(1);
-			return null;
+			return false;
 		}
-		else
-		{
-			return f;
-		}
+
+		set.headless = f;
+		set.hasGUI = false;
+		return true;
 	}
 	
 	/**
 	 * Rendert die Szene mit den geladenen Settings
 	 */
-	public void render(String headlessTarget)
+	public boolean prepareScene()
 	{
 		if (set == null)
 		{
 			System.err.println("Keine Settings geladen, kann nicht rendern.");
-			return;
+			return false;
 		}
 		if (eye == null || objects == null || lights == null)
 		{
 			System.err.println("Objekte und Lichter müssen schon definiert sein... breche ab.");
-			return;
+			return false;
 		}
-
-		if (headlessTarget != null)
-			set.headless = initHeadlessTarget(headlessTarget);
 		
 		set.dump();
 		System.out.println("Objekte: " + objects.length);
@@ -659,7 +656,7 @@ public class Scene
 			criticalPixels[i] = new boolean[set.sizeY];
 		
 		// Ausgabefenster hochfeuern
-		if (set.headless == null)
+		if (set.hasGUI)
 		{
 			final Scene me = this;
 			java.awt.EventQueue.invokeLater(new Runnable()
@@ -674,7 +671,6 @@ public class Scene
 		{
 			new ShellProgress(this, set.sizeY);
 		}
-		
 		
 		// ############################################################
 		// Vorarbeit: Erstelle BV-Tree
@@ -736,9 +732,12 @@ public class Scene
 		{
 			bvroot = null;
 		}
+
+		return true;
+	}
 		
-		// ############################################################
-		
+	public void renderAll()
+	{
 		tpos = new ThreadPositions(set.threads);
 		
 		// Normales Rendern
@@ -1035,7 +1034,7 @@ public class Scene
 	/**
 	 * Lade die Settings und Szene aus dieser Datei
 	 */
-	public boolean loadEnvironment(String path)
+	public boolean loadScene(String path)
 	{
 		SceneSettings  nset    = new SceneSettings();
 		List<Material> nmats   = new LinkedList<Material>();
@@ -1201,7 +1200,11 @@ public class Scene
 
 						if (tokens[0].equals("headless"))
 						{
-							nset.headless = initHeadlessTarget(tokens[1]);
+							if (!initHeadlessTarget(tokens[1]))
+							{
+								System.err.println("Kann nicht headless rendern.");
+								System.exit(1);
+							}
 						}
 
 						if (tokens[0].equals("noLighting"))
