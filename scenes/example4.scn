@@ -2,7 +2,6 @@
 # Rendersettings #
 ##################
 
-headless /tmp/bla.tiff
 sizeX 800
 sizeY 600
 maxdepth 4
