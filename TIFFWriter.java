@@ -1,10 +1,11 @@
 import java.io.*;
+import java.io.Serializable;
 
 /**
  * "High-performance" TIFF-Writer, der Speicher spart und für sehr große
  * Bilder genutzt werden sollte.
  */
-public class TIFFWriter
+public class TIFFWriter implements Serializable
 {
 	public static final int SIZE_HEADER = 8;
 	public static final int IFD_ENTRIES = 8;

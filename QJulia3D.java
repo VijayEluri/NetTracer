@@ -1,11 +1,12 @@
 import java.util.List;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.io.Serializable;
 
 /**
  * Quaternionen-Julia-Fraktale
  */
-public class QJulia3D implements Object3D, RenderingPrimitive
+public class QJulia3D implements Object3D, RenderingPrimitive, Serializable
 {
 	private AABB cachedAABB = null;
 	

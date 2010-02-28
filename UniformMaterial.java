@@ -1,7 +1,9 @@
+import java.io.Serializable;
+
 /**
  * Ein einheitliches Material
  */
-public class UniformMaterial extends Material
+public class UniformMaterial extends Material implements Serializable
 {
 	private RGBColor diffuse = null;
 	private RGBColor specular = null;

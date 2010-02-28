@@ -1,8 +1,10 @@
+import java.io.Serializable;
+
 /**
  * Ein SphereLight mit Phong-Shading. Speichert sich zusätzliche
  * Informationen, damit man die Position dieses Lichtes jittern kann.
  */
-public class SphereLight extends PointLight
+public class SphereLight extends PointLight implements Serializable
 {
 	public double radius = 0.3;
 	public int numrays = 3;

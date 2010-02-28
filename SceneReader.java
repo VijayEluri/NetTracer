@@ -1,11 +1,12 @@
 import java.io.File;
 import java.util.Scanner;
+import java.io.Serializable;
 
 /**
  * Kapselt einen Scanner und gibt statt einer Zeile direkt die gesplitteten
  * Tokens zurück. Ist auch für das Ausfiltern von Kommentaren zuständig.
  */
-public class SceneReader
+public class SceneReader implements Serializable
 {
 	private Scanner in = null;
 	private File infile = null;

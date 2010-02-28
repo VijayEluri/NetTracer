@@ -7,7 +7,7 @@ import java.io.*;
 /**
  * Die ganze Szene, die dann auch gerendert werden kann
  */
-public class Scene
+public class Scene implements Serializable
 {
 	public Camera eye;
 	public Object3D[] objects;
@@ -38,7 +38,7 @@ public class Scene
 	/**
 	 * Settings für eine zu rendernde Szene
 	 */
-	public class SceneSettings
+	public class SceneSettings implements Serializable
 	{
 		public int sizeX = 640, sizeY = 480;
 		public int maxdepth = 4;

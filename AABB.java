@@ -1,6 +1,7 @@
 import java.util.*;
+import java.io.Serializable;
 
-public class AABB
+public class AABB implements Serializable
 {
 	// Ortsvektor zum Mittelpunkt
 	public Vec3 center;

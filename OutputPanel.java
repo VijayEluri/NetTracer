@@ -3,13 +3,14 @@ import java.awt.image.*;
 import java.awt.*;
 import javax.swing.*;
 import javax.imageio.*;
+import java.io.Serializable;
 
 /**
  * Customized Panel, das die Pixel des Ergebnisses darstellt, soweit
  * diese schon berechnet sind. Kann seinen Inhalt auch in eine Datei
  * speichern.
  */
-public class OutputPanel extends JPanel
+public class OutputPanel extends JPanel implements Serializable
 {
 	private Scene toRender;
 	private int[] px;

@@ -1,7 +1,9 @@
+import java.io.Serializable;
+
 /**
  * Ein prozedurales Material
  */
-public class ProceduralMaterial extends Material
+public class ProceduralMaterial extends Material implements Serializable
 {
 	private ProceduralModule diffusePattern = null;
 	private RGBColor specular = null;

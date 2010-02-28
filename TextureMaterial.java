@@ -1,12 +1,13 @@
 import java.io.File;
 import java.awt.image.*;
 import javax.imageio.ImageIO;
+import java.io.Serializable;
 
 /**
  * Hält eine Textur als BufferedImage bereit und kann den Farbwert an
  * gegebener UV-Position zurückgeben.
  */
-public class TextureMaterial extends Material
+public class TextureMaterial extends Material implements Serializable
 {
 	private BufferedImage img = null;
 	private RGBColor specular = null;

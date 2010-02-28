@@ -1,3 +1,5 @@
+import java.io.Serializable;
+
 /**
  * Bis jetzt wird nicht zwischen Texturen und Materialien unterschieden.
  * 
@@ -12,7 +14,7 @@
  * cloudyRays: Wieviele Rays werden für cloudiness genutzt? [1, inf]
  * ior: index of refraction
  */
-public abstract class Material
+public abstract class Material implements Serializable
 {
 	// Nur zur Identifizierung in externen .scn-Files
 	public String name;

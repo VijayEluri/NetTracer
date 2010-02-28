@@ -1,10 +1,11 @@
 import java.io.*;
 import java.util.*;
+import java.io.Serializable;
 
 /**
  * Einfacher OFF-Reader, kann nur TriMeshes verarbeiten
  */
-public class OFFTriMesh3D implements Object3D
+public class OFFTriMesh3D implements Object3D, Serializable
 {
 	private Vec3 origin = new Vec3(0.0, 0.0, 0.0);
 	private File infile = null;

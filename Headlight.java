@@ -1,8 +1,10 @@
+import java.io.Serializable;
+
 /**
  * Ein Punktlicht mit Phong-Shading. Setzt sich immer auf die Position
  * des Auges.
  */
-public class Headlight extends Light
+public class Headlight extends Light implements Serializable
 {
 	private boolean useDecay = true;
 

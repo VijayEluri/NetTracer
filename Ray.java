@@ -1,7 +1,9 @@
+import java.io.Serializable;
+
 /**
  * Ein einzelner Ray.
  */
-public class Ray
+public class Ray implements Serializable
 {
 	public static final double corrEps = 1e-7;
 	

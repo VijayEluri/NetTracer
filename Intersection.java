@@ -1,8 +1,10 @@
+import java.io.Serializable;
+
 /**
  * Speichert Informationen über einen erfolgreichen Schnitt. Das wird
  * von den Primitiven selbst gesetzt.
  */
-public class Intersection
+public class Intersection implements Serializable
 {
 	public RenderingPrimitive winner;
 	public Vec3 at;

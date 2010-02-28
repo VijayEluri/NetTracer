@@ -3,12 +3,13 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
+import java.io.Serializable;
 
 /**
  * Ganz einfaches Fenster, das im wesentlichen das OutputPanel enthält
  * und via Timer jede Sekunde den aktuellen Stand zeichnet
  */
-public class OutputWindow extends JFrame
+public class OutputWindow extends JFrame implements Serializable
 {
 	private OutputPanel pnl = null;
 	private final Scene toRender;

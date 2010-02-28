@@ -1,4 +1,5 @@
 import java.util.*;
+import java.io.Serializable;
 
 /**
  * Ein Knoten im Tree.
@@ -17,7 +18,7 @@ import java.util.*;
  * Angelehnt an den TreeTraversal aus Art of Illusion:
  * http://aoi.sf.net
  */
-public class BVNode
+public class BVNode implements Serializable
 {
 	public static final int THRESHOLD = 10;
 	public static final int MAXDEPTH = 12;

@@ -1,11 +1,12 @@
 import java.util.List;
+import java.io.Serializable;
 
 /**
  * Eine perfekte Kugel.
  * 
  * Ist gleichzeitig Object3D und Primitiv, da sie ja kein Mesh enthält
  */
-public class Sphere3D implements Object3D, RenderingPrimitive
+public class Sphere3D implements Object3D, RenderingPrimitive, Serializable
 {
 	private Material mat;
 	private double radius = 1.0;

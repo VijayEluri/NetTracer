@@ -1,7 +1,9 @@
+import java.io.Serializable;
+
 /**
  * Ein einfaches Dreieck
  */
-public class RenderingTriangle implements RenderingPrimitive
+public class RenderingTriangle implements RenderingPrimitive, Serializable
 {
 	private Material mat;
 	private Vec3[] vertices = null;

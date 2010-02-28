@@ -1,8 +1,10 @@
+import java.io.Serializable;
+
 /**
  * Selben Mechanismus wie in der GUI benutzen, aber nur an der Shell
  * kurz ansagen, wie weit er ist.
  */
-public class ShellProgress
+public class ShellProgress implements Serializable
 {
 	public static final int barlen = 25;
 	public static final int margin = 15;

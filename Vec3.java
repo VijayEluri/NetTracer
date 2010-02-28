@@ -1,9 +1,10 @@
 import java.util.Random;
+import java.io.Serializable;
 
 /**
  * Selbsterklärende Klasse mit Vektor-Operationen
  */
-public class Vec3
+public class Vec3 implements Serializable
 {
 	public double x, y, z;
 	

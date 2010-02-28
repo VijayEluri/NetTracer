@@ -1,3 +1,5 @@
+import java.io.Serializable;
+
 /**
  * Die AWT-Color-Klasse ist ziemlich beschränkt und außerdem nur im
  * RGB-Farbraum, was für uns natürlich nutzlos ist. Daher hier ein paar
@@ -5,7 +7,7 @@
  * 
  * Noch kein Alpha-Kanal.
  */
-public class RGBColor
+public class RGBColor implements Serializable
 {
 	public double r, g, b;
 	private int samples = 1;

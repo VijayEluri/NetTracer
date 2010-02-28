@@ -1,6 +1,7 @@
 import java.util.List;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.io.Serializable;
 
 /**
  * Metaballs / Blobs
@@ -9,7 +10,7 @@ import java.util.LinkedList;
  * http://graphics.stanford.edu/~jtalton/UCSC/CMPS160/Spring06/lectures/Raytracing%20and%20Implicit%20Surfaces.pdf
  * http://www.softcomputing.net/~ijcism/special_issue_1/paper1.pdf
  */
-public class Blob3D implements Object3D, RenderingPrimitive
+public class Blob3D implements Object3D, RenderingPrimitive, Serializable
 {
 	private AABB cachedAABB = null;
 	

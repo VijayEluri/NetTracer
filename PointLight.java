@@ -1,7 +1,9 @@
+import java.io.Serializable;
+
 /**
  * Ein Punktlicht mit Phong-Shading.
  */
-public class PointLight extends Light
+public class PointLight extends Light implements Serializable
 {
 	public PointLight(SceneReader in) throws Exception
 	{

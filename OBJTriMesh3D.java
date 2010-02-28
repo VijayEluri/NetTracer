@@ -1,5 +1,6 @@
 import java.io.*;
 import java.util.*;
+import java.io.Serializable;
 
 /**
  * Stark vereinfachter OBJ-Reader.
@@ -25,7 +26,7 @@ import java.util.*;
  * Getestet gegen TriMeshes aus Art of Illusion und UV-Mapped-TriMeshes
  * aus Wings3D.
  */
-public class OBJTriMesh3D implements Object3D
+public class OBJTriMesh3D implements Object3D, Serializable
 {
 	private Vec3 origin = new Vec3(0.0, 0.0, 0.0);
 	private File infile = null;

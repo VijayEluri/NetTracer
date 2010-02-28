@@ -1,3 +1,5 @@
+import java.io.Serializable;
+
 /**
  * Threadsichere Klasse, die Informationen über die "aktuellen" Positionen
  * der einzelnen Renderthreads verwaltet. Da die Renderthreads aber
@@ -5,7 +7,7 @@
  * schon ein Stück weiter sind. Um nicht noch mehr Zeit an den Output
  * zu verschwenden, wird das auch so bleiben.
  */
-public class ThreadPositions
+public class ThreadPositions implements Serializable
 {
 	private int[] pos = null;
 	

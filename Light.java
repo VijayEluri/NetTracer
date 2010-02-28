@@ -1,8 +1,10 @@
+import java.io.Serializable;
+
 /**
  * Irgendein Licht. Welches genau, ist für die weitere Verarbeitung
  * grundsätzlich egal.
  */
-public abstract class Light
+public abstract class Light implements Serializable
 {
 	public Vec3 origin;
 	public double intensity = 1.0;

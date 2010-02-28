@@ -1,8 +1,10 @@
+import java.io.Serializable;
+
 /**
  * Eine Kamera. Hat Ort, Blickrichtung, FOV und Auflösung, dient auch
  * als RayCaster.
  */
-public class Camera
+public class Camera implements Serializable
 {
 	public double fov = toRad(60);
 	public int pxX, pxY;
