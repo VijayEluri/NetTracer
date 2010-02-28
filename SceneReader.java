@@ -8,6 +8,8 @@ import java.io.Serializable;
  */
 public class SceneReader implements Serializable
 {
+	private static final long serialVersionUID = 20100301001L;
+
 	private Scanner in = null;
 	private File infile = null;
 	

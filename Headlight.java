@@ -6,6 +6,8 @@ import java.io.Serializable;
  */
 public class Headlight extends Light implements Serializable
 {
+	private static final long serialVersionUID = 20100301001L;
+
 	private boolean useDecay = true;
 
 	public Headlight(SceneReader in, Camera eye) throws Exception

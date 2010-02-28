@@ -6,6 +6,8 @@ import java.io.Serializable;
  */
 public class SphereLight extends PointLight implements Serializable
 {
+	private static final long serialVersionUID = 20100301001L;
+
 	public double radius = 0.3;
 	public int numrays = 3;
 	public double rayscale = 1.0 / (double)numrays;

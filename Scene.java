@@ -9,6 +9,8 @@ import java.io.*;
  */
 public class Scene implements Serializable
 {
+	private static final long serialVersionUID = 20100301001L;
+
 	public Camera eye;
 	public Object3D[] objects;
 	public Light[] lights;
@@ -40,6 +42,8 @@ public class Scene implements Serializable
 	 */
 	public class SceneSettings implements Serializable
 	{
+		private static final long serialVersionUID = 20100301001L;
+
 		public int sizeX = 640, sizeY = 480;
 		public int maxdepth = 4;
 		

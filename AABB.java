@@ -3,6 +3,8 @@ import java.io.Serializable;
 
 public class AABB implements Serializable
 {
+	private static final long serialVersionUID = 20100301001L;
+
 	// Ortsvektor zum Mittelpunkt
 	public Vec3 center;
 	

@@ -6,6 +6,8 @@ import java.io.Serializable;
  */
 public class Vec3 implements Serializable
 {
+	private static final long serialVersionUID = 20100301001L;
+
 	public double x, y, z;
 	
 	public Vec3(double x, double y, double z)

@@ -9,6 +9,8 @@ import java.io.Serializable;
  */
 public class TextureMaterial extends Material implements Serializable
 {
+	private static final long serialVersionUID = 20100301001L;
+
 	private BufferedImage img = null;
 	private RGBColor specular = null;
 	private RGBColor transparent = null;

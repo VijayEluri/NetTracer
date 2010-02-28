@@ -6,6 +6,8 @@ import java.io.Serializable;
  */
 public class Intersection implements Serializable
 {
+	private static final long serialVersionUID = 20100301001L;
+
 	public RenderingPrimitive winner;
 	public Vec3 at;
 	public Vec3 normal;

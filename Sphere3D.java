@@ -8,6 +8,8 @@ import java.io.Serializable;
  */
 public class Sphere3D implements Object3D, RenderingPrimitive, Serializable
 {
+	private static final long serialVersionUID = 20100301001L;
+
 	private Material mat;
 	private double radius = 1.0;
 	private double radius2;

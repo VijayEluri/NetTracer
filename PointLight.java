@@ -5,6 +5,8 @@ import java.io.Serializable;
  */
 public class PointLight extends Light implements Serializable
 {
+	private static final long serialVersionUID = 20100301001L;
+
 	public PointLight(SceneReader in) throws Exception
 	{
 		if (in == null)

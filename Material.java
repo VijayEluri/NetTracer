@@ -16,6 +16,8 @@ import java.io.Serializable;
  */
 public abstract class Material implements Serializable
 {
+	private static final long serialVersionUID = 20100301001L;
+
 	// Nur zur Identifizierung in externen .scn-Files
 	public String name;
 	

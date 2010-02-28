@@ -5,6 +5,8 @@ import java.io.Serializable;
  */
 public class Ray implements Serializable
 {
+	private static final long serialVersionUID = 20100301001L;
+
 	public static final double corrEps = 1e-7;
 	
 	public Vec3 origin;

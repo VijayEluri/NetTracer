@@ -16,6 +16,8 @@ public interface ProceduralModule
 	// 3D-Checker
 	public class Checker implements ProceduralModule, Serializable
 	{
+		private static final long serialVersionUID = 20100301001L;
+
 		private RGBColor color1, color2;
 		private Vec3 offset = new Vec3();
 		private double scale = 1.0;
@@ -120,6 +122,8 @@ public interface ProceduralModule
 	// Einfach was Buntes
 	public class Noise implements ProceduralModule, Serializable
 	{
+		private static final long serialVersionUID = 20100301001L;
+
 		private RGBColor color1, color2, color3;
 		private double amplify = 1.0;
 		private static Random rGen = new Random();
@@ -187,6 +191,8 @@ public interface ProceduralModule
 	// 3D-Grid
 	public class Grid implements ProceduralModule, Serializable
 	{
+		private static final long serialVersionUID = 20100301001L;
+
 		private RGBColor color1, color2;
 		private double width = 0.01;
 		
@@ -259,6 +265,8 @@ public interface ProceduralModule
 	// Objekte gedacht (ursprünglich Mandelbulb).
 	public class Hatch implements ProceduralModule, Serializable
 	{
+		private static final long serialVersionUID = 20100301001L;
+
 		public String toString() { return "Hatch"; }
 
 		public RGBColor getColor(Vec3 p)

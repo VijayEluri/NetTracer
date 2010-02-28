@@ -11,6 +11,8 @@ import java.io.Serializable;
  */
 public class OutputWindow extends JFrame implements Serializable
 {
+	private static final long serialVersionUID = 20100301001L;
+
 	private OutputPanel pnl = null;
 	private final Scene toRender;
 	private File letztesVerzeichnis = null;

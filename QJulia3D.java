@@ -8,6 +8,8 @@ import java.io.Serializable;
  */
 public class QJulia3D implements Object3D, RenderingPrimitive, Serializable
 {
+	private static final long serialVersionUID = 20100301001L;
+
 	private AABB cachedAABB = null;
 	
 	private RenderingPrimitive[] prims;

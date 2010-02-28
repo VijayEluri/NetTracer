@@ -9,6 +9,8 @@ import java.io.Serializable;
  */
 public class ThreadPositions implements Serializable
 {
+	private static final long serialVersionUID = 20100301001L;
+
 	private int[] pos = null;
 	
 	public ThreadPositions(int num)

@@ -9,6 +9,8 @@ import java.io.Serializable;
  */
 public class RGBColor implements Serializable
 {
+	private static final long serialVersionUID = 20100301001L;
+
 	public double r, g, b;
 	private int samples = 1;
 	

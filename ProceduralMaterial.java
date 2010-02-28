@@ -5,6 +5,8 @@ import java.io.Serializable;
  */
 public class ProceduralMaterial extends Material implements Serializable
 {
+	private static final long serialVersionUID = 20100301001L;
+
 	private ProceduralModule diffusePattern = null;
 	private RGBColor specular = null;
 	private RGBColor transparent = null;

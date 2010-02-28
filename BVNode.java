@@ -20,6 +20,8 @@ import java.io.Serializable;
  */
 public class BVNode implements Serializable
 {
+	private static final long serialVersionUID = 20100301001L;
+
 	public static final int THRESHOLD = 10;
 	public static final int MAXDEPTH = 12;
 	public static final int NODETHRESHOLD = 5;

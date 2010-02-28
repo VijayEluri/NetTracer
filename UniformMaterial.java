@@ -5,6 +5,8 @@ import java.io.Serializable;
  */
 public class UniformMaterial extends Material implements Serializable
 {
+	private static final long serialVersionUID = 20100301001L;
+
 	private RGBColor diffuse = null;
 	private RGBColor specular = null;
 	private RGBColor transparent = null;

@@ -12,6 +12,8 @@ import java.io.Serializable;
  */
 public class OutputPanel extends JPanel implements Serializable
 {
+	private static final long serialVersionUID = 20100301001L;
+
 	private Scene toRender;
 	private int[] px;
 	

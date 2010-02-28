@@ -14,6 +14,8 @@ import java.io.Serializable;
  */
 public class Mandelbulb implements Object3D, RenderingPrimitive, Serializable
 {
+	private static final long serialVersionUID = 20100301001L;
+
 	private AABB cachedAABB = null;
 	private double firststep = 0.01;
 	private int nmax = 10;

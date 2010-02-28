@@ -6,6 +6,8 @@ import java.io.Serializable;
  */
 public abstract class Light implements Serializable
 {
+	private static final long serialVersionUID = 20100301001L;
+
 	public Vec3 origin;
 	public double intensity = 1.0;
 	public double decayRate = 0.1;

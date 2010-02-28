@@ -6,6 +6,8 @@ import java.io.Serializable;
  */
 public class Camera implements Serializable
 {
+	private static final long serialVersionUID = 20100301001L;
+
 	public double fov = toRad(60);
 	public int pxX, pxY;
 	public Vec3 origin = new Vec3();

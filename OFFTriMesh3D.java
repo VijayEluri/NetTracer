@@ -7,6 +7,8 @@ import java.io.Serializable;
  */
 public class OFFTriMesh3D implements Object3D, Serializable
 {
+	private static final long serialVersionUID = 20100301001L;
+
 	private Vec3 origin = new Vec3(0.0, 0.0, 0.0);
 	private File infile = null;
 	private Material mat;

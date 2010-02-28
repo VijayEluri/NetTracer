@@ -7,6 +7,8 @@ import java.io.Serializable;
  */
 public class TIFFWriter implements Serializable
 {
+	private static final long serialVersionUID = 20100301001L;
+
 	public static final int SIZE_HEADER = 8;
 	public static final int IFD_ENTRIES = 8;
 	public static final int SIZE_IFD    = 2 + IFD_ENTRIES * 12 + 4;

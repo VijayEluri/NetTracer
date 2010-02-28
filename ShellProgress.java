@@ -6,6 +6,8 @@ import java.io.Serializable;
  */
 public class ShellProgress implements Serializable
 {
+	private static final long serialVersionUID = 20100301001L;
+
 	public static final int barlen = 25;
 	public static final int margin = 15;
 

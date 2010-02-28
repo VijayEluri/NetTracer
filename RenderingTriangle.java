@@ -5,6 +5,8 @@ import java.io.Serializable;
  */
 public class RenderingTriangle implements RenderingPrimitive, Serializable
 {
+	private static final long serialVersionUID = 20100301001L;
+
 	private Material mat;
 	private Vec3[] vertices = null;
 	private Vec3[] normals = null;
