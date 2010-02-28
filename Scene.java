@@ -597,11 +597,26 @@ public class Scene
 			return out;
 		}
 	}
+
+	private File initHeadlessTarget(String path)
+	{
+		File f = new File(path);
+		if (!f.getParentFile().canWrite())
+		{
+			System.err.println("Kann nach `" + f + "' nicht schreiben.");
+			System.exit(1);
+			return null;
+		}
+		else
+		{
+			return f;
+		}
+	}
 	
 	/**
 	 * Rendert die Szene mit den geladenen Settings
 	 */
-	public void render()
+	public void render(String headlessTarget)
 	{
 		if (set == null)
 		{
@@ -613,6 +628,9 @@ public class Scene
 			System.err.println("Objekte und Lichter müssen schon definiert sein... breche ab.");
 			return;
 		}
+
+		if (headlessTarget != null)
+			set.headless = initHeadlessTarget(headlessTarget);
 		
 		set.dump();
 		System.out.println("Objekte: " + objects.length);
@@ -1169,12 +1187,7 @@ public class Scene
 
 						if (tokens[0].equals("headless"))
 						{
-							nset.headless = new File(tokens[1]);
-							if (!nset.headless.getParentFile().canWrite())
-							{
-								System.err.println("Kann nach `" + nset.headless + "' nicht schreiben.");
-								System.exit(1);
-							}
+							nset.headless = initHeadlessTarget(tokens[1]);
 						}
 
 						if (tokens[0].equals("noLighting"))
