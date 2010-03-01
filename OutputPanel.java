@@ -16,17 +16,17 @@ public class OutputPanel extends JPanel implements Serializable
 
 	private Scene toRender;
 	private int[] px;
-	
+
 	public boolean showCriticalPixels = false;
-	
+
 	public OutputPanel(Scene toRender)
 	{
 		super();
 		this.toRender = toRender;
-		
+
 		this.px = new int[toRender.set.sizeX * toRender.set.sizeY];
 	}
-	
+
 	/**
 	 * Wird von AWT/Swing aufgerufen, wenn ein Repaint angefordert wurde
 	 * bzw. unten von exportImage()
@@ -34,13 +34,13 @@ public class OutputPanel extends JPanel implements Serializable
 	synchronized public void paint(Graphics g)
 	{
 		// Male das ganze Bild neu.
-		
+
 		// In der Antialiasing-Stufe kann es also vorkommen, dass gerade
 		// noch Rays verfolgt werden und die Farbe noch nicht gemittelt
 		// wurde. Dann ist dieser Pixel temporär ziemlich hell.
-		
+
 		boolean c = showCriticalPixels;
-		
+
 		int[] tpos = null;
 		if (toRender.tpos == null)
 		{
@@ -52,7 +52,7 @@ public class OutputPanel extends JPanel implements Serializable
 		{
 			tpos = toRender.tpos.get();
 		}
-		
+
 		int indicator = 0xFF00FF00;
 		int aaover = 0x70FF0000;
 		int pindex = 0;
@@ -64,7 +64,7 @@ public class OutputPanel extends JPanel implements Serializable
 			for (int i = 0; i < tpos.length; i++)
 				if (tpos[i] == y)
 					overlayPos = true;
-			
+
 			for (int x = 0; x < toRender.set.sizeX; x++)
 			{
 				if (overlayPos)
@@ -84,14 +84,14 @@ public class OutputPanel extends JPanel implements Serializable
 						toRender.set.sizeX, toRender.set.sizeY, px, 0, toRender.set.sizeX));
 		((Graphics2D)g).drawImage(img, new java.awt.geom.AffineTransform(1f, 0f, 0f, 1f, 0, 0), null);
 	}
-	
+
 	/**
 	 * Speichere deinen aktuellen Inhalt dort rein
 	 */
 	public void exportImage(String path)
 	{
 		File ziel = new File(path);
-		
+
 		// Koennen wir denn schreiben?
 		if (!(ziel.getParentFile()).canWrite())
 		{
@@ -99,20 +99,20 @@ public class OutputPanel extends JPanel implements Serializable
 						+ "\" nicht schreiben (Zugriff verweigert)");
 			return;
 		}
-		
+
 		// Aus der Dateinamenserweiterung auf den Bildtyp schliessen
 		String bildTyp = ziel.getName();
 		bildTyp = bildTyp.substring(bildTyp.lastIndexOf('.') + 1);
-		
+
 		// neues BufferedImage direkt aus diesem Panel erstellen
 		BufferedImage img = (BufferedImage)createImage(getWidth(), getHeight());
 
 		// Graphics-Objekt davon besorgen
 		Graphics g = img.getGraphics();
-		
+
 		// da wird nun reingezeichnet
 		paint(g);
-		
+
 		// Bild speichern
 		try
 		{
@@ -122,7 +122,7 @@ public class OutputPanel extends JPanel implements Serializable
 		{
 			e.printStackTrace();
 		}
-		
+
 		System.out.println("Bild exportiert: \"" + path + "\"");
 	}
 }

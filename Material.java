@@ -20,7 +20,7 @@ public abstract class Material implements Serializable
 
 	// Nur zur Identifizierung in externen .scn-Files
 	public String name;
-	
+
 	// Eigenschaften
 	public abstract RGBColor getDiffuseColor(Vec3 p);
 	public abstract RGBColor getSpecularColor(Vec3 p);

@@ -8,11 +8,11 @@ public interface ProceduralModule
 	public RGBColor getColor(Vec3 p);
 	public double getValue(Vec3 p);
 	public String toString();
-	
-	
+
+
 	// Ein paar Module
 	// ---------------
-	
+
 	// 3D-Checker
 	public class Checker implements ProceduralModule, Serializable
 	{
@@ -21,20 +21,20 @@ public interface ProceduralModule
 		private RGBColor color1, color2;
 		private Vec3 offset = new Vec3();
 		private double scale = 1.0;
-		
+
 		public String toString() { return "Checker"; }
-		
+
 		public RGBColor getColor(Vec3 p)
 		{
 			double c = calc(p);
 			return color1.times(c).plus(color2.times(1 - c));
 		}
-		
+
 		public double getValue(Vec3 p)
 		{
 			return calc(p);
 		}
-		
+
 		public Checker(SceneReader in) throws Exception
 		{
 			String[] tokens = null;
@@ -75,18 +75,18 @@ public interface ProceduralModule
 			System.err.println("Fehler, unerwartetes Ende in Moduldefinition eines Checkers.");
 			throw new Exception();
 		}
-		
+
 		private double calc(Vec3 in)
 		{
 			Vec3 p = in.plus(offset);
 			p.scale(scale);
-			
+
 			double a = 0, b = 0, c = 0;
 			// Bilde erstmal die Koordinaten auf -1, 0 oder 1 ab
 			a = (int)(p.x % 2);
 			b = (int)(p.y % 2);
 			c = (int)(p.z % 2);
-			
+
 			if (b == 0)
 			{
 				// Betrachte -a und spiegle, falls Vorzeichen
@@ -107,18 +107,18 @@ public interface ProceduralModule
 				else
 					c = (a == c ? 1.0 : 0.0);
 			}
-			
+
 			// Die untere Y-Hälfte muss nochmal global gespiegelt
 			// werden, damit keine Naht entsteht
 			if (p.y < 0)
 			{
 				c = (c == 0.0 ? 1.0 : 0.0);
 			}
-			
+
 			return c;
 		}
 	}
-	
+
 	// Einfach was Buntes
 	public class Noise implements ProceduralModule, Serializable
 	{
@@ -127,9 +127,9 @@ public interface ProceduralModule
 		private RGBColor color1, color2, color3;
 		private double amplify = 1.0;
 		private static Random rGen = new Random();
-		
+
 		public String toString() { return "Noise"; }
-		
+
 		public RGBColor getColor(Vec3 p)
 		{
 			RGBColor out = color1.times((rGen.nextGaussian() + 1.0) / 2.0);
@@ -138,12 +138,12 @@ public interface ProceduralModule
 			out.scale(amplify / 3.0);
 			return out;
 		}
-		
+
 		public double getValue(Vec3 p)
 		{
 			return (rGen.nextGaussian() + 1.0) / 2.0;
 		}
-		
+
 		public Noise(SceneReader in) throws Exception
 		{
 			String[] tokens = null;
@@ -187,7 +187,7 @@ public interface ProceduralModule
 			throw new Exception();
 		}
 	}
-	
+
 	// 3D-Grid
 	public class Grid implements ProceduralModule, Serializable
 	{
@@ -195,20 +195,20 @@ public interface ProceduralModule
 
 		private RGBColor color1, color2;
 		private double width = 0.01;
-		
+
 		public String toString() { return "Grid"; }
-		
+
 		public RGBColor getColor(Vec3 p)
 		{
 			double c = calc(p);
 			return color2.times(c).plus(color1.times(1 - c));
 		}
-		
+
 		public double getValue(Vec3 p)
 		{
 			return calc(p);
 		}
-		
+
 		public Grid(SceneReader in) throws Exception
 		{
 			String[] tokens = null;
@@ -245,22 +245,22 @@ public interface ProceduralModule
 			System.err.println("Fehler, unerwartetes Ende in Moduldefinition eines Checkers.");
 			throw new Exception();
 		}
-		
+
 		private double calc(Vec3 p)
 		{
 			double a = 0, b = 0, c = 0, d = 0.5 - width;
-			
+
 			a = p.x - Math.rint(p.x);
 			b = p.y - Math.rint(p.y);
 			c = p.z - Math.rint(p.z);
-			
+
 			if (a < d && b < d && c < d)
 				return 1.0;
 			else
 				return 0.0;
 		}
 	}
-	
+
 	// Der "Punkt" p wird als Farbwert übernommen. Für intelligentere
 	// Objekte gedacht (ursprünglich Mandelbulb).
 	public class Hatch implements ProceduralModule, Serializable

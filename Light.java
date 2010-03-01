@@ -12,7 +12,7 @@ public abstract class Light implements Serializable
 	public double intensity = 1.0;
 	public double decayRate = 0.1;
 	public RGBColor color;
-	
+
 	/**
 	 * Gibt die Intensität, die dieses Licht auf diesem Material erzeugt,
 	 * zurück.

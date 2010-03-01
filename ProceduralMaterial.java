@@ -10,11 +10,11 @@ public class ProceduralMaterial extends Material implements Serializable
 	private ProceduralModule diffusePattern = null;
 	private RGBColor specular = null;
 	private RGBColor transparent = null;
-	
+
 	public ProceduralMaterial(SceneReader in, String mname) throws Exception
 	{
 		name = mname;
-		
+
 		String[] tokens = null;
 		while ((tokens = in.getNextTokens()) != null)
 		{
@@ -35,17 +35,17 @@ public class ProceduralMaterial extends Material implements Serializable
 						cloudiness			= clip(cloudiness, 0.0, 1.0);
 						cloudyRays			= (cloudyRays < 1 ? 1 : cloudyRays);
 						ior					= clip(ior, 0.001, 10.0);
-						
+
 						if (specular == null)
 							specular = RGBColor.white();
 						if (transparent == null)
 							transparent = RGBColor.white();
-						
+
 						dump();
 						return;
 					}
 					break;
-				
+
 				// Zweistellige Felder (Key Value)
 				case 2:
 					if (tokens[0].equals("transparency"))
@@ -66,7 +66,7 @@ public class ProceduralMaterial extends Material implements Serializable
 						cloudiness = new Double(tokens[1]);
 					if (tokens[0].equals("cloudyRays"))
 						cloudyRays = new Integer(tokens[1]);
-					
+
 					if (tokens[0].equals("diffusePattern"))
 					{
 						if (tokens[1].equals("checker"))
@@ -78,7 +78,7 @@ public class ProceduralMaterial extends Material implements Serializable
 						if (tokens[1].equals("hatch"))
 							diffusePattern = new ProceduralModule.Hatch(in);
 					}
-					
+
 					break;
 				case 4:
 					if (tokens[0].equals("specular"))
@@ -92,24 +92,24 @@ public class ProceduralMaterial extends Material implements Serializable
 					break;
 			}
 		}
-		
+
 		// Unerwartetes Ende
 		System.err.println("Fehler, unerwartetes Ende in Materialdefinition von " + mname);
 		throw new Exception();
 	}
-	
+
 	private double clip(double val, double min, double max)
 	{
 		double out = val;
 		if (out < min)
 			out = min;
-		
+
 		if (out > max)
 			out = max;
-		
+
 		return out;
 	}
-	
+
 	public RGBColor getDiffuseColor(Vec3 p)
 	{
 		if (diffusePattern == null)
@@ -117,18 +117,18 @@ public class ProceduralMaterial extends Material implements Serializable
 		else
 			return diffusePattern.getColor(p);
 	}
-	
+
 	public RGBColor getSpecularColor(Vec3 p)
 	{
 		// Vorerst fest, später vielleicht Glanzmaps o.ä.
 		return specular;
 	}
-	
+
 	public RGBColor getTransparentColor(Vec3 p)
 	{
 		return transparent;
 	}
-	
+
 	/**
 	 * Debug-Krimskrams
 	 */
@@ -145,7 +145,7 @@ public class ProceduralMaterial extends Material implements Serializable
 		System.out.println("ior: " + ior);
 		System.out.println();
 	}
-	
+
 	public String toString()
 	{
 		return name;

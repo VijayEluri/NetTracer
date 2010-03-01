@@ -36,10 +36,10 @@ public class ShellProgress implements Serializable
 								return;
 							}
 						}
-						
+
 						tr.repaintQueue.removeFirst();
 					}
-					
+
 					// Kurz mal piep sagen, es geht noch weiter.
 					if (tr.tpos != null)
 					{

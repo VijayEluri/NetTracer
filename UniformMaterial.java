@@ -10,11 +10,11 @@ public class UniformMaterial extends Material implements Serializable
 	private RGBColor diffuse = null;
 	private RGBColor specular = null;
 	private RGBColor transparent = null;
-	
+
 	public UniformMaterial(SceneReader in, String mname) throws Exception
 	{
 		name = mname;
-		
+
 		String[] tokens = null;
 		while ((tokens = in.getNextTokens()) != null)
 		{
@@ -35,19 +35,19 @@ public class UniformMaterial extends Material implements Serializable
 						cloudiness			= clip(cloudiness, 0.0, 1.0);
 						cloudyRays			= (cloudyRays < 1 ? 1 : cloudyRays);
 						ior					= clip(ior, 0.001, 10.0);
-						
+
 						if (diffuse == null)
 							diffuse = RGBColor.white();
 						if (specular == null)
 							specular = RGBColor.white();
 						if (transparent == null)
 							transparent = RGBColor.white();
-						
+
 						dump();
 						return;
 					}
 					break;
-				
+
 				// Zweistellige Felder (Key Value)
 				case 2:
 					if (tokens[0].equals("transparency"))
@@ -69,7 +69,7 @@ public class UniformMaterial extends Material implements Serializable
 					if (tokens[0].equals("cloudyRays"))
 						cloudyRays = new Integer(tokens[1]);
 					break;
-				
+
 				case 4:
 					if (tokens[0].equals("diffuse"))
 						diffuse = new RGBColor(new Double(tokens[1]),
@@ -86,39 +86,39 @@ public class UniformMaterial extends Material implements Serializable
 					break;
 			}
 		}
-		
+
 		// Unerwartetes Ende
 		System.err.println("Fehler, unerwartetes Ende in Materialdefinition von " + mname);
 		throw new Exception();
 	}
-	
+
 	private double clip(double val, double min, double max)
 	{
 		double out = val;
 		if (out < min)
 			out = min;
-		
+
 		if (out > max)
 			out = max;
-		
+
 		return out;
 	}
-	
+
 	public RGBColor getDiffuseColor(Vec3 p)
 	{
 		return diffuse;
 	}
-	
+
 	public RGBColor getSpecularColor(Vec3 p)
 	{
 		return specular;
 	}
-	
+
 	public RGBColor getTransparentColor(Vec3 p)
 	{
 		return transparent;
 	}
-	
+
 	/**
 	 * Debug-Krimskrams
 	 */
@@ -137,7 +137,7 @@ public class UniformMaterial extends Material implements Serializable
 		System.out.println("ior: " + ior);
 		System.out.println();
 	}
-	
+
 	public String toString()
 	{
 		return name;

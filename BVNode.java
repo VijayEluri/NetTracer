@@ -26,12 +26,12 @@ public class BVNode implements Serializable
 	public static final int MAXDEPTH = 12;
 	public static final int NODETHRESHOLD = 5;
 	public static final double traversalEpsilon = 1e-6;
-	
+
 	public AABB space;
 	public RenderingPrimitive[] prims;
 	public BVNode parent = null;
 	public BVNode[] children = new BVNode[8];
-	
+
 	/**
 	 * Erstelle einen Knoten im Baum um diese Menge herum, die sich im
 	 * angegebenen Raum befindet. Wird zu Beginn auf die gesamte
@@ -44,22 +44,22 @@ public class BVNode implements Serializable
 		this.prims = set.toArray(new RenderingPrimitive[0]);
 		this.space = space;
 		this.parent = parent;
-		
+
 		// Wenn du noch zu viele Primitive enthältst, dann unterteile
 		// dich weiter.
 		if (maxdepth > 0 && prims.length > THRESHOLD)
 		{
 			// Unterteile Raum in 8 gleiche Teile
 			AABB[] subdivs = space.getSpatialSubdivisions();
-			
+
 			// Für jedes Raumsegment: Füge ein Kind hinzu, das die
 			// Primitive dort enthält.
 			for (int s = 0; s < 8; s++)
 			{
 				AABB oneSpace = subdivs[s];
-				
+
 				ArrayList<RenderingPrimitive> primsHere = new ArrayList<RenderingPrimitive>();
-				
+
 				for (RenderingPrimitive oneObject : prims)
 				{
 					if (oneObject.getAABB().intersects(oneSpace))
@@ -67,19 +67,19 @@ public class BVNode implements Serializable
 						primsHere.add(oneObject);
 					}
 				}
-				
+
 				// Füge also dieses Kind mit dieser Menge an Primitiven
 				// hinzu. Es gibt also immer Kinder-Objekte, auch wenn
 				// diese vielleicht keine Primitive enthalten. Das macht
 				// den TreeTraversal einfacher.
 				children[s] = new BVNode(this, primsHere, oneSpace, maxdepth - 1);
 			}
-			
+
 			// Markiere dich als Knoten und nicht als Blatt.
 			prims = null;
 		}
 	}
-	
+
 	/**
 	 * Suche genau das Blatt, das diesen Punkt enthält.
 	 */
@@ -89,7 +89,7 @@ public class BVNode implements Serializable
 		// jeweiligen Nodes. Es ist anderweitig sichergestellt, dass
 		// der Punkt auch tatsächlich *in* der fraglichen Node liegt.
 		// (Rein nach diesem Test könnte er auch außerhalb liegen...)
-		
+
 		BVNode current = this;
 		while (current.prims == null)
 		{
@@ -144,10 +144,10 @@ public class BVNode implements Serializable
 				}
 			}
 		}
-		
+
 		return current;
 	}
-	
+
 	/**
 	 * Steige so weit im Tree auf, bis eine Node gefunden wurde, die
 	 * den übergebenen Punkt enthält.
@@ -157,13 +157,13 @@ public class BVNode implements Serializable
 		// Ich bin schon die Root-Node, hier geht es nicht weiter.
 		if (this.parent == null)
 			return null;
-		
+
 		// Gehe so lange nach oben, bis der Punkt enthalten ist.
 		BVNode current = this.parent;
 		while (!current.space.contains(nextPos))
 		{
 			current = current.parent;
-			
+
 			// Wenn das hier zutrifft, ist die Root-Node erreicht und
 			// diese enthält den Punkt nicht. Dann liegt der Punkt
 			// nicht mehr im Tree.
@@ -172,7 +172,7 @@ public class BVNode implements Serializable
 				return null;
 			}
 		}
-		
+
 		return current;
 	}
 	/**
@@ -184,7 +184,7 @@ public class BVNode implements Serializable
 		for (BVNode child : children)
 			if (child != null)
 				out += child.getNumNodes();
-		
+
 		return out;
 	}
 }

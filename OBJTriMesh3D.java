@@ -35,7 +35,7 @@ public class OBJTriMesh3D implements Object3D, Serializable
 	private Material mat;
 	private RenderingPrimitive[] out;
 	private boolean smooth = true;
-	
+
 	/**
 	 * OBJ aus Scanner laden
 	 */
@@ -56,13 +56,13 @@ public class OBJTriMesh3D implements Object3D, Serializable
 						return;
 					}
 					break;
-				
+
 				case 2:
 					if (tokens[0].equals("file"))
 						infile = in.getRelativePath(tokens[1]);
 					if (tokens[0].equals("smooth"))
 						smooth = (new Integer(tokens[1]) == 1);
-						
+
 					if (tokens[0].equals("mat"))
 					{
 						mat = Scene.getLoadedMaterial(tokens[1], mats);
@@ -72,9 +72,9 @@ public class OBJTriMesh3D implements Object3D, Serializable
 							throw new Exception();
 						}
 					}
-						
+
 					break;
-				
+
 				case 4:
 					if (tokens[0].equals("origin"))
 						origin = new Vec3(
@@ -85,12 +85,12 @@ public class OBJTriMesh3D implements Object3D, Serializable
 					break;
 			}
 		}
-		
+
 		// Unerwartetes Ende
 		System.err.println("Fehler, unerwartetes Ende in OBJTriMesh3D-Definition.");
 		throw new Exception();
 	}
-	
+
 	/**
 	 * Leicht antiquierte Funktion, um das eigentliche Mesh zu laden
 	 */
@@ -102,15 +102,15 @@ public class OBJTriMesh3D implements Object3D, Serializable
 			ArrayList<Vec3> vn = new ArrayList<Vec3>();
 			ArrayList<Vec3> vt = new ArrayList<Vec3>();
 			ArrayList<RenderingTriangle> f = new ArrayList<RenderingTriangle>();
-			
+
 			Scanner in = new Scanner(infile);
 			in.useLocale(java.util.Locale.US); // Punkt statt Komma...
-			
+
 			while (in.hasNextLine())
 			{
 				String line = in.nextLine().trim();
 				String[] tokens = line.split(" ");
-				
+
 				if (tokens[0].equals("v"))
 				{
 					// Neuen Vertex einlesen von der Form:
@@ -119,7 +119,7 @@ public class OBJTriMesh3D implements Object3D, Serializable
 									new Double(tokens[2]),
 									new Double(tokens[3])).plus(origin));
 				}
-				
+
 				if (tokens[0].equals("vn"))
 				{
 					// Neue Normale einlesen von der Form:
@@ -128,7 +128,7 @@ public class OBJTriMesh3D implements Object3D, Serializable
 									new Double(tokens[2]),
 									new Double(tokens[3])).normalized());
 				}
-				
+
 				if (tokens[0].equals("vt"))
 				{
 					// Neue Texturkoordinate einlesen von der Form:
@@ -137,7 +137,7 @@ public class OBJTriMesh3D implements Object3D, Serializable
 									new Double(tokens[2]),
 									0.0));
 				}
-				
+
 				if (tokens[0].equals("f"))
 				{
 					// Neues Dreieck einlesen. Es wird angenommen, dass
@@ -145,20 +145,20 @@ public class OBJTriMesh3D implements Object3D, Serializable
 					// Normalen definiert sind. Sonst knallt's. Form:
 					// 		f 611//21799 10911//21799 3904//21799
 					// Also: Vertex//Normale, jeweils der Index
-					
+
 					if (tokens.length != 4)
 					{
 						System.err.println("FEHLER! Das ist kein TriMesh!");
 						return false;
 					}
-					
+
 					String p1[] = tokens[1].split("/");
 					String p2[] = tokens[2].split("/");
 					String p3[] = tokens[3].split("/");
-					
+
 					// Beachten, dass die Indizes in OBJ-Files bei 1
 					// anfangen..........
-					
+
 					Vec3[] verts = new Vec3[] { v.get(new Integer(p1[0]) - 1),
 												v.get(new Integer(p2[0]) - 1),
 												v.get(new Integer(p3[0]) - 1)
@@ -167,7 +167,7 @@ public class OBJTriMesh3D implements Object3D, Serializable
 												vn.get(new Integer(p2[2]) - 1),
 												vn.get(new Integer(p3[2]) - 1)
 											};
-					
+
 					Vec3[] tex = null;
 					if (!p1[1].equals(""))
 					{
@@ -176,26 +176,26 @@ public class OBJTriMesh3D implements Object3D, Serializable
 										   vt.get(new Integer(p3[1]) - 1)
 										};
 					}
-					
+
 					f.add(new RenderingTriangle(verts, norms, tex, mat, smooth));
 				}
 			}
-			
+
 			out = f.toArray(new RenderingPrimitive[0]);
 		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
-		
+
 		return true;
 	}
-	
+
 	public RenderingPrimitive[] getRenderingPrimitives()
 	{
 		return out;
 	}
-	
+
 	private void dump()
 	{
 		System.out.println("OBJTriMesh3D:");

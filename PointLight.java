@@ -11,7 +11,7 @@ public class PointLight extends Light implements Serializable
 	{
 		if (in == null)
 			return;
-		
+
 		String[] tokens = null;
 		while ((tokens = in.getNextTokens()) != null)
 		{
@@ -35,14 +35,14 @@ public class PointLight extends Light implements Serializable
 						return;
 					}
 					break;
-				
+
 				case 2:
 					if (tokens[0].equals("intensity"))
 						intensity = new Double(tokens[1]);
 					if (tokens[0].equals("decayRate"))
 						decayRate = new Double(tokens[1]);
 					break;
-				
+
 				case 4:
 					if (tokens[0].equals("origin"))
 						origin = new Vec3(
@@ -59,12 +59,12 @@ public class PointLight extends Light implements Serializable
 					break;
 			}
 		}
-		
+
 		// Unerwartetes Ende
 		System.err.println("Fehler, unerwartetes Ende in PointLight-Definition.");
 		throw new Exception();
 	}
-	
+
 	public void lighting(Material mat, Vec3 L, Vec3 R, Vec3 N, double[] li)
 	{
 		// Alle normalisieren, aber Länge von L behalten
@@ -74,21 +74,21 @@ public class PointLight extends Light implements Serializable
 		R.normalize();
 		N.normalize();
 		*/
-		
+
 		double diffuse = L.dot(N);
 		double specular = L.dot(R);
-		
+
 		diffuse = (diffuse < 0.0 ? 0.0 : diffuse);
 		specular = (specular < 0.0 ? 0.0 : specular);
-		
-		
+
+
 		// Bestimmt, wie scharf die Shiny-Reflektionen sind
 		double shinySharp = mat.shininessSharpness * 30.0;
-		
+
 		// Bestimmt, wie shiny die Reflektion ist
 		double shinyAmount = mat.shininess * 2.0;
 		specular = Math.pow(specular, shinySharp);
-		
+
 		// Setze diffuse- und shiny-Werte im li-Array
 		li[0] = (intensity * diffuse) / (distance * decayRate);
 		li[1] = (intensity * specular * shinyAmount) / (distance * decayRate);

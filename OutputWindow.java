@@ -16,7 +16,7 @@ public class OutputWindow extends JFrame implements Serializable
 	private OutputPanel pnl = null;
 	private final Scene toRender;
 	private File letztesVerzeichnis = null;
-	
+
 	/**
 	 * Irgendwann später soll das Panel neu gezeichnet werden.
 	 */
@@ -31,12 +31,12 @@ public class OutputWindow extends JFrame implements Serializable
 		};
 		t.start();
 	}
-	
+
 	private void detachPhase(final int which, final int rays)
 	{
 		if (toRender == null)
 			return;
-		
+
 		Thread t = new Thread()
 		{
 			public void run()
@@ -47,7 +47,7 @@ public class OutputWindow extends JFrame implements Serializable
 		};
 		t.start();
 	}
-	
+
 	/**
 	 * Zeigt den Exportier-Dialog und exportiert ggf.
 	 */
@@ -71,26 +71,26 @@ public class OutputWindow extends JFrame implements Serializable
 				return "PNG, JPG";
 			}
 		});
-		
+
 		// nur einzelne dateien waehlen koennen
 		chooser.setMultiSelectionEnabled(false);
 		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		
+
 		if (letztesVerzeichnis != null)
 		{
 			chooser.setCurrentDirectory(letztesVerzeichnis);
 		}
-		
+
 		// anzeigen
 		int returnVal = chooser.showSaveDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION)
 		{
 			pnl.exportImage(chooser.getSelectedFile().getAbsolutePath());
 		}
-		
+
 		letztesVerzeichnis = chooser.getCurrentDirectory();
 	}
-	
+
 	/**
 	 * Baut das Fenster auf und spawnt einen Thread, der im Hintergrund
 	 * immer auf neue Pixel wartet.
@@ -100,30 +100,30 @@ public class OutputWindow extends JFrame implements Serializable
 		this.toRender = toRender;
 		pnl = new OutputPanel(toRender);
 		pnl.setPreferredSize(new Dimension(toRender.set.sizeX, toRender.set.sizeY));
-		
+
 		setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 		setTitle("Raytracer");
-		
+
 		Container pane = getContentPane();
-		
+
 		if (!(pane.getLayout() instanceof BorderLayout))
 		{
 			// Falls durch irgendwelche Umstände hier kein BorderLayout als
 			// Default genutzt wird, baue es auf die alte Weise
-			
+
 			setLayout(new GridLayout(1, 1));
 			add(pnl);
 		}
 		else
 		{
 			// Nutze das BorderLayout für die Toolbar
-			
+
 			JToolBar toolBar = new JToolBar("Knöpfe");
 			JButton btn;
-			
+
 			pane.add(pnl, BorderLayout.PAGE_END);
 			pane.add(toolBar, BorderLayout.PAGE_START);
-			
+
 			// Bild exportieren
 			btn = new JButton("Speichern");
 			btn.addActionListener(new ActionListener()
@@ -134,7 +134,7 @@ public class OutputWindow extends JFrame implements Serializable
 				}
 			});
 			toolBar.add(btn);
-			
+
 			// Ganz neu rendern
 			btn = new JButton("Neu rendern");
 			btn.addActionListener(new ActionListener()
@@ -145,7 +145,7 @@ public class OutputWindow extends JFrame implements Serializable
 				}
 			});
 			toolBar.add(btn);
-			
+
 			// AA-Pixel togglen
 			btn = new JButton("AA-Info");
 			btn.addActionListener(new ActionListener()
@@ -157,7 +157,7 @@ public class OutputWindow extends JFrame implements Serializable
 				}
 			});
 			toolBar.add(btn);
-			
+
 			// Kritische Pixel neu suchen
 			btn = new JButton("AA neu suchen");
 			btn.addActionListener(new ActionListener()
@@ -168,7 +168,7 @@ public class OutputWindow extends JFrame implements Serializable
 				}
 			});
 			toolBar.add(btn);
-			
+
 			// AA
 			btn = new JButton("+ AA 2x2");
 			btn.addActionListener(new ActionListener()
@@ -179,7 +179,7 @@ public class OutputWindow extends JFrame implements Serializable
 				}
 			});
 			toolBar.add(btn);
-			
+
 			btn = new JButton("+ AA 4x4");
 			btn.addActionListener(new ActionListener()
 			{
@@ -189,7 +189,7 @@ public class OutputWindow extends JFrame implements Serializable
 				}
 			});
 			toolBar.add(btn);
-			
+
 			btn = new JButton("+ AA 64");
 			btn.addActionListener(new ActionListener()
 			{
@@ -199,7 +199,7 @@ public class OutputWindow extends JFrame implements Serializable
 				}
 			});
 			toolBar.add(btn);
-			
+
 			btn = new JButton("+ AA 256");
 			btn.addActionListener(new ActionListener()
 			{
@@ -211,9 +211,9 @@ public class OutputWindow extends JFrame implements Serializable
 			toolBar.add(btn);
 		}
 		pack();
-		
+
 		final Scene tr = toRender;
-		
+
 		// Ein extra Thread zum Neu-Zeichnen, mit einer Queue, damit nix
 		// verloren geht und fälschlicherweise Pixel stehenbleiben.
 		Thread t = new Thread()
@@ -236,10 +236,10 @@ public class OutputWindow extends JFrame implements Serializable
 								return;
 							}
 						}
-						
+
 						tr.repaintQueue.removeFirst();
 					}
-					
+
 					detachRepaint();
 				}
 			}

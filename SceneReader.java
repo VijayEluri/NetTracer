@@ -12,7 +12,7 @@ public class SceneReader implements Serializable
 
 	private Scanner in = null;
 	private File infile = null;
-	
+
 	/**
 	 * Öffnet einen neuen Scanner für diesen Pfad.
 	 */
@@ -20,11 +20,11 @@ public class SceneReader implements Serializable
 	{
 		infile = new File(path);
 		in = new Scanner(infile);
-		
+
 		// Punkt statt Komma...
 		in.useLocale(java.util.Locale.US);
 	}
-	
+
 	/**
 	 * Gibt das nächste Array mit Tokens zurück oder null, falls die
 	 * Datei zuende ist. Beachtet Kommentare.
@@ -37,11 +37,11 @@ public class SceneReader implements Serializable
 	public String[] getNextTokens() throws Exception
 	{
 		boolean inComment = false;
-		
+
 		while (in.hasNextLine())
 		{
 			String line = in.nextLine().trim();
-			
+
 			// Wenn wir nicht in einem Kommentarbereich sind ...
 			if (!inComment)
 			{
@@ -56,7 +56,7 @@ public class SceneReader implements Serializable
 				{
 					return line.split(" ");
 				}
-				
+
 				// Wird hier ein langer Kommentar eingeleitet?
 				if (line.startsWith("/*") || line.startsWith("\"\"\""))
 					inComment = true;
@@ -68,10 +68,10 @@ public class SceneReader implements Serializable
 					inComment = false;
 			}
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * Bereitet einen Pfad (z.B. Pfad zu OBJ-File) vor:
 	 * - Es wird erwartet, dass in einer Szenen-Datei die Pfade relativ

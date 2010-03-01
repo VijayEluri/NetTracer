@@ -14,11 +14,11 @@ public class Sphere3D implements Object3D, RenderingPrimitive, Serializable
 	private double radius = 1.0;
 	private double radius2;
 	private Vec3 origin = new Vec3();
-	
+
 	private RenderingPrimitive[] prims;
-	
+
 	private AABB cachedAABB = null;
-	
+
 	/**
 	 * Kugel aus Scanner laden
 	 */
@@ -36,7 +36,7 @@ public class Sphere3D implements Object3D, RenderingPrimitive, Serializable
 						// Vorarbeit
 						prims = new RenderingPrimitive[] {this};
 						radius2 = radius*radius;
-						
+
 						System.out.println("Sphere3D:");
 						System.out.println("mat: " + mat);
 						System.out.println("radius: " + radius);
@@ -45,11 +45,11 @@ public class Sphere3D implements Object3D, RenderingPrimitive, Serializable
 						return;
 					}
 					break;
-				
+
 				case 2:
 					if (tokens[0].equals("radius"))
 						radius = new Double(tokens[1]);
-						
+
 					if (tokens[0].equals("mat"))
 					{
 						mat = Scene.getLoadedMaterial(tokens[1], mats);
@@ -59,9 +59,9 @@ public class Sphere3D implements Object3D, RenderingPrimitive, Serializable
 							throw new Exception();
 						}
 					}
-						
+
 					break;
-				
+
 				case 4:
 					if (tokens[0].equals("origin"))
 						origin = new Vec3(
@@ -72,12 +72,12 @@ public class Sphere3D implements Object3D, RenderingPrimitive, Serializable
 					break;
 			}
 		}
-		
+
 		// Unerwartetes Ende
 		System.err.println("Fehler, unerwartetes Ende in Sphere3D-Definition.");
 		throw new Exception();
 	}
-	
+
 	/**
 	 * Schnitttest durchführen
 	 */
@@ -86,17 +86,17 @@ public class Sphere3D implements Object3D, RenderingPrimitive, Serializable
 		// Wo ist der Punkt auf dem Strahl, der am nächsten an mir liegt?
 		double alpha = -r.direction.dot(r.origin.minus(this.origin));
 		Vec3 q = r.evaluate(alpha);
-		
+
 		// Abstand zum Kugelmittelpunkt?
 		q.subtract(this.origin);
 		double distToCenter2 = q.lengthSquared();
-		
+
 		if (distToCenter2 > radius2)
 			return null;
-		
+
 		// Über Pythagoras zu den beiden Schnittpunkten
 		double a = Math.sqrt(radius2 - distToCenter2);
-		
+
 		// Welcher von beiden liegt näher am Ray-Ursprung?
 		double dist = 0.0;
 		if (alpha >= a)
@@ -111,13 +111,13 @@ public class Sphere3D implements Object3D, RenderingPrimitive, Serializable
 		{
 			return null;
 		}
-		
+
 		q = r.evaluate(dist);
-		
+
 		// Normale an diesem Punkt
 		Vec3 n = q.minus(origin);
 		n.normalize();
-		
+
 		Vec3 colpos = q;
 		if (mat instanceof TextureMaterial)
 		{
@@ -127,7 +127,7 @@ public class Sphere3D implements Object3D, RenderingPrimitive, Serializable
 			//   (r, theta). This method computes the phase theta by
 			//   computing an arc tangent of y/x in the range of -pi
 			//   to pi.
-			
+
 			// Wenn man von oben auf die Kugel schaut, geben die X- und
 			// Z-Anteile der Normale gerade den Längengrad an. Stellt man
 			// sich die Textur der Kugel aufgeschnitten vor und betrachtet
@@ -137,26 +137,26 @@ public class Sphere3D implements Object3D, RenderingPrimitive, Serializable
 			// in X-Richtung laufen muss. Genau das wird hier für die X-
 			// Koordinate von "colpos" berechnet (und dann ins Intervall
 			// 0 bis 1 gebracht).
-			
+
 			// Der Y-Wert von "colpos" berechnet sich einfach aus dem
 			// Arkussinus des Y-Wertes der Normale. Das Ergebnis davon
 			// liegt in -pi/2 bis +pi/2 und wird dann auch wieder ins
 			// Intervall 0 bis 1 gebracht. (Man denke sich hier ein
 			// Dreieck innerhalb der Kugel mit "Höhe" Y.)
-			
+
 			// Siehe auch: http://www.cse.msu.edu/~cse872/tutorial4.html
-			
+
 			colpos = new Vec3(Math.atan2(n.x, n.z) / (2.0 * Math.PI) + 0.5,
 							  Math.asin(n.y) / Math.PI + 0.5,
 							  0.0);
 		}
-		
+
 		return new Intersection(this, q, n, dist, mat,
 								mat.getDiffuseColor(colpos),
 								mat.getSpecularColor(colpos),
 								mat.getTransparentColor(colpos));
 	}
-	
+
 	public AABB getAABB()
 	{
 		// AABB wird gecached, da sonst der Tree-Bau Jahrhunderte benötigt
@@ -164,10 +164,10 @@ public class Sphere3D implements Object3D, RenderingPrimitive, Serializable
 		{
 			cachedAABB = new AABB(new Vec3(origin), new Vec3(radius, radius, radius));
 		}
-		
+
 		return cachedAABB;
 	}
-	
+
 	public RenderingPrimitive[] getRenderingPrimitives()
 	{
 		return prims;

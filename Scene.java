@@ -14,29 +14,29 @@ public class Scene implements Serializable
 	public Camera eye;
 	public Object3D[] objects;
 	public Light[] lights;
-	
+
 	// Der BoundingVolumeTree
 	public BVNode bvroot = null;
-	
+
 	// Hier wird das Bild am Ende gespeichert
 	public RGBColor[][] pixels = null;
-	
+
 	// Interessierte können hier warten und benachrichtigt werden
 	public LinkedList<Boolean> repaintQueue = new LinkedList<Boolean>();
-	
+
 	// AA-Informationen
 	public boolean[][] criticalPixels = null;
-	
+
 	// Thread-Koordination
 	private int[] nextFreeRow = new int[1];
 	public ThreadPositions tpos = null;
 	public Boolean running = false;
-	
+
 	// Für jegliche Random-Werte, dieses Objekt ist threadsafe.
 	// Liefert eine schönere Verteilung als Math.random(), was vorallem
 	// beim Antialiasing deutlich (!) sichtbar ist.
 	private final Random rGen = new Random();
-	
+
 	/**
 	 * Settings für eine zu rendernde Szene
 	 */
@@ -46,7 +46,7 @@ public class Scene implements Serializable
 
 		public int sizeX = 640, sizeY = 480;
 		public int maxdepth = 4;
-		
+
 		public File headless = null;
 		public boolean hasGUI = true;
 		public boolean useBVT = true;
@@ -57,12 +57,12 @@ public class Scene implements Serializable
 		public double fakeDistanceExp = 1.0;
 		public int AARays = 0, threads = 2, rowstep = 6;
 		public RGBColor environ = RGBColor.black();
-		
+
 		// Bestimmt, wann zwei Pixel als "unterschiedlich" erkannt werden
 		// sollen. Dieser Wert wird noch durch 255.0 geteilt, die Angabe
 		// erfolgt also in "RGB-Farbschritten"
 		public double colorDelta = 2.0;
-		
+
 		public void dump()
 		{
 			System.out.println("Settings:");
@@ -78,7 +78,7 @@ public class Scene implements Serializable
 		}
 	}
 	public SceneSettings set;
-	
+
 	/**
 	 * Einer der Threads, die parallel die Pixel rendern. Siehe auch
 	 * doPrimaryRays() und render() weiter unten.
@@ -89,21 +89,21 @@ public class Scene implements Serializable
 		private boolean primary;
 		private int numrays;
 		private Random rGen = new Random();
-		
+
 		public WorkerThread(int ID, boolean primary, int numrays)
 		{
 			this.ID = ID;
 			this.primary = primary;
 			this.numrays = numrays;
 		}
-		
+
 		public void run()
 		{
 			//setPriority(Thread.MAX_PRIORITY);
 			doPrimaryRays(this.ID, this.primary, this.numrays, set.rowstep, this.rGen);
 		}
 	}
-	
+
 	/**
 	 * Führt einen Intersectiontest dieses Rays mit allen Objekten
 	 * in der Szene durch und liefert das nächste Objekt
@@ -112,17 +112,17 @@ public class Scene implements Serializable
 	{
 		double windist = 10e100;
 		Intersection winner = null;
-		
+
 		if (bvroot != null)
 		{
 			double[] singleTemp = new double[2];
-			
+
 			// Eintrittspunkt in Root-Node + Epsilon, falls ein Schnitt
 			// existiert.
 			if (!bvroot.space.alphaEntryExit(r, singleTemp))
 				return null;
 			Vec3 nextPos = r.evaluate(singleTemp[0] + BVNode.traversalEpsilon);
-			
+
 			// Steige durch den Tree und suche erste Intersection
 			Intersection ints = null;
 			BVNode curnode = bvroot;
@@ -130,7 +130,7 @@ public class Scene implements Serializable
 			{
 				// Finde das Kind, das den aktuellen Punkt enthält
 				BVNode child = curnode.findChild(nextPos);
-				
+
 				// Teste die dortigen Primitive und suche das mit geringster
 				// Entfernung. Ganz wichtig: Der Schnittpunkt muss
 				// innerhalb dieser Node liegen!
@@ -144,14 +144,14 @@ public class Scene implements Serializable
 						windist = ints.distance;
 					}
 				}
-				
+
 				// Hast du einen validen Schnitt gefunden? Dann raus.
 				if (winner != null)
 					return winner;
-				
+
 				// Gehe zum Austrittspunkt + Epsilon
 				nextPos = r.evaluate(child.space.alphaExit(r) + BVNode.traversalEpsilon);
-				
+
 				// Finde die nächste Node, die diesen Punkt enthält
 				// (wandert nur so weit wie nötig im Tree nach oben).
 				// Im nächsten Durchgang der Schleife wird dann erst das
@@ -160,7 +160,7 @@ public class Scene implements Serializable
 				// ist.
 				curnode = child.findNextParent(nextPos);
 			}
-			
+
 			return null;
 		}
 		else
@@ -169,7 +169,7 @@ public class Scene implements Serializable
 			for (Object3D o : objects)
 			{
 				RenderingPrimitive[] m = o.getRenderingPrimitives();
-				
+
 				for (RenderingPrimitive t : m)
 				{
 					Intersection ints = t.intersectionTest(r);
@@ -183,7 +183,7 @@ public class Scene implements Serializable
 		}
 		return winner;
 	}
-	
+
 	/**
 	 * Da ich keine Caustics bauen will, aber auch keine knallharten
 	 * Schatten bei transparenten Objekten sehen möchte, hier eine
@@ -205,7 +205,7 @@ public class Scene implements Serializable
 		}
 
 		double lightscale = 1.0;
-		
+
 		if (bvroot != null)
 		{
 			// Bei ShadowFeeling kann vorausgesetzt werden, dass der Ray
@@ -213,7 +213,7 @@ public class Scene implements Serializable
 			// Feeler. Spare dir also ein paar Schritte und fange direkt
 			// mit dem origin an.
 			Vec3 nextPos = r.origin;
-			
+
 			// Steige durch den Tree und suche alle Intersections
 			Intersection ints = null;
 			BVNode parent = bvroot;
@@ -222,7 +222,7 @@ public class Scene implements Serializable
 			{
 				// Finde das Kind, das den aktuellen Punkt enthält
 				BVNode child = parent.findChild(nextPos);
-				
+
 				// Teste alle Primitive in dieser Node
 				tooFar = false;
 				for (RenderingPrimitive p : child.prims)
@@ -239,7 +239,7 @@ public class Scene implements Serializable
 							// Schatten.
 							if (ints.mat.transparency == 0.0)
 								return 0.0;
-						
+
 							lightscale *= ints.mat.transparency;
 						}
 						else
@@ -254,10 +254,10 @@ public class Scene implements Serializable
 				// liegen werden.
 				if (tooFar)
 					return lightscale;
-				
+
 				// Gehe zum Austrittspunkt + Epsilon
 				nextPos = r.evaluate(child.space.alphaExit(r) + BVNode.traversalEpsilon);
-				
+
 				// Finde die nächste Node, die diesen Punkt enthält
 				// (wandert nur so weit wie nötig im Tree nach oben).
 				// Im nächsten Durchgang der Schleife wird dann erst das
@@ -266,7 +266,7 @@ public class Scene implements Serializable
 				// ist.
 				parent = child.findNextParent(nextPos);
 			}
-			
+
 			// Wenn wir hier ankommen, haben wir den Tree verlassen,
 			// aber das Licht noch nicht erreicht, also kommt da auch
 			// nichts mehr.
@@ -277,7 +277,7 @@ public class Scene implements Serializable
 			for (Object3D o : objects)
 			{
 				RenderingPrimitive[] m = o.getRenderingPrimitives();
-				
+
 				for (RenderingPrimitive t : m)
 				{
 					Intersection ints = t.intersectionTest(r);
@@ -287,16 +287,16 @@ public class Scene implements Serializable
 						{
 							return 0.0;
 						}
-						
+
 						lightscale *= ints.mat.transparency;
 					}
 				}
 			}
 		}
-		
+
 		return lightscale;
 	}
-	
+
 	/**
 	 * Berechnet die Richtung für einen TransmissionRay
 	 * 
@@ -309,19 +309,19 @@ public class Scene implements Serializable
 		Vec3 tLat = new Vec3(N);
 		tLat.scale(N.dot(V));
 		tLat.subtract(V);
-		
+
 		tLat.scale(1.0 / iorNew);
-		
+
 		double sinSq = tLat.lengthSquared();
-		
+
 		// Innere Totalreflexion?
 		if (sinSq > 1.0)
 			return null;
-		
+
 		tLat.subtract(N.times(Math.sqrt(1 - sinSq)));
 		return tLat;
 	}
-	
+
 	/**
 	 * Eine komplette Stufe im Raytracing: Besorgt die Farbe dieses
 	 * einen Rays. Dabei bestimmen ShadowFeeler, ob eine Lichtquelle
@@ -333,13 +333,13 @@ public class Scene implements Serializable
 	{
 		// Schau erstmal, wo dieser Strahl landet.
 		Intersection intres = doIntersectionTest(r);
-		
+
 		// Kein Schnitt, schwarz
 		if (intres == null)
 			return new RGBColor(set.environ);
 
 		RGBColor out = RGBColor.black();
-		
+
 		// Kürzere Schreibweisen...
 		Vec3 N = intres.normal;
 		Vec3 hitPoint = intres.at;
@@ -347,23 +347,23 @@ public class Scene implements Serializable
 		RGBColor baseDiffuse = intres.diffuseColor;
 		RGBColor baseSpecular = intres.specularColor;
 		RGBColor baseTransparent = intres.transparentColor;
-		
+
 		// Vorberechnung von häufig gebrauchten Vektoren:
-		
+
 		// Negative Ray-Richtung: V = -U
 		Vec3 V = r.direction.times(-1.0);
-		
+
 		// Reflektionsvektor: R = 2 * (N*V) * N - V
 		Vec3 R = new Vec3(N);
 		R.scale(2.0 * N.dot(V));
 		R.subtract(V);
-		
+
 		// Lokale Beleuchtung, sofern diese nicht deaktiviert ist
 		if (!set.noLighting)
 		{
 			double[] li = new double[2];
 			double lightscale = 0.0, shinyscale = 0.0, res = 0.0;
-			
+
 			for (Light l : lights)
 			{
 				if (l instanceof SphereLight)
@@ -372,30 +372,30 @@ public class Scene implements Serializable
 					// und das Licht wird jedesmal ein Stück (abhängig
 					// von seinem Radius) geschubst, dann wird der
 					// normale ShadowFeeler in diese Richtung ausgesandt.
-					
+
 					// Muss vor den normalen PointLights kommen, da diese
 					// Klasse davon abgeleitet ist...
-					
+
 					SphereLight slight = (SphereLight)l;
 					lightscale = 0.0;
 					shinyscale = 0.0;
-					
+
 					// Wichtig: Für die Intensität des Lichtes wird auch
 					// der jittered Vec3 genommen. Sonst entstehen zwar
 					// SoftShadows, aber kein AreaLight.
-					
+
 					Vec3 npos;
 					for (int i = 0; i < slight.numrays; i++)
 					{
 						// Schubsen
 						npos = l.origin.jittered(slight.radius, rGen);
-						
+
 						// Jetzt normale ShadowFeeler-Geschichte
 						npos.subtract(hitPoint);
-						
+
 						Ray shadowFeeler = new Ray(hitPoint, new Vec3(npos));
 						res = doShadowFeeling(shadowFeeler, npos.length());
-						
+
 						// Wenn das Licht in diesem Fall zu sehen war,
 						// addiere die dann entstandene Intensität dazu.
 						if (res > 0.0)
@@ -405,7 +405,7 @@ public class Scene implements Serializable
 							shinyscale += li[1];
 						}
 					}
-					
+
 					// Lichtintensität über Anzahl Rays skalieren, denn
 					// rayscale = 1.0 / numrays
 					// Außerdem den Faktor "res" mit dazunehmen, damit
@@ -413,19 +413,19 @@ public class Scene implements Serializable
 					// wird.
 					lightscale *= res * slight.rayscale;
 					shinyscale *= res * slight.rayscale;
-					
+
 					if (lightscale > 0.0)
 					{
 						// War das Licht sichtbar? Dann multipliziere
 						// seine Farbe mit der diffusen Farbe des
 						// Materials, skaliert mit dem Transparenzfaktor.
-						
+
 						// Verrechne auch mit lokaler Transparenz bzw.
 						// Spekularität.
 						lightscale *= (1.0 - targetMat.transparency);
 						lightscale *= (1.0 - targetMat.specularity);
 						out.add(baseDiffuse.times(lightscale).product(l.color));
-						
+
 						// Shininess läuft unabhängig von diesen beiden.
 						out.add(baseSpecular.times(shinyscale).product(l.color));
 					}
@@ -434,21 +434,21 @@ public class Scene implements Serializable
 				{
 					// Ganz normale Beleuchtung mit einem Punktlicht
 					Vec3 L = l.origin.minus(hitPoint);
-					
+
 					Ray shadowFeeler = new Ray(hitPoint, new Vec3(L));
 					res = doShadowFeeling(shadowFeeler, L.length());
-					
+
 					if (res > 0.0)
 					{
 						l.lighting(targetMat, L, R, N, li);
 						lightscale = res * li[0];
-						
+
 						// Verrechne auch mit lokaler Transparenz bzw.
 						// Spekularität.
 						lightscale *= (1.0 - targetMat.transparency);
 						lightscale *= (1.0 - targetMat.specularity);
 						out.add(baseDiffuse.times(lightscale).product(l.color));
-						
+
 						// Shininess läuft unabhängig von diesen beiden.
 						out.add(baseSpecular.times(li[1] * res).product(l.color));
 					}
@@ -457,10 +457,10 @@ public class Scene implements Serializable
 		}
 		else
 			out.add(baseDiffuse);
-		
+
 		if (depth == 0)
 			return out;
-		
+
 		// Specularity
 		if (targetMat.specularity > 0.0)
 		{
@@ -468,23 +468,23 @@ public class Scene implements Serializable
 			{
 				// Material ist rauh, erzeuge blurry reflection
 				RGBColor specCol = RGBColor.black();
-				
+
 				for (int i = 0; i < targetMat.roughRays; i++)
 				{
 					Ray reflectionRay = new Ray(hitPoint, R.jittered(targetMat.roughness, rGen));
 					specCol.add(traceRay(reflectionRay, depth - 1, rGen));
 				}
-				
+
 				// Reflektiertes Licht über die Rays mitteln
 				specCol.scale(1.0 / targetMat.roughRays);
-				
+
 				// Dann mit specularity skalieren
 				specCol.scale(targetMat.specularity);
-				
+
 				// Reflektionen "in" der spekularen Farbe des Materials
 				// erscheinen lassen
 				specCol.multiply(baseSpecular);
-				
+
 				out.add(specCol);
 			}
 			else
@@ -497,7 +497,7 @@ public class Scene implements Serializable
 				out.add(specCol);
 			}
 		}
-		
+
 		// Transparency
 		if (targetMat.transparency > 0.0)
 		{
@@ -517,20 +517,20 @@ public class Scene implements Serializable
 				// Eintritt
 				t = calcTransmissionDirection(V, N, targetMat.ior);
 			}
-			
+
 			if (t != null)
 			{
 				if (targetMat.cloudiness > 0.0)
 				{
 					// Cloudiness - selbes Prinzip wie bei Roughness
 					RGBColor transCol = RGBColor.black();
-					
+
 					for (int i = 0; i < targetMat.cloudyRays; i++)
 					{
 						Ray transmissionRay = new Ray(hitPoint, t.jittered(targetMat.cloudiness, rGen));
 						transCol.add(traceRay(transmissionRay, depth - 1, rGen));
 					}
-					
+
 					transCol.scale(1.0 / targetMat.cloudyRays);
 					transCol.scale(targetMat.transparency);
 					transCol.multiply(baseTransparent);
@@ -547,10 +547,10 @@ public class Scene implements Serializable
 				}
 			}
 		}
-		
+
 		return out;
 	}
-	
+
 	/**
 	 * Bestimmt die Farbe eines Pixels. Wird vom Antialiasing mehrfach
 	 * mit leicht unterschiedlichen Pixelpositionen aufgerufen und die
@@ -561,7 +561,7 @@ public class Scene implements Serializable
 	public RGBColor renderPixel(double x, double y, int maxdepth, Random rGen)
 	{
 		Ray clearRay = eye.castRay(x, y);
-		
+
 		if (eye.focalDistance == 0.0)
 			return traceRay(clearRay, maxdepth, rGen);
 		else
@@ -573,7 +573,7 @@ public class Scene implements Serializable
 			double c = clearRay.direction.dot(eye.viewdirInv);
 			double alpha = (eye.dofLambda - clearRay.origin.dot(eye.viewdirInv)) / c;
 			Vec3 clearPoint = clearRay.evaluate(alpha);
-			
+
 			// Verfolge nun mehrere Rays, deren Ergebnisse anschließend
 			// gemittelt werden: Wackle dabei am Ursprung des Rays, aber
 			// die Richtung ist immer so gewählt, dass der Ray durch den
@@ -583,24 +583,24 @@ public class Scene implements Serializable
 			{
 				double offsetX = rGen.nextGaussian() * 0.5 * eye.dofAmount;
 				double offsetY = rGen.nextGaussian() * 0.5 * eye.dofAmount;
-				
+
 				// Randomisierter Ursprung entlang der Bildebene
 				Vec3 dofOrigin = new Vec3(eye.origin);
 				dofOrigin.add(eye.updir.times(offsetY));
 				dofOrigin.add(eye.rdir.times(offsetX));
-				
+
 				// Angepasste Blickrichtung - wird automatisch im
 				// Ray-Konstruktor normalisiert
 				Vec3 dofDirection = clearPoint.minus(dofOrigin);
-				
+
 				// Verfolge diesen Strahl
 				Ray dofRay = new Ray(dofOrigin, dofDirection);
 				out.addSample(traceRay(dofRay, maxdepth, rGen));
 			}
-			
+
 			// Gewonnene Samples mitteln.
 			out.normalize();
-			
+
 			return out;
 		}
 	}
@@ -618,7 +618,7 @@ public class Scene implements Serializable
 		set.hasGUI = false;
 		return true;
 	}
-	
+
 	/**
 	 * Rendert die Szene mit den geladenen Settings
 	 */
@@ -634,32 +634,32 @@ public class Scene implements Serializable
 			System.err.println("Objekte und Lichter müssen schon definiert sein... breche ab.");
 			return false;
 		}
-		
+
 		set.dump();
 		System.out.println("Objekte: " + objects.length);
 		System.out.println("Lichter: " + lights.length);
 		System.out.println();
-		
-		
+
+
 		// ############################################################
 		// Vorarbeit: Erstelle BV-Tree
-		
+
 		if (set.useBVT)
 		{
 			long startTime = 0;
 
 			startTime = System.currentTimeMillis();
-			
+
 			ArrayList<RenderingPrimitive> allPrims = new ArrayList<RenderingPrimitive>();
 			for (Object3D o : objects)
 				for (RenderingPrimitive p : o.getRenderingPrimitives())
 					allPrims.add(p);
-			
+
 			System.out.println("Baue große Bounding Box um "
 					+ allPrims.size() + " Primitive ...");
-			
+
 			AABB bigBox = new AABB(allPrims, 0);
-			
+
 			// Bei komplexen Szenen ist es schneller, wenn immer Würfel
 			// statt irgendwelchen Quadern den Raum aufteilen, da dies
 			// eine gleichmäßigere Aufteilung ergibt. Suche daher den
@@ -675,21 +675,21 @@ public class Scene implements Serializable
 			bigBox.radii.x = max;
 			bigBox.radii.y = max;
 			bigBox.radii.z = max;
-			
+
 			// ... ein kleines Epsilon schadet nie.
 			bigBox.radii.scale(1.0 + 1e-10);
-			
+
 			System.out.println("Fertig. " + ((System.currentTimeMillis() - startTime) / 1000.0) + " Sekunden.\n");
-			
-			
+
+
 			System.out.println("Baue BV-Tree ...");
 			startTime = System.currentTimeMillis();
-			
+
 			bvroot = new BVNode(null, allPrims, bigBox, BVNode.MAXDEPTH);
-			
+
 			System.out.println("Fertig. " + ((System.currentTimeMillis() - startTime) / 1000.0) + " Sekunden.");
-			
-			
+
+
 			int numtreenodes = bvroot.getNumNodes();
 			System.out.println("Anzahl Nodes im Baum: " + numtreenodes);
 			if (numtreenodes < BVNode.NODETHRESHOLD)
@@ -751,22 +751,22 @@ public class Scene implements Serializable
 
 		return true;
 	}
-		
+
 	public void renderAll()
 	{
 		tpos = new ThreadPositions(set.threads);
-		
+
 		// Normales Rendern
 		renderPhase(0, -1);
-		
+
 		// Das folgende ist billig, das kannst du auch machen, wenn
 		// eigentlich kein AA stattfinden soll. Dann sieht man immer
 		// etwas, wenn man im OutputWindow auf den Knopf drückt.
 		renderPhase(1, -1);
-		
+
 		// Antialiasing
 		renderPhase(2, set.AARays);
-		
+
 		System.out.println("Rendern beendet.\n");
 
 		if (set.headless != null)
@@ -786,7 +786,7 @@ public class Scene implements Serializable
 			System.exit(0);
 		}
 	}
-	
+
 	/**
 	 * Eine Render-Phase:
 	 * 0 = initiales Rendern
@@ -804,23 +804,23 @@ public class Scene implements Serializable
 		{
 			if (running)
 				return;
-			
+
 			running = true;
 		}
-		
+
 		WorkerThread[] workers;
 		long startTime = System.currentTimeMillis();
-		
+
 		switch (p)
 		{
 			case 0:
 				System.out.println("Rendere ...");
-				
+
 				// Setze nächste freie Zeile zurück
 				nextFreeRow[0] = 0;
-				
+
 				tpos.reset();
-				
+
 				// Erstelle und starte WorkerThreads und lasse diese die erste
 				// Iteration durchlaufen
 				workers = new WorkerThread[set.threads];
@@ -829,7 +829,7 @@ public class Scene implements Serializable
 					workers[i] = new WorkerThread(i, true, -1);
 					workers[i].start();
 				}
-				
+
 				// Warte, bis diese Threads fertig sind
 				for (WorkerThread t : workers)
 				{
@@ -843,14 +843,14 @@ public class Scene implements Serializable
 						System.exit(-1);
 					}
 				}
-				
+
 				tpos.reset();
-				
+
 				break;
-			
+
 			case 1:
 				System.out.println("Suche kritische Pixel ...");
-				
+
 				// Finde kritische Pixel - gehe über das ganze Bild und schaue,
 				// ob sich der betrachtete Pixel von seinem Vorgänger oder
 				// dem in der Zeile darüber unterscheidet. Falls ja, markiere
@@ -868,7 +868,7 @@ public class Scene implements Serializable
 								{
 									int pidxX = x + xoff;
 									int pidxY = y + yoff;
-									
+
 									// Nicht über den Rand gehen
 									if (pidxX >= 0 && pidxX < set.sizeX && pidxY >= 0 && pidxY < set.sizeY)
 									{
@@ -880,18 +880,18 @@ public class Scene implements Serializable
 					}
 				}
 				break;
-			
+
 			case 2:
 				System.out.println("Antialiasing: " + info + " Rays ...");
-				
+
 				// Will der User überhaupt Antialiasing?
 				if (info > 0)
 				{
 					// Nächste freie Zeile zurücksetzen
 					nextFreeRow[0] = 0;
-					
+
 					tpos.reset();
-					
+
 					// Wieder WorkerThreads starten, diesmal machen die aber
 					// nur Antialiasing
 					workers = new WorkerThread[set.threads];
@@ -900,7 +900,7 @@ public class Scene implements Serializable
 						workers[i] = new WorkerThread(i, false, info);
 						workers[i].start();
 					}
-					
+
 					// Warte, bis die fertig sind.
 					for (WorkerThread t : workers)
 					{
@@ -914,12 +914,12 @@ public class Scene implements Serializable
 							System.exit(-1);
 						}
 					}
-					
+
 					tpos.reset();
 				}
 				break;
 		}
-		
+
 		synchronized (running)
 		{
 			running = false;
@@ -932,7 +932,7 @@ public class Scene implements Serializable
 			System.out.println("Fertig. " + ((System.currentTimeMillis() - startTime) / 1000.0) + " Sekunden.\n");
 		}
 	}
-	
+
 	/**
 	 * Wird von einem Thread aufgerufen. Markiert in nextFreeRow[0] die
 	 * nächste Anzahl an "rowstep" Zeilen als "in Bearbeitung" und zeichnet
@@ -946,7 +946,7 @@ public class Scene implements Serializable
 	private void doPrimaryRays(int ID, boolean primary, int numrays, int rowstep, Random rGen)
 	{
 		int curstart = 0;
-		
+
 		while (true)
 		{
 			// Hole dir hier threadsafe den nächsten Packen an Zeilen,
@@ -963,15 +963,15 @@ public class Scene implements Serializable
 					curstart = -1;
 				}
 			}
-			
+
 			// Nichts mehr frei? Dann raus
 			if (curstart == -1)
 				return;
-			
+
 			if (primary)
 			{
 				// Primäre Strahlen
-				
+
 				for (int y = curstart; (y < set.sizeY) && (y < curstart + rowstep); y++)
 				{
 					for (int x = 0; x < set.sizeX; x++)
@@ -984,7 +984,7 @@ public class Scene implements Serializable
 			else
 			{
 				// Antialiasing
-				
+
 				double sqrays = Math.sqrt(numrays);
 				// Renne nochmal über das ganze Bild ...
 				for (int y = curstart; (y < set.sizeY) && (y < curstart + rowstep); y++)
@@ -1002,10 +1002,10 @@ public class Scene implements Serializable
 								{
 									double offsetX = ((double)rx - 0.5 * sqrays) / sqrays;
 									double offsetY = ((double)ry - 0.5 * sqrays) / sqrays;
-									
+
 									offsetX *= 0.9;
 									offsetY *= 0.9;
-									
+
 									RGBColor second = renderPixel(x + offsetX, y + offsetY, set.maxdepth, rGen);
 									pixels[y][x].addSample(second);
 								}
@@ -1017,7 +1017,7 @@ public class Scene implements Serializable
 								{
 									double offsetX = rGen.nextGaussian() * 0.45;
 									double offsetY = rGen.nextGaussian() * 0.45;
-									
+
 									RGBColor second = renderPixel(x + offsetX, y + offsetY, set.maxdepth, rGen);
 									pixels[y][x].addSample(second);
 								}
@@ -1026,13 +1026,13 @@ public class Scene implements Serializable
 					}
 				}
 			}
-			
+
 			// Der folgende Teil sollte für's "Real life" nochmal über-
 			// arbeitet werden, da er doch recht viel Locking verursacht.
-			
+
 			// Womit bin ich fertig? Für eventuelle Zeichner. 
 			tpos.update(ID, curstart + rowstep);
-			
+
 			// Wartende informieren - wenn das, so wie hier, nach jeder
 			// fertigen Reihe passiert, geht natürlich durch das häufige
 			// Refresh (im Zeichner) ein bisschen Leistung verloren.
@@ -1104,10 +1104,10 @@ public class Scene implements Serializable
 						{
 							double offsetX = ((double)rx - 0.5 * sqrays) / sqrays;
 							double offsetY = ((double)ry - 0.5 * sqrays) / sqrays;
-							
+
 							offsetX *= 0.9;
 							offsetY *= 0.9;
-							
+
 							RGBColor second = renderPixel(
 									x + offsetX,
 									y + offsetY + yOff,
@@ -1121,7 +1121,7 @@ public class Scene implements Serializable
 						{
 							double offsetX = rGen.nextGaussian() * 0.45;
 							double offsetY = rGen.nextGaussian() * 0.45;
-							
+
 							RGBColor second = renderPixel(
 									x + offsetX,
 									y + offsetY + yOff,
@@ -1135,7 +1135,7 @@ public class Scene implements Serializable
 
 		return true;
 	}
-	
+
 	/**
 	 * Lade die Settings und Szene aus dieser Datei
 	 */
@@ -1145,11 +1145,11 @@ public class Scene implements Serializable
 		List<Material> nmats   = new LinkedList<Material>();
 		List<Object3D> nobjs   = new LinkedList<Object3D>();
 		List<Light>    nlights = new LinkedList<Light>();
-		
+
 		try
 		{
 			SceneReader in = new SceneReader(path);
-			
+
 			String[] tokens = null;
 			while ((tokens = in.getNextTokens()) != null)
 			{
@@ -1169,7 +1169,7 @@ public class Scene implements Serializable
 								return false;
 							}
 						}
-						
+
 						// Sphere fängt an
 						if (tokens[0].equals("sphere"))
 						{
@@ -1182,7 +1182,7 @@ public class Scene implements Serializable
 								return false;
 							}
 						}
-						
+
 						// OFF-File fängt an
 						if (tokens[0].equals("offreader"))
 						{
@@ -1195,7 +1195,7 @@ public class Scene implements Serializable
 								return false;
 							}
 						}
-						
+
 						// OBJ-File fängt an
 						if (tokens[0].equals("objreader"))
 						{
@@ -1208,7 +1208,7 @@ public class Scene implements Serializable
 								return false;
 							}
 						}
-						
+
 						// Blob fängt an
 						if (tokens[0].equals("blob"))
 						{
@@ -1221,7 +1221,7 @@ public class Scene implements Serializable
 								return false;
 							}
 						}
-						
+
 						// QJulia3D fängt an
 						if (tokens[0].equals("qjulia"))
 						{
@@ -1234,7 +1234,7 @@ public class Scene implements Serializable
 								return false;
 							}
 						}
-						
+
 						// Mandelbulb fängt an
 						if (tokens[0].equals("mandelbulb"))
 						{
@@ -1247,7 +1247,7 @@ public class Scene implements Serializable
 								return false;
 							}
 						}
-						
+
 						// PointLight fängt an
 						if (tokens[0].equals("pointlight"))
 						{
@@ -1260,7 +1260,7 @@ public class Scene implements Serializable
 								return false;
 							}
 						}
-						
+
 						// SphereLight fängt an
 						if (tokens[0].equals("spherelight"))
 						{
@@ -1286,9 +1286,9 @@ public class Scene implements Serializable
 								return false;
 							}
 						}
-						
+
 						break;
-					
+
 					// Zweistellige Felder (Key Value)
 					case 2:
 						// Rendersettings
@@ -1329,7 +1329,7 @@ public class Scene implements Serializable
 							nset.rowstep = new Integer(tokens[1]);
 						if (tokens[0].equals("colorDelta"))
 							nset.colorDelta = new Double(tokens[1]);
-						
+
 						// UniformMaterial fängt an
 						if (tokens[0].equals("unimat") || tokens[0].equals("mat"))
 						{
@@ -1342,7 +1342,7 @@ public class Scene implements Serializable
 								return false;
 							}
 						}
-						
+
 						// ProceduralMaterial fängt an
 						if (tokens[0].equals("procmat"))
 						{
@@ -1355,7 +1355,7 @@ public class Scene implements Serializable
 								return false;
 							}
 						}
-						
+
 						// TextureMaterial fängt an
 						if (tokens[0].equals("texmat"))
 						{
@@ -1368,7 +1368,7 @@ public class Scene implements Serializable
 								return false;
 							}
 						}
-						
+
 						break;
 
 					// Zweistellige Felder (Key Value)
@@ -1403,7 +1403,7 @@ public class Scene implements Serializable
 			e.printStackTrace();
 			return false;
 		}
-		
+
 		// Hier angekommen, dann ist alles klar. Übernimm das alles.
 		set = nset;
 		objects = nobjs.toArray(new Object3D[0]);
@@ -1412,7 +1412,7 @@ public class Scene implements Serializable
 		eye.setResolution(set.sizeX, set.sizeY);
 		return true;
 	}
-	
+
 	/**
 	 * Holt die Farbe mit diesem Namen aus der Liste
 	 */
@@ -1421,7 +1421,7 @@ public class Scene implements Serializable
 		for (Material m : mats)
 			if (m.name.equals(name))
 				return m;
-		
+
 		return null;
 	}
 }

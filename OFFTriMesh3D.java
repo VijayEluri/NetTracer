@@ -13,7 +13,7 @@ public class OFFTriMesh3D implements Object3D, Serializable
 	private File infile = null;
 	private Material mat;
 	private RenderingPrimitive[] out;
-	
+
 	/**
 	 * OFF aus Scanner laden
 	 */
@@ -34,11 +34,11 @@ public class OFFTriMesh3D implements Object3D, Serializable
 						return;
 					}
 					break;
-				
+
 				case 2:
 					if (tokens[0].equals("file"))
 						infile = in.getRelativePath(tokens[1]);
-						
+
 					if (tokens[0].equals("mat"))
 					{
 						mat = Scene.getLoadedMaterial(tokens[1], mats);
@@ -48,9 +48,9 @@ public class OFFTriMesh3D implements Object3D, Serializable
 							throw new Exception();
 						}
 					}
-						
+
 					break;
-				
+
 				case 4:
 					if (tokens[0].equals("origin"))
 						origin = new Vec3(
@@ -61,12 +61,12 @@ public class OFFTriMesh3D implements Object3D, Serializable
 						break;
 			}
 		}
-		
+
 		// Unerwartetes Ende
 		System.err.println("Fehler, unerwartetes Ende in External3D-Definition.");
 		throw new Exception();
 	}
-	
+
 	/**
 	 * Leicht antiquierte Funktion, um das eigentliche Mesh zu laden
 	 */
@@ -76,38 +76,38 @@ public class OFFTriMesh3D implements Object3D, Serializable
 		{
 			Scanner scan = new Scanner(infile);
 			scan.useLocale(java.util.Locale.US); // Punkt statt Komma...
-			
+
 			scan.next();
-			
+
 			int numVertices = scan.nextInt();
 			int numFaces = scan.nextInt();
 			int dummy = scan.nextInt();
-			
+
 			Vec3[] verts = new Vec3[numVertices];
-			
+
 			for (int i = 0; i < numVertices; i++)
 			{
 				verts[i] = new Vec3(scan.nextDouble(), scan.nextDouble(), scan.nextDouble());
 			}
-			
+
 			out = new RenderingTriangle[numFaces];
-			
+
 			for (int i = 0; i < numFaces; i++)
 			{
 				Vec3[] theVerts = new Vec3[3];
-				
+
 				// vertnum, immer 3 hier
 				dummy = scan.nextInt();
 				if (dummy != 3)
 				{
 					System.err.println("FEHLER! Das ist kein TriMesh!");
 				}
-				
+
 				for (int k = 0; k < 3; k++)
 				{
 					theVerts[k] = verts[scan.nextInt()].plus(origin);
 				}
-				
+
 				out[i] = new RenderingTriangle(theVerts, null, null, mat, false);
 			}
 		}
@@ -115,15 +115,15 @@ public class OFFTriMesh3D implements Object3D, Serializable
 		{
 			e.printStackTrace();
 		}
-		
+
 		return true;
 	}
-	
+
 	public RenderingPrimitive[] getRenderingPrimitives()
 	{
 		return out;
 	}
-	
+
 	private void dump()
 	{
 		System.out.println("OFFTriMesh3D:");

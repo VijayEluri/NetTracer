@@ -12,25 +12,25 @@ public class ThreadPositions implements Serializable
 	private static final long serialVersionUID = 20100301001L;
 
 	private int[] pos = null;
-	
+
 	public ThreadPositions(int num)
 	{
 		pos = new int[num];
 		reset();
 	}
-	
+
 	synchronized public void reset()
 	{
 		for (int i = 0; i < pos.length; i++)
 			pos[i] = -1;
 	}
-	
+
 	synchronized public void update(int which, int val)
 	{
 		if (which >= 0 && which < pos.length)
 			pos[which] = val;
 	}
-	
+
 	synchronized public int[] get()
 	{
 		int[] out = new int[pos.length];

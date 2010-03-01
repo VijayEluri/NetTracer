@@ -11,14 +11,14 @@ public class SphereLight extends PointLight implements Serializable
 	public double radius = 0.3;
 	public int numrays = 3;
 	public double rayscale = 1.0 / (double)numrays;
-	
+
 	public SphereLight(SceneReader in) throws Exception
 	{
 		super(null);
-		
+
 		if (in == null)
 			return;
-		
+
 		String[] tokens = null;
 		while ((tokens = in.getNextTokens()) != null)
 		{
@@ -47,7 +47,7 @@ public class SphereLight extends PointLight implements Serializable
 						return;
 					}
 					break;
-				
+
 				case 2:
 					if (tokens[0].equals("intensity"))
 						intensity = new Double(tokens[1]);
@@ -58,7 +58,7 @@ public class SphereLight extends PointLight implements Serializable
 					if (tokens[0].equals("numrays"))
 						numrays = new Integer(tokens[1]);
 					break;
-				
+
 				case 4:
 					if (tokens[0].equals("origin"))
 						origin = new Vec3(
@@ -75,7 +75,7 @@ public class SphereLight extends PointLight implements Serializable
 						break;
 			}
 		}
-		
+
 		// Unerwartetes Ende
 		System.err.println("Fehler, unerwartetes Ende in SphereLight-Definition.");
 		throw new Exception();

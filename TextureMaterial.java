@@ -14,11 +14,11 @@ public class TextureMaterial extends Material implements Serializable
 	private BufferedImage img = null;
 	private RGBColor specular = null;
 	private RGBColor transparent = null;
-	
+
 	public TextureMaterial(SceneReader in, String mname) throws Exception
 	{
 		name = mname;
-		
+
 		String[] tokens = null;
 		while ((tokens = in.getNextTokens()) != null)
 		{
@@ -39,17 +39,17 @@ public class TextureMaterial extends Material implements Serializable
 						cloudiness			= clip(cloudiness, 0.0, 1.0);
 						cloudyRays			= (cloudyRays < 1 ? 1 : cloudyRays);
 						ior					= clip(ior, 0.001, 10.0);
-						
+
 						if (specular == null)
 							specular = RGBColor.white();
 						if (transparent == null)
 							transparent = RGBColor.white();
-						
+
 						dump();
 						return;
 					}
 					break;
-				
+
 				// Zweistellige Felder (Key Value)
 				case 2:
 					if (tokens[0].equals("transparency"))
@@ -70,10 +70,10 @@ public class TextureMaterial extends Material implements Serializable
 						cloudiness = new Double(tokens[1]);
 					if (tokens[0].equals("cloudyRays"))
 						cloudyRays = new Integer(tokens[1]);
-					
+
 					if (tokens[0].equals("file"))
 						img = ImageIO.read(in.getRelativePath(tokens[1]));
-					
+
 					break;
 				case 4:
 					if (tokens[0].equals("specular"))
@@ -87,24 +87,24 @@ public class TextureMaterial extends Material implements Serializable
 					break;
 			}
 		}
-		
+
 		// Unerwartetes Ende
 		System.err.println("Fehler, unerwartetes Ende in Materialdefinition von " + mname);
 		throw new Exception();
 	}
-	
+
 	private double clip(double val, double min, double max)
 	{
 		double out = val;
 		if (out < min)
 			out = min;
-		
+
 		if (out > max)
 			out = max;
-		
+
 		return out;
 	}
-	
+
 	/**
 	 * Verwirf p.z und interpretiere die anderen beiden als UV-Koordinaten
 	 */
@@ -112,28 +112,28 @@ public class TextureMaterial extends Material implements Serializable
 	{
 		if (img == null)
 			return RGBColor.black();
-		
+
 		// Von den Intervallen [0, 1] auf Texturgröße hoch
 		int w = img.getWidth();
 		int h = img.getHeight();
-		
+
 		double realx = p.x * (double)w;
 		double realy = (1.0 - p.y) * (double)h;
-		
+
 		int rw = (int)realx; 
 		int rh = (int)realy;
-		
+
 		// Grenzen sicherstellen
 		if (rw >= w)
 			rw = w - 1;
 		else if (rw < 0)
 			rw = 0;
-		
+
 		if (rh >= h)
 			rh = h - 1;
 		else if (rh < 0)
 			rh = 0;
-		
+
 		// Glätten, sofern nicht am Texturrand (vorerst vereinfacht)
 		if (rw < w - 1 && rh < h - 1)
 		{
@@ -142,34 +142,34 @@ public class TextureMaterial extends Material implements Serializable
 			RGBColor en = new RGBColor(img.getRGB(rw + 1, rh));
 			RGBColor ne = new RGBColor(img.getRGB(rw, rh + 1));
 			RGBColor ee = new RGBColor(img.getRGB(rw + 1, rh + 1));
-			
+
 			double x2x = rw + 1 - realx;
 			double xx1 = realx - rw;
 			double y2y = rh + 1 - realy;
 			double yy1 = realy - rh;
-			
+
 			nn.scale(x2x);
 			en.scale(xx1);
-			
+
 			ne.scale(x2x);
 			ee.scale(xx1);
-			
+
 			// Anlegen neuer Objekte vermeiden, das spart Zeit und schont
 			// den Garbage Collector.
-			
+
 			//RGBColor R1 = nn.plus(en);
 			//RGBColor R2 = ne.plus(ee);
 			nn.add(en);
 			ne.add(ee);
-			
+
 			//R1.scale(y2y);
 			//R2.scale(yy1);
 			nn.scale(y2y);
 			ne.scale(yy1);
-			
+
 			//R1.add(R2);
 			nn.add(ne);
-			
+
 			return nn;
 		}
 		else
@@ -178,18 +178,18 @@ public class TextureMaterial extends Material implements Serializable
 			return new RGBColor(img.getRGB(rw, rh));
 		}
 	}
-	
+
 	public RGBColor getSpecularColor(Vec3 p)
 	{
 		// Vorerst fest, später vielleicht Glanzmaps o.ä.
 		return specular;
 	}
-	
+
 	public RGBColor getTransparentColor(Vec3 p)
 	{
 		return transparent;
 	}
-	
+
 	public void dump()
 	{
 		System.out.println("TextureMaterial " + name + ":");
@@ -203,7 +203,7 @@ public class TextureMaterial extends Material implements Serializable
 		System.out.println("ior: " + ior);
 		System.out.println();
 	}
-	
+
 	public String toString()
 	{
 		return name;

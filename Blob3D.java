@@ -15,21 +15,21 @@ public class Blob3D implements Object3D, RenderingPrimitive, Serializable
 	private static final long serialVersionUID = 20100301001L;
 
 	private AABB cachedAABB = null;
-	
+
 	private RenderingPrimitive[] prims;
 	private Material mat = null;
-	
+
 	private double accuracy = 1e-8, startstep = 0.2, normaldelta = 0.01;
 	private final double threshold = 1.0;
-	
+
 	private Vec3[] charges = null;
 	private Double[] weights = null;
-	
+
 	public Blob3D(SceneReader in, List<Material> mats) throws Exception
 	{
 		LinkedList<Vec3> c = new LinkedList<Vec3>();
 		LinkedList<Double> w = new LinkedList<Double>();
-		
+
 		String[] tokens = null;
 		while ((tokens = in.getNextTokens()) != null)
 		{
@@ -41,7 +41,7 @@ public class Blob3D implements Object3D, RenderingPrimitive, Serializable
 						prims = new RenderingPrimitive[] {this};
 						charges = c.toArray(new Vec3[0]);
 						weights = w.toArray(new Double[0]);
-						
+
 						System.out.println("Blob3D:");
 						System.out.println("mat: " + mat);
 						System.out.println("accuracy: " + accuracy);
@@ -53,7 +53,7 @@ public class Blob3D implements Object3D, RenderingPrimitive, Serializable
 						return;
 					}
 					break;
-				
+
 				case 2:
 					if (tokens[0].equals("accuracy"))
 						accuracy = new Double(tokens[1]);
@@ -61,7 +61,7 @@ public class Blob3D implements Object3D, RenderingPrimitive, Serializable
 						startstep = new Double(tokens[1]);
 					if (tokens[0].equals("normaldelta"))
 						normaldelta = new Double(tokens[1]);
-						
+
 					if (tokens[0].equals("mat"))
 					{
 						mat = Scene.getLoadedMaterial(tokens[1], mats);
@@ -71,9 +71,9 @@ public class Blob3D implements Object3D, RenderingPrimitive, Serializable
 							throw new Exception();
 						}
 					}
-						
+
 					break;
-				
+
 				case 6:
 					if (tokens[0].equals("c"))
 						w.add(new Double(tokens[1]));
@@ -85,12 +85,12 @@ public class Blob3D implements Object3D, RenderingPrimitive, Serializable
 					break;
 			}
 		}
-		
+
 		// Unerwartetes Ende
 		System.err.println("Fehler, unerwartetes Ende in Blob3D-Definition.");
 		throw new Exception();
 	}
-	
+
 	/**
 	 * Die Blub-Summenfunktion.
 	 */
@@ -101,7 +101,7 @@ public class Blob3D implements Object3D, RenderingPrimitive, Serializable
 		{
 			Vec3 c = charges[i];
 			double w = weights[i];
-			
+
 			d1 = (c.x - x);
 			d2 = (c.y - y);
 			d3 = (c.z - z);
@@ -109,7 +109,7 @@ public class Blob3D implements Object3D, RenderingPrimitive, Serializable
 		}
 		return sum;
 	}
-	
+
 	/**
 	 * Approximiert die Normale an diesem Punkt über den Gradienten
 	 */
@@ -120,7 +120,7 @@ public class Blob3D implements Object3D, RenderingPrimitive, Serializable
 						F(p.x, p.y - h, p.z) - F(p.x, p.y + h, p.z),
 						F(p.x, p.y, p.z - h) - F(p.x, p.y, p.z + h)).normalized();
 	}
-	
+
 	/**
 	 * Führe mit diesem Strahl einen Schnitttest mit dir selbst durch
 	 */
@@ -132,48 +132,48 @@ public class Blob3D implements Object3D, RenderingPrimitive, Serializable
 		double[] alpha0arr = new double[2];
 		if (!cachedAABB.alphaEntryExit(r, alpha0arr))
 			return null;
-		
+
 		// Ausgangssituation feststellen, denn wir könnten ja auch
 		// theoretisch *im* Blob mit dem Ray starten.
 		boolean start = (F(r.origin.x, r.origin.y, r.origin.z) >= threshold);
-		
+
 		double alpha = alpha0arr[0], step = startstep;
 		double x, y, z;
 		boolean sit;
-		
+
 		// Schiebe den Ray-Parameter maximal so weit bis er die AABB
 		// wieder verlässt. Schaue dabei, ob sich zwischendrin die
 		// Situation ändert.
 		while (alpha < alpha0arr[1])
 		{
 			alpha += step;
-			
+
 			x = r.origin.x + alpha * r.direction.x;
 			y = r.origin.y + alpha * r.direction.y;
 			z = r.origin.z + alpha * r.direction.z;
-			
+
 			sit = (F(x, y, z) >= threshold);
-			
+
 			if (sit == !start)
 			{
 				// Situation hat sich geändert, jetzt Bisektion bis die
 				// gewünschte Genauigkeit erreicht ist.
 				double a1 = alpha - step, a2 = alpha;
-				
+
 				while (step > accuracy)
 				{
 					// Gehe zum Mittelpunkt des aktuellen Stückes und
 					// sample dort.
 					step *= 0.5;
-					
+
 					alpha = a1 + step;
-					
+
 					x = r.origin.x + alpha * r.direction.x;
 					y = r.origin.y + alpha * r.direction.y;
 					z = r.origin.z + alpha * r.direction.z;
-					
+
 					sit = (F(x, y, z) >= threshold);
-					
+
 					if (sit == !start)
 					{
 						// Wir sind wieder "innerhalb" und müssen noch weiter
@@ -187,7 +187,7 @@ public class Blob3D implements Object3D, RenderingPrimitive, Serializable
 						a1 = alpha;
 					}
 				}
-				
+
 				// Genauigkeit erreicht, berechne Normale und gib zurück
 				Vec3 p = new Vec3(x, y, z);
 				Vec3 n = calcNormal(p);
@@ -197,11 +197,11 @@ public class Blob3D implements Object3D, RenderingPrimitive, Serializable
 										mat.getTransparentColor(p));
 			}
 		}
-		
+
 		// Kein Schnitt gefunden
 		return null;
 	}
-	
+
 	/**
 	 * Gib mir deine AABB
 	 */
@@ -217,22 +217,22 @@ public class Blob3D implements Object3D, RenderingPrimitive, Serializable
 			//   umfasst.
 			// - Das für jede einzelne Charge. Dann eine große AABB,
 			//   die diese kleinen AABB's umfasst.
-			
+
 			ArrayList<AABB> a = new ArrayList<AABB>();
-			
+
 			double epsilon = 1.5;
 			for (int i = 0; i < charges.length; i++)
 			{
 				double r = weights[i] * epsilon;
 				a.add(new AABB(new Vec3(charges[i]), new Vec3(r, r, r)));
 			}
-			
+
 			cachedAABB = new AABB(a);
 		}
-		
+
 		return cachedAABB;
 	}
-	
+
 	public RenderingPrimitive[] getRenderingPrimitives()
 	{
 		return prims;
