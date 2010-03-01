@@ -646,7 +646,6 @@ public class Scene implements Serializable
 		{
 			long startTime = 0;
 
-			System.out.print("Baue große BoundingBox um ");
 			startTime = System.currentTimeMillis();
 			
 			ArrayList<RenderingPrimitive> allPrims = new ArrayList<RenderingPrimitive>();
@@ -654,7 +653,8 @@ public class Scene implements Serializable
 				for (RenderingPrimitive p : o.getRenderingPrimitives())
 					allPrims.add(p);
 			
-			System.out.println(allPrims.size() + " Primitive ...");
+			System.out.println("Baue große Bounding Box um "
+					+ allPrims.size() + " Primitive ...");
 			
 			AABB bigBox = new AABB(allPrims, 0);
 			

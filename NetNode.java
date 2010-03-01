@@ -8,6 +8,9 @@ public class NetNode
 		String host = "localhost";
 		int port = 7431;
 
+		System.setOut(new NetConsole(System.out));
+		System.setErr(new NetConsole(System.err));
+
 		for (int i = 0; i < args.length; i++)
 		{
 			if (args[i].equals("-h"))

@@ -152,7 +152,7 @@ public class NetMaster
 		return numthreads;
 	}
 
-	public static void spawnHandlersFor(String host, int port, Console out)
+	public static void spawnHandlersFor(String host, int port)
 		throws Exception
 	{
 		int numthreads = getThreadsForClient(host, port);
@@ -162,7 +162,6 @@ public class NetMaster
 			Handler h = new Handler();
 			h.host = host;
 			h.port = port;
-			h.out = out;
 
 			h.start();
 		}
@@ -171,6 +170,9 @@ public class NetMaster
 	public static void main(String[] args) throws Exception
 	{
 		// TODO: getopt()
+
+		System.setOut(new NetConsole(System.out));
+		System.setErr(new NetConsole(System.err));
 
 		loadScene("scenes/julia-pres-1.scn");
 
@@ -181,20 +183,9 @@ public class NetMaster
 			7431, 7431, 7431, 7431
 		};
 
-		Console out = new Console()
-		{
-			public void println(String s)
-			{
-				synchronized (this)
-				{
-					System.out.println(s);
-				}
-			}
-		};
-
 		for (int i = 0; i < hosts.length; i++)
 		{
-			spawnHandlersFor(hosts[i], ports[i], out);
+			spawnHandlersFor(hosts[i], ports[i]);
 		}
 	}
 
@@ -205,29 +196,22 @@ public class NetMaster
 	{
 		public String host = null;
 		public int port = -1;
-		public Console out = null;
 
 		public Socket s = null;
 
-		private void p(String s)
-		{
-			if (out != null)
-				out.println(Thread.currentThread() + "> " + s);
-		}
-
 		public void handle() throws Exception
 		{
-			p("Verbinde zu: " + host + ":" + port);
+			System.out.println("Verbinde zu: " + host + ":" + port);
 			s = new Socket(host, port);
-			p("Verbunden mit: " + host + ":" + port);
+			System.out.println("Verbunden mit: " + host + ":" + port);
 
-			p("Teste Version...");
+			System.out.println("Teste Version...");
 			ObjectInputStream ois =
 				new ObjectInputStream(s.getInputStream());
 
 			if (ois.readInt() < NetCodes.VERSION)
 				return;
-			p("Version ok.");
+			System.out.println("Version ok.");
 
 			ObjectOutputStream oos =
 				new ObjectOutputStream(s.getOutputStream());
@@ -235,10 +219,10 @@ public class NetMaster
 			// NOOP senden, also *nicht* Threads abfragen.
 			oos.writeInt(NetCodes.NOOP);
 
-			p("Sende Szene...");
+			System.out.println("Sende Szene...");
 			oos.writeObject(theScene);
 			oos.flush();
-			p("Szene gesendet.");
+			System.out.println("Szene gesendet.");
 
 			boolean run = true;
 			while (run)
@@ -247,16 +231,16 @@ public class NetMaster
 				switch (cmd)
 				{
 					case NetCodes.REQUEST_JOB:
-						p("Jobanfrage.");
+						System.out.println("Jobanfrage.");
 						int[] jobInfo = getFreeJob();
 						if (jobInfo == null)
 						{
-							p("Keine Jobs mehr vorhanden.");
+							System.out.println("Keine Jobs mehr vorhanden.");
 							oos.writeInt(-1);
 						}
 						else
 						{
-							p("Sende jobInfo.");
+							System.out.println("Sende jobInfo.");
 							for (int i = 0; i < jobInfo.length; i++)
 							{
 								oos.writeInt(jobInfo[i]);
@@ -266,7 +250,7 @@ public class NetMaster
 						break;
 
 					case NetCodes.JOB_COMPLETED:
-						p("Empfange Ergebnis.");
+						System.out.println("Empfange Ergebnis.");
 						int yOff = ois.readInt();
 						int toid = ois.readInt();
 
@@ -278,13 +262,13 @@ public class NetMaster
 							pixels[y + yOff] = px[y];
 						}
 
-						p("Ergebnis erhalten.");
+						System.out.println("Ergebnis erhalten.");
 						setCompleted(toid);
 						break;
 
 					case NetCodes.QUIT:
 					default:
-						p("Beende.");
+						System.out.println("Beende.");
 						run = false;
 				}
 			}
