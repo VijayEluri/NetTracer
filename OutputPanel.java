@@ -72,10 +72,10 @@ public class OutputPanel extends JPanel implements Serializable
 				else
 				{
 					// Sollen die kritischen Pixel hervorgehoben werden?
-					if (c && toRender.criticalPixels[x][y])
-						px[pindex++] = RGBColor.overlayARGB(aaover, toRender.pixels[x][y].toRGB());
+					if (c && toRender.criticalPixels[y][x])
+						px[pindex++] = RGBColor.overlayARGB(aaover, toRender.pixels[y][x].toRGB());
 					else
-						px[pindex++] = toRender.pixels[x][y].toRGB();
+						px[pindex++] = toRender.pixels[y][x].toRGB();
 				}
 			}
 		}

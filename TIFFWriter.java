@@ -23,7 +23,7 @@ public class TIFFWriter implements Serializable
 		System.out.println("Speichere nach " + f + " ...");
 
 		TIFFWriter stream = new TIFFWriter(f,
-				s.pixels.length, s.pixels[0].length);
+				s.pixels[0].length, s.pixels.length);
 		stream.seek(0);
 		stream.writeData(s.pixels);
 		stream.close();
@@ -151,10 +151,10 @@ public class TIFFWriter implements Serializable
 		{
 			for (int x = 0; x < w; x++)
 			{
-				pixels[x][y].normalize();
-				bos.write(RGBColor.toInteger(pixels[x][y].r));
-				bos.write(RGBColor.toInteger(pixels[x][y].g));
-				bos.write(RGBColor.toInteger(pixels[x][y].b));
+				pixels[y][x].normalize();
+				bos.write(RGBColor.toInteger(pixels[y][x].r));
+				bos.write(RGBColor.toInteger(pixels[y][x].g));
+				bos.write(RGBColor.toInteger(pixels[y][x].b));
 			}
 		}
 		bos.flush();

@@ -708,22 +708,22 @@ public class Scene implements Serializable
 	public boolean initPixbufs()
 	{
 		// Ausgabearray fertig machen
-		pixels = new RGBColor[set.sizeX][];
-		for (int x = 0; x < set.sizeX; x++)
+		pixels = new RGBColor[set.sizeY][];
+		for (int y = 0; y < set.sizeY; y++)
 		{
-			pixels[x] = new RGBColor[set.sizeY];
-			for (int y = 0; y < set.sizeY; y++)
+			pixels[y] = new RGBColor[set.sizeX];
+			for (int x = 0; x < set.sizeX; x++)
 			{
 				// Am Anfang alles schwarz, damit das Fenster jederzeit
 				// ungehindert irgendein Bild darstellen kann
-				pixels[x][y] = RGBColor.black();
+				pixels[y][x] = RGBColor.black();
 			}
 		}
 
 		// AA-Infoarray: Kritische Pixel
-		criticalPixels = new boolean[set.sizeX][];
-		for (int i = 0; i < set.sizeX; i++)
-			criticalPixels[i] = new boolean[set.sizeY];
+		criticalPixels = new boolean[set.sizeY][];
+		for (int y = 0; y < set.sizeY; y++)
+			criticalPixels[y] = new boolean[set.sizeX];
 
 		return true;
 	}
@@ -857,8 +857,8 @@ public class Scene implements Serializable
 				{
 					for (int x = 1; x < set.sizeX; x++)
 					{
-						if (   pixels[x][y].differs(pixels[x-1][y], set.colorDelta / 255.0)
-							|| pixels[x][y].differs(pixels[x][y-1], set.colorDelta / 255.0))
+						if (   pixels[y][x].differs(pixels[y][x-1], set.colorDelta / 255.0)
+							|| pixels[y][x].differs(pixels[y-1][x], set.colorDelta / 255.0))
 						{
 							for (int yoff = -1; yoff <= 1; yoff++)
 							{
@@ -870,7 +870,7 @@ public class Scene implements Serializable
 									// Nicht über den Rand gehen
 									if (pidxX >= 0 && pidxX < set.sizeX && pidxY >= 0 && pidxY < set.sizeY)
 									{
-										criticalPixels[pidxX][pidxY] = true;
+										criticalPixels[pidxY][pidxX] = true;
 									}
 								}
 							}
@@ -975,7 +975,7 @@ public class Scene implements Serializable
 					for (int x = 0; x < set.sizeX; x++)
 					{
 						// Den normalen Strahl abschicken.
-						pixels[x][y] = renderPixel(x, y, set.maxdepth, rGen);
+						pixels[y][x] = renderPixel(x, y, set.maxdepth, rGen);
 					}
 				}
 			}
@@ -990,7 +990,7 @@ public class Scene implements Serializable
 					for (int x = 0; x < set.sizeX; x++)
 					{
 						// ... und schaue, ob hier ein kritischer Pixel ist ...
-						if (criticalPixels[x][y])
+						if (criticalPixels[y][x])
 						{
 							if (numrays <= 16)
 							{
@@ -1005,7 +1005,7 @@ public class Scene implements Serializable
 									offsetY *= 0.9;
 									
 									RGBColor second = renderPixel(x + offsetX, y + offsetY, set.maxdepth, rGen);
-									pixels[x][y].addSample(second);
+									pixels[y][x].addSample(second);
 								}
 							}
 							else
@@ -1017,7 +1017,7 @@ public class Scene implements Serializable
 									double offsetY = rGen.nextGaussian() * 0.45;
 									
 									RGBColor second = renderPixel(x + offsetX, y + offsetY, set.maxdepth, rGen);
-									pixels[x][y].addSample(second);
+									pixels[y][x].addSample(second);
 								}
 							}
 						}
