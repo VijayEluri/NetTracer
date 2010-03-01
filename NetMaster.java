@@ -163,13 +163,8 @@ public class NetMaster
 				if (tokens[i] != target)
 					return;
 
-			// Nichts mehr zu machen, speichere das Ding.
+			// Phase beendet. Speichere Pixel in Szene.
 			theScene.pixels = pixels;
-			try
-			{
-				TIFFWriter.writeRGBImage(theScene, new File("/tmp/wth" + target));
-			}
-			catch (Exception e) {} // ignore erstmal
 
 			// Wir sind mit den primären Strahlen fertig. Jetzt AA?
 			if (target == 2 && theScene.set.AARays > 0)
@@ -231,10 +226,11 @@ public class NetMaster
 		return numthreads;
 	}
 
-	public static void spawnHandlersFor(String host, int port)
+	public static ArrayList<Thread> spawnHandlersFor(String host, int port)
 		throws Exception
 	{
 		int numthreads = getThreadsForClient(host, port);
+		ArrayList<Thread> spawned = new ArrayList<Thread>();
 
 		for (int i = 0; i < numthreads; i++)
 		{
@@ -243,7 +239,10 @@ public class NetMaster
 			h.port = port;
 
 			h.start();
+			spawned.add(h);
 		}
+
+		return spawned;
 	}
 
 	public static synchronized void findCriticalPixels()
@@ -262,11 +261,16 @@ public class NetMaster
 
 	public static void main(String[] args) throws Exception
 	{
-		// TODO: getopt()
+		long t_start = System.currentTimeMillis();
 
-		String scenePath = "scenes/example4.scn";
-		if (args.length > 0)
-			scenePath = args[0];
+		if (args.length != 2)
+		{
+			System.err.println("Parameter: <Szene> <Zieldatei>");
+			System.exit(1);
+		}
+
+		String scenePath = args[0];
+		String targetPath = args[1];
 
 		System.setOut(new NetConsole(System.out));
 		System.setErr(new NetConsole(System.err));
@@ -285,10 +289,34 @@ public class NetMaster
 			ports.add(new Integer(split[1]));
 		}
 
+		// Rendern lassen.
+		ArrayList<Thread> running = new ArrayList<Thread>();
 		for (int i = 0; i < hosts.size(); i++)
 		{
-			spawnHandlersFor(hosts.get(i), ports.get(i));
+			running.addAll(spawnHandlersFor(hosts.get(i), ports.get(i)));
 		}
+
+		// Warten, bis die alle fertig sind.
+		for (Thread t : running)
+			t.join();
+
+		// Bild schreiben.
+		TIFFWriter.writeRGBImage(theScene, new File(targetPath));
+
+		long t_end = System.currentTimeMillis();
+		long s = t_end - t_start;
+		s /= 1000;
+		long h = s / 3600;
+		s -= 3600 * h;
+
+		long m = s / 60;
+		s -= 60 * m;
+
+		System.out.println("Verstrichene Gesamtzeit: " +
+				(h < 10 ? "0" : "") + h + ":" +
+				(m < 10 ? "0" : "") + m + ":" +
+				(s < 10 ? "0" : "") + s
+				);
 	}
 
 	/**
@@ -350,8 +378,8 @@ public class NetMaster
 
 							if (jobsize < 1)
 								jobsize = 1;
-							else if (jobsize > 100)
-								jobsize = 100;
+							else if (jobsize > 20)
+								jobsize = 20;
 						}
 
 						// getFreeJob() wird der letzte Typ mitgegeben, damit dieses
