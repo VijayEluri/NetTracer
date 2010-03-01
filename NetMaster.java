@@ -1,3 +1,4 @@
+import java.util.*;
 import java.net.*;
 import java.io.*;
 
@@ -238,21 +239,30 @@ public class NetMaster
 	{
 		// TODO: getopt()
 
+		String scenePath = "scenes/example4.scn";
+		if (args.length > 0)
+			scenePath = args[0];
+
 		System.setOut(new NetConsole(System.out));
 		System.setErr(new NetConsole(System.err));
 
-		loadScene("scenes/julia-pres-1.scn");
+		loadScene(scenePath);
 
-		String[] hosts = {
-			"localhost", "mobiltux"
-		};
-		int[] ports = {
-			7431, 7431
-		};
-
-		for (int i = 0; i < hosts.length; i++)
+		System.out.println("Lese Nodes von STDIN, beende mit EOF:");
+		ArrayList<String> hosts = new ArrayList<String>();
+		ArrayList<Integer> ports = new ArrayList<Integer>();
+		Scanner sin = new Scanner(System.in);
+		while (sin.hasNext())
 		{
-			spawnHandlersFor(hosts[i], ports[i]);
+			String line = sin.nextLine();
+			String[] split = line.split(":");
+			hosts.add(split[0]);
+			ports.add(new Integer(split[1]));
+		}
+
+		for (int i = 0; i < hosts.size(); i++)
+		{
+			spawnHandlersFor(hosts.get(i), ports.get(i));
 		}
 	}
 
