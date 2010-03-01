@@ -184,6 +184,11 @@ public class NetNode
 								// soll, dann muss das Objekt auch neu erzeugt werden.
 								// Erzwinge dies.
 								theScene.pixels = null;
+
+								// Speicher sparen. In der Realität überprüft, das
+								// bringt wirklich etwas.
+								oos.reset();
+								System.gc();
 							}
 						}
 						break;
