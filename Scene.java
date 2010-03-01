@@ -1371,6 +1371,17 @@ public class Scene implements Serializable
 						
 						break;
 
+					// Zweistellige Felder (Key Value)
+					case 3:
+						// Rendersettings
+						if (tokens[0].equals("size"))
+						{
+							nset.sizeX = new Integer(tokens[1]);
+							nset.sizeY = new Integer(tokens[2]);
+						}
+
+						break;
+
 					case 4:
 						// Umgebungsfarbe
 						if (tokens[0].equals("environment"))
