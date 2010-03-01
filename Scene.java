@@ -1044,6 +1044,28 @@ public class Scene implements Serializable
 			}
 		}
 	}
+
+	public boolean renderPartialPrimary(int yOff, int rows)
+	{
+		// Ausgabearray fertig machen
+		if (pixels == null || pixels.length != rows)
+		{
+			pixels = new RGBColor[rows][];
+			for (int y = 0; y < rows; y++)
+				pixels[y] = new RGBColor[set.sizeX];
+		}
+
+		for (int y = 0; y < rows; y++)
+		{
+			for (int x = 0; x < set.sizeX; x++)
+			{
+				// Den normalen Strahl abschicken.
+				pixels[y][x] = renderPixel(x, y + yOff, set.maxdepth, rGen);
+			}
+		}
+
+		return true;
+	}
 	
 	/**
 	 * Lade die Settings und Szene aus dieser Datei
