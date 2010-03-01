@@ -3,6 +3,8 @@ import java.net.*;
 
 public class NetNode
 {
+	public static int threads = Runtime.getRuntime().availableProcessors();
+
 	public static void main(String[] args) throws Exception
 	{
 		String host = "localhost";
@@ -21,6 +23,11 @@ public class NetNode
 			if (args[i].equals("-p"))
 			{
 				port = new Integer(args[i + 1]);
+				i++;
+			}
+			if (args[i].equals("-t"))
+			{
+				threads = new Integer(args[i + 1]);
 				i++;
 			}
 		}
