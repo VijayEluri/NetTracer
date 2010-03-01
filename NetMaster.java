@@ -95,6 +95,7 @@ public class NetMaster
 				if (tokens[i] != 2)
 					return;
 
+			// Nichts mehr zu machen, speichere das Ding.
 			theScene.pixels = pixels;
 			try
 			{
@@ -104,17 +105,80 @@ public class NetMaster
 		}
 	}
 
+	public static int getThreadsForClient(String host, int port)
+	{
+		Socket s = null;
+		int numthreads = -1;
+		try
+		{
+			s = new Socket(host, port);
+			System.out.println("Frage " + host + ":" + port + " nach Threads.");
+
+			ObjectInputStream ois =
+				new ObjectInputStream(s.getInputStream());
+
+			if (ois.readInt() >= NetCodes.VERSION)
+			{
+				System.out.println("Version ok.");
+
+				ObjectOutputStream oos =
+					new ObjectOutputStream(s.getOutputStream());
+
+				oos.writeInt(NetCodes.QUERY_THREADS);
+				oos.flush();
+				System.out.println("Warte auf Antwort...");
+				numthreads = ois.readInt();
+				System.out.println("Node kann " + numthreads + " Threads.");
+			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		finally
+		{
+			if (s != null)
+			{
+				try
+				{
+					s.shutdownInput();
+					s.shutdownOutput();
+					s.close();
+				}
+				catch (Exception e) {} // ignore
+			}
+		}
+
+		return numthreads;
+	}
+
+	public static void spawnHandlersFor(String host, int port, Console out)
+		throws Exception
+	{
+		int numthreads = getThreadsForClient(host, port);
+
+		for (int i = 0; i < numthreads; i++)
+		{
+			Handler h = new Handler();
+			h.host = host;
+			h.port = port;
+			h.out = out;
+
+			h.start();
+		}
+	}
+
 	public static void main(String[] args) throws Exception
 	{
 		// TODO: getopt()
 
-		loadScene("scenes/example4.scn");
+		loadScene("scenes/julia-pres-1.scn");
 
 		String[] hosts = {
-			"localhost", "localhost"
+			"localhost", "localhost", "mobiltux", "mobiltux"
 		};
 		int[] ports = {
-			7431, 7432
+			7431, 7431, 7431, 7431
 		};
 
 		Console out = new Console()
@@ -130,12 +194,7 @@ public class NetMaster
 
 		for (int i = 0; i < hosts.length; i++)
 		{
-			Handler h = new Handler();
-			h.host = hosts[i];
-			h.port = ports[i];
-			h.out = out;
-
-			h.start();
+			spawnHandlersFor(hosts[i], ports[i], out);
 		}
 	}
 
@@ -173,6 +232,9 @@ public class NetMaster
 			ObjectOutputStream oos =
 				new ObjectOutputStream(s.getOutputStream());
 
+			// NOOP senden, also *nicht* Threads abfragen.
+			oos.writeInt(NetCodes.NOOP);
+
 			p("Sende Szene...");
 			oos.writeObject(theScene);
 			oos.flush();
@@ -191,7 +253,6 @@ public class NetMaster
 						{
 							p("Keine Jobs mehr vorhanden.");
 							oos.writeInt(-1);
-							run = false;
 						}
 						else
 						{

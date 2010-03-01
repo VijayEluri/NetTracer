@@ -25,6 +25,8 @@ public class NetNode
 		ServerSocket serv = new ServerSocket(port, 0,
 				InetAddress.getByName(host));
 
+		System.out.println("Node bereit.");
+
 		while (true)
 		{
 			Socket cli = serv.accept();
@@ -58,6 +60,15 @@ public class NetNode
 			ObjectInputStream ois
 				= new ObjectInputStream(s.getInputStream());
 
+			int firstCmd = ois.readInt();
+			if (firstCmd == NetCodes.QUERY_THREADS)
+			{
+				System.out.println("Gebe Threadzahl bekannt.");
+				oos.writeInt(Runtime.getRuntime().availableProcessors());
+				oos.flush();
+				return;
+			}
+
 			System.out.println("Warte auf Szene...");
 			theScene = (Scene)ois.readObject();
 			System.out.println("Habe Szene.");
@@ -86,8 +97,8 @@ public class NetNode
 
 						if (yOff == -1)
 						{
-							System.out.println("Gegenseite sagt, Arbeit ist vorbei.");
-							run = false;
+							System.out.println("Gegenseite sagt: Erste Phase vorbei.");
+							state++;
 						}
 						else
 						{
@@ -119,6 +130,8 @@ public class NetNode
 						break;
 
 					default:
+						oos.writeInt(NetCodes.QUIT);
+						oos.flush();
 						run = false;
 				}
 			}
