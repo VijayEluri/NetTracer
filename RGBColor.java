@@ -12,7 +12,7 @@ public class RGBColor implements Serializable
 	private static final long serialVersionUID = 20100301001L;
 
 	public double r, g, b;
-	private int samples = 1;
+	protected int samples = 1;
 	
 	public static RGBColor black()      { return new RGBColor(0.0, 0.0, 0.0); }
 	public static RGBColor white()      { return new RGBColor(1.0, 1.0, 1.0); }
@@ -76,6 +76,12 @@ public class RGBColor implements Serializable
 	{
 		add(other);
 		samples++;
+	}
+
+	public void addAllSamples(RGBColor other)
+	{
+		add(other);
+		samples += other.samples;
 	}
 	
 	public void scale(double a)

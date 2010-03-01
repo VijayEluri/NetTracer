@@ -19,13 +19,13 @@ public class Scene implements Serializable
 	public BVNode bvroot = null;
 	
 	// Hier wird das Bild am Ende gespeichert
-	public RGBColor[][] pixels;
+	public RGBColor[][] pixels = null;
 	
 	// Interessierte können hier warten und benachrichtigt werden
 	public LinkedList<Boolean> repaintQueue = new LinkedList<Boolean>();
 	
 	// AA-Informationen
-	public boolean[][] criticalPixels;
+	public boolean[][] criticalPixels = null;
 	
 	// Thread-Koordination
 	private int[] nextFreeRow = new int[1];
@@ -1061,6 +1061,73 @@ public class Scene implements Serializable
 			{
 				// Den normalen Strahl abschicken.
 				pixels[y][x] = renderPixel(x, y + yOff, set.maxdepth, rGen);
+			}
+		}
+
+		return true;
+	}
+
+	public boolean renderPartialAntiAlias(int yOff, int rows)
+	{
+		// Ausgabearray fertig machen
+		if (pixels == null || pixels.length != rows)
+		{
+			pixels = new RGBColor[rows][];
+			for (int y = 0; y < rows; y++)
+			{
+				pixels[y] = new RGBColor[set.sizeX];
+				// Diesmal brauchen wir leere Grundpixel. Die sind schwarz, aber
+				// der Sample-Counter steht auf 0.
+				for (int x = 0; x < set.sizeX; x++)
+				{
+					pixels[y][x] = RGBColor.empty();
+				}
+			}
+		}
+
+		// Wir rendern jetzt zusätzliche Samples für die kritischen Pixel
+		// und nur für die.
+		double sqrays = Math.sqrt(set.AARays);
+		for (int y = 0; y < rows; y++)
+		{
+			for (int x = 0; x < set.sizeX; x++)
+			{
+				if (criticalPixels[y + yOff][x])
+				{
+					if (set.AARays <= 16)
+					{
+						// Ordered Grid bis 16 Rays
+						for (int rx = 0; rx < sqrays; rx++)
+						for (int ry = 0; ry < sqrays; ry++)
+						{
+							double offsetX = ((double)rx - 0.5 * sqrays) / sqrays;
+							double offsetY = ((double)ry - 0.5 * sqrays) / sqrays;
+							
+							offsetX *= 0.9;
+							offsetY *= 0.9;
+							
+							RGBColor second = renderPixel(
+									x + offsetX,
+									y + offsetY + yOff,
+									set.maxdepth, rGen);
+							pixels[y][x].addSample(second);
+						}
+					}
+					else
+					{
+						for (int i = 0; i < set.AARays; i++)
+						{
+							double offsetX = rGen.nextGaussian() * 0.45;
+							double offsetY = rGen.nextGaussian() * 0.45;
+							
+							RGBColor second = renderPixel(
+									x + offsetX,
+									y + offsetY + yOff,
+									set.maxdepth, rGen);
+							pixels[y][x].addSample(second);
+						}
+					}
+				}
 			}
 		}
 

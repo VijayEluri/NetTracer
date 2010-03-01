@@ -93,6 +93,7 @@ public class NetNode
 				switch (state)
 				{
 					case 0:
+						System.out.println("Frage nach Arbeit...");
 						oos.writeInt(NetCodes.REQUEST_JOB);
 						oos.flush();
 
@@ -100,34 +101,78 @@ public class NetNode
 
 						if (yOff == -1)
 						{
-							System.out.println("Gegenseite sagt: Erste Phase vorbei.");
-							state++;
+							System.out.println("Gegenseite sagt: Bitte warten.");
+							Thread.sleep(1000);
+						}
+						else if (yOff == -2)
+						{
+							System.out.println("Gegenseite sagt: Fertig.");
+							state = -1;
+							theScene.pixels = null;
+							theScene.criticalPixels = null;
 						}
 						else
 						{
 							int rows = ois.readInt();
 							int toid = ois.readInt();
+							int type = ois.readInt();
 
-							System.out.println("Habe Job: " + yOff + ", " + rows);
+							System.out.println("Habe Job: " + yOff + ", " + rows
+									+ ", " + type);
 
-							if (!theScene.renderPartialPrimary(yOff, rows))
+							int reply = -1;
+							if (type == 0)
 							{
-								System.out.println("Fehler beim Rendern.");
-								oos.writeInt(NetCodes.QUIT);
-								oos.flush();
-								run = false;
+								// Primäre Strahlen.
+								if (!theScene.renderPartialPrimary(yOff, rows))
+								{
+									System.out.println("Fehler beim Rendern.");
+									state = -1;
+								}
+								else
+								{
+									reply = NetCodes.JOB_COMPLETED;
+								}
 							}
-							else
+							else if (type == 1)
+							{
+								// Antialiasing. Dafür brauche ich das Array der
+								// kritischen Pixel.
+								if (theScene.criticalPixels == null)
+								{
+									oos.writeInt(NetCodes.REQUEST_CRITICAL);
+									oos.flush();
+
+									theScene.criticalPixels = (boolean[][])ois.readObject();
+								}
+
+								if (!theScene.renderPartialAntiAlias(yOff, rows))
+								{
+									System.out.println("Fehler beim Rendern.");
+									state = -1;
+								}
+								else
+								{
+									reply = NetCodes.JOB_COMPLETED_AA;
+								}
+							}
+
+							if (reply != -1)
 							{
 								System.out.println("Job fertig, sende zurück...");
-								oos.writeInt(NetCodes.JOB_COMPLETED);
+								oos.writeInt(reply);
 								oos.writeInt(yOff);
 								oos.writeInt(toid);
 								oos.writeObject(theScene.pixels);
 								oos.flush();
-								oos.reset();  // reset ist wichtig, da sich pixels ändert
 								System.out.println("Job gesendet.");
 								state = 0;
+
+								// FIXME: So ein OutputStream cached einiges. Wenn er
+								// also die neuen Pixel beim nächsten Mal verschicken
+								// soll, dann muss das Objekt auch neu erzeugt werden.
+								// Erzwinge dies.
+								theScene.pixels = null;
 							}
 						}
 						break;
