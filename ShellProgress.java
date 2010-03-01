@@ -119,5 +119,3 @@ public class ShellProgress implements Serializable
 		System.out.print("\r");
 	}
 }
-
-// vim: set ts=2 sw=2 :

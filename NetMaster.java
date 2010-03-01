@@ -510,5 +510,3 @@ public class NetMaster
 		public void println(String s);
 	}
 }
-
-// vim: set ts=2 sw=2 :
