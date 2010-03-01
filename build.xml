@@ -32,7 +32,7 @@
 	</target>
 
 	<!-- Do everything. -->
-	<target name="final" depends="compile" description="--> All">
+	<target name="final" depends="jar" description="--> All">
 		<echo message="Finished"/>
 	</target>
 
