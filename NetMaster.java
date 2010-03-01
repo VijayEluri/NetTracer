@@ -117,24 +117,41 @@ public class NetMaster
 
 			// Status ausgeben.
 			int bunchDone = 0;
+			int bunchTota = 0;
 			String outstr = "";
-			boolean hadOne = false;
 			for (int i = 0; i < tokens.length; i++)
 			{
-				hadOne = true;
 				if (tokens[i] == target)
 					bunchDone++;
+				bunchTota++;
 
 				if (((i + 1) % 50) == 0)
 				{
-					outstr += "[" + (bunchDone < 10 ? "0" : "") + bunchDone + "]";
+					int perc = (int)(bunchDone / (double)bunchTota * 100.0);
+					outstr += "[";
+					if (perc < 10)
+						outstr += "0" + perc;
+					else if (perc == 100)
+						outstr += "++";
+					else
+						outstr += "" + perc;
+					outstr += "]";
+
 					bunchDone = 0;
-					hadOne = false;
+					bunchTota = 0;
 				}
 			}
-			if (hadOne)
+			if (bunchTota > 0)
 			{
-				outstr += "[" + (bunchDone < 10 ? "0" : "") + bunchDone + "]";
+				int perc = (int)(bunchDone / (double)bunchTota * 100.0);
+				outstr += "[";
+				if (perc < 10)
+					outstr += "0" + perc;
+				else if (perc == 100)
+					outstr += "++";
+				else
+					outstr += "" + perc;
+				outstr += "]";
 			}
 			System.out.println(outstr);
 
