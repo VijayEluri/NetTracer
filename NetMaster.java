@@ -7,7 +7,7 @@ public class NetMaster
 	public static Scene theScene = null;
 	public static RGBColor[][] pixels = null;
 
-	public static int bunchsize = 5;
+	public static int bunchsize = 1;
 	public static short[] tokens = null;
 
 	public static short free = 0;
@@ -115,7 +115,10 @@ public class NetMaster
 			for (int i = start; i < tokens.length && i - start < num; i++)
 				tokens[i]++;
 
-			// Status ausgeben.
+			// Status ausgeben. Wir hätten gerne <targetBoxes> viele Boxes,
+			// die jeweils den Status in einem bestimmten Bereich anzeigen.
+			int targetBoxes = 10;
+			int border = tokens.length / targetBoxes;
 			int bunchDone = 0;
 			int bunchTota = 0;
 			String outstr = "";
@@ -125,7 +128,7 @@ public class NetMaster
 					bunchDone++;
 				bunchTota++;
 
-				if (((i + 1) % 50) == 0)
+				if (((i + 1) % border) == 0)
 				{
 					int perc = (int)(bunchDone / (double)bunchTota * 100.0);
 					outstr += "[";
