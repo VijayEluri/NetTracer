@@ -1,0 +1,87 @@
+##################
+# Rendersettings #
+##################
+
+#sizeX 5000
+#sizeY 3750
+sizeX 1280
+sizeY 800
+maxdepth 4
+AARays 16
+noLighting 0
+colorDelta 2.0
+
+camera
+	fov 25
+	origin 1.5 0.25 5.0
+	updir 0.0 1.0 0.0
+	lookat 0.1 0.0 0.0
+end
+
+
+###############
+# Materialien #
+###############
+
+mat july
+	diffuse 0.5 1.0 0.5
+	shininess 1.0
+	shininessSharpness 10.0
+	specularity 0.6
+end
+
+procmat checker
+	diffusePattern checker
+	end
+end
+
+###########
+# Objekte #
+###########
+
+qjulia
+	mat july
+	c -0.8 -0.2 0.0 0.0
+	#c -0.2 0.8 0.0 0.0
+	#c -0.125 -0.256 0.847 0.0895
+	#c -0.213 -0.0410 -0.563 -0.560 
+	#c -1.8 0.0 0.0 0.0
+	#c 0.0 0.0 0.0 0.0
+	#c 0.0 -1.1 0.0 0.0
+	#c 0.0 0.0 -0.9 0.0
+
+	epsSurface 1e-3
+	epsNormal  1e-4
+	nmaxSurface 20
+	nmaxNormal 8
+end
+
+offreader
+	mat checker
+	file off/plane.off
+	origin 0.0 -1.25 0.0
+end
+
+###########
+# Lichter #
+###########
+
+spherelight
+#pointlight
+	intensity 1.0
+	decayRate 0.1
+	origin 5.0 5.0 10.0
+	color 1.0 0.5 0.0
+	radius 1.0
+	numrays 2
+end
+
+spherelight
+#pointlight
+	intensity 1.0
+	decayRate 0.1
+	origin -5.0 5.0 10.0
+	color 0.0 0.5 1.0
+	radius 1.0
+	numrays 2
+end
