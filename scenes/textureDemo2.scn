@@ -32,7 +32,7 @@ end
 texmat earth
 	# http://visibleearth.nasa.gov/view_rec.php?id=7104
 	# http://visibleearth.nasa.gov/useterms.php
-	
+
 	file tex/earth-small.jpg
 	specularity 0.1
 	#shininess 0.5

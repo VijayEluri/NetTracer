@@ -15,7 +15,7 @@ camera
 	updir 0.0 1.0 0.0
 	#viewdir 0.0 0.0 -1.0
 	lookat -0.5 1.0 0.0
-	
+
 	#focalDistance 5.0
 	#dofAmount 0.3
 	#dofRays 2
@@ -54,7 +54,7 @@ blob
 	accuracy 1e-8
 	startstep 0.2
 	normaldelta 0.01
-	
+
 	c 1.0 x -2.0 0.0 0.0
 	c 0.85 x 2.0 0.0 0.0
 	c 1.2 x 0.0 2.25 0.0

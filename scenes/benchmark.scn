@@ -1,7 +1,7 @@
 /*
 
 		Benchmarksetup
-	
+
 	Ohne intersection pruning, alter AA-Code: ~330 Sekunden
 	Ohne intersection pruning, neuer AA-Epsilon-Code: Render ~50 Sekunden, AA ~390 Sekunden
 

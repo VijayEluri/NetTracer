@@ -8,7 +8,7 @@
 	HashSet's durch ArrayList's ersetzt:
 	Octree mit Maxtiefe 10 und Threshold 30: ~18 Sekunden
 	Octree mit Maxtiefe 20 und Threshold 10: ~23 Sekunden
-	
+
 	Revision 120 von 2009 mit vielen weiteren Optimierungen:
 	Octree mit Maxtiefe 12 und Threshold 10: ~1.5 Sekunden
 */
@@ -29,7 +29,7 @@ camera
 	updir 0.0 1.0 0.0
 	#viewdir 0.0 0.0 -1.0
 	lookat 20.0 0.0 0.0
-	
+
 	#focalDistance 20.0
 	#dofAmount 1.0
 end
@@ -42,7 +42,7 @@ end
 
 mat roughGreen
 	diffuse 0.0 1.0 0.0
-	
+
 	shininess 0.3
 	shininessSharpness 2.0
 end
@@ -50,7 +50,7 @@ end
 mat speccyGrey
 	shininess 0.3
 	shininessSharpness 10.0
-	
+
 	transparency 0.95
 	ior 3.0
 end

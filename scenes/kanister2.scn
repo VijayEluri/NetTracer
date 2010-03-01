@@ -14,7 +14,7 @@ camera
 	updir 0.0 1.0 0.0
 	#viewdir 0.0 0.0 -1.0
 	lookat 1.5 0.0 0.0
-	
+
 	#focalDistance 6.0
 	#dofAmount 0.05
 	#dofRays 1
@@ -28,7 +28,7 @@ end
 		Maximale Tiefe: 4
 		Rays: Min 1, Max 1
 		--> ~22 Sekunden
-	
+
 	Optimierter TreeTraversal:
 		Selbe Settings
 		--> ~1 Sekunde

@@ -14,7 +14,7 @@ camera
 	updir 0.0 1.0 0.0
 	#viewdir 0.0 0.0 -1.0
 	lookat 0.0 0.0 0.0
-	
+
 	#focalDistance 12.5
 	#dofAmount 0.2
 	#numrays 1

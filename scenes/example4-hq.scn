@@ -14,15 +14,15 @@ colorDelta 2.0
 camera
 	origin -6.0 -1.0 1.3
 	updir 0.0 1.0 0.0
-	
+
 	# Überblick:
 	fov 70
 	lookat 0.0 -2.0 0.0
-	
+
 	# Zoom auf große Kugel:
 	#fov 20
 	#lookat 4.0 -1.0 -4.0
-	
+
 	# Die vordere spiegelnde Kugel ist etwa 4.2 von der Kamera entfernt,
 	# die große hinten bei etwa 10.0 im Fokus.
 	#focalDistance 10.0
@@ -39,7 +39,7 @@ mat matt1
 	diffuse 0.0 1.0 0.0
 	#transparency 0.7
 	#ior 1.03
-	
+
 	shininess 0.7
 	shininessSharpness 10.0
 end
@@ -48,7 +48,7 @@ mat matt2
 	diffuse 0.7 1.0 0.7
 	#transparency 0.7
 	#ior 1.03
-	
+
 	shininess 0.7
 	shininessSharpness 10.0
 end
@@ -56,7 +56,7 @@ end
 mat speccyGrey
 	shininess 0.7
 	shininessSharpness 10.0
-	
+
 	specularity 0.95
 	#roughness 0.15
 end
@@ -64,7 +64,7 @@ end
 mat trans
 	shininess 0.7
 	shininessSharpness 10.0
-	
+
 	transparency 0.75
 	ior 1.03
 	#cloudiness 0.02
