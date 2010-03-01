@@ -141,10 +141,12 @@ public class NetNode
 								// kritischen Pixel.
 								if (theScene.criticalPixels == null)
 								{
+									System.out.println("Benötige kritische Pixel.");
 									oos.writeInt(NetCodes.REQUEST_CRITICAL);
 									oos.flush();
 
 									theScene.criticalPixels = (boolean[][])ois.readObject();
+									System.out.println("Habe kritische Pixel erhalten.");
 								}
 
 								if (!theScene.renderPartialAntiAlias(yOff, rows))

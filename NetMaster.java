@@ -41,13 +41,25 @@ public class NetMaster
 	 * 3 : type (0 = regular, 1 = antialiasing)
 	 * 4 : alloc'd
 	 */
-	public static int[] getFreeJob(int desiredTokens)
+	public static int[] getFreeJob(int desiredTokens, int lasttype)
 	{
 		int startToken = -1;
 		int type = -1;
 		int allocd = 0;
 		synchronized (tokens)
 		{
+			// Primärer Job oder Antialiasing?
+			if (target == 2)
+				type = 0;
+			else
+				type = 1;
+
+			// Wenn der Tokentyp, den dieser Client zuletzt bearbeitet hat,
+			// nicht mehr mit dem aktuellen Typ übereinstimmt, dann gib
+			// maximal ein Token zurück.
+			if (lasttype != type)
+				desiredTokens = 1;
+
 			// Versuche, <desiredTokens> Stück freie Token zu bekommen, die
 			// aneinander liegen.
 			for (int i = 0; i < tokens.length; i++)
@@ -75,12 +87,6 @@ public class NetMaster
 			// Nichts mehr frei?
 			if (allocd == 0)
 				return null;
-
-			// Primärer Job oder Antialiasing?
-			if (target == 2)
-				type = 0;
-			else
-				type = 1;
 		}
 
 		// Von Tokens in Pixelgrenzen umrechnen.
@@ -305,6 +311,7 @@ public class NetMaster
 			boolean run = true;
 			long t_start = 0, t_end = 0;
 			int jobsize = 1, lastjobsize = 1;
+			int lasttype = -1;
 			while (run)
 			{
 				int cmd = ois.readInt();
@@ -319,16 +326,19 @@ public class NetMaster
 						{
 							double millidiff = (double)(t_end - t_start);
 
-							lastjobsize = jobsize;
-							jobsize = (int)((lastjobsize / millidiff) * 15000);
+							jobsize = (int)((lastjobsize / millidiff) * 5000);
 
 							if (jobsize < 1)
 								jobsize = 1;
-							else if (jobsize > 50)
-								jobsize = 50;
+							else if (jobsize > 100)
+								jobsize = 100;
 						}
 
-						int[] jobInfo = getFreeJob(jobsize);
+						// getFreeJob() wird der letzte Typ mitgegeben, damit dieses
+						// dafür sorgen kann, dass nicht zu viele Tokens allokiert
+						// werden. Bei dem Wechsel auf AA kann die Performance
+						// grundlegend anders sein.
+						int[] jobInfo = getFreeJob(jobsize, lasttype);
 						if (jobInfo == null)
 						{
 							if (getCurrentTarget() == 2 && theScene.set.AARays > 0)
@@ -337,15 +347,6 @@ public class NetMaster
 								// Antialiasing. Bitte warten.
 								System.out.println("Muss warten.");
 								oos.writeInt(-1);
-
-								// Wir sind an der Grenze zum Antialiasing. Da dort die
-								// Performance grundlegend anders sein kann, fangen wir
-								// auf jeden Fall wieder mit der kleinstmöglichen
-								// Tokengröße an.
-								t_start = 0;
-								t_end = 0;
-								jobsize = 1;
-								lastjobsize = 1;
 							}
 							else
 							{
@@ -356,11 +357,17 @@ public class NetMaster
 						}
 						else
 						{
-							System.out.println("Sende jobInfo, Größe: " + jobsize);
+							// Merke dir, ob dieser Job regular oder antialiasing war.
+							// Merke dir auch, wie groß er tatsächlich war.
+							lasttype = jobInfo[3];
+							lastjobsize = jobInfo[4];
+
+							System.out.println("Sende jobInfo, Tokens: " + lastjobsize);
 							for (int i = 0; i < jobInfo.length; i++)
 							{
 								oos.writeInt(jobInfo[i]);
 							}
+
 							t_start = System.currentTimeMillis();
 						}
 						oos.flush();
