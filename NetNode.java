@@ -74,7 +74,7 @@ public class NetNode
 			if (firstCmd == NetCodes.QUERY_THREADS)
 			{
 				System.out.println("Gebe Threadzahl bekannt.");
-				oos.writeInt(Runtime.getRuntime().availableProcessors());
+				oos.writeInt(threads);
 				oos.flush();
 				return;
 			}
