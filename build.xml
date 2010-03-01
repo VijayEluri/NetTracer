@@ -1,81 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- ====================================================================== 
-     11.03.2008 11:19:07                                                        
-
-     Creates a JAR file ready to distribute
-                   
-     moi                                                                
-     ====================================================================== -->
-
-<!-- Set project name here -->
 <project name="Raytracer" default="final">
 
 	<description>
-            Creates a JAR file ready to distribute
-    </description>
+		Creates a JAR file ready to distribute
+	</description>
 
-	<property name="srcDir" location="." />
-	<property name="dirBin" location="antBin" />
-	<property name="dirJar" location="antDist" />
-	<property name="fileJar" location="${dirJar}/${ant.project.name}.jar" />
+	<property name="srcDir" location="."/>
+	<property name="dirBin" location="antBin"/>
+	<property name="dirJar" location="antDist"/>
+	<property name="fileJar" location="${dirJar}/${ant.project.name}.jar"/>
 
-	<!-- ================================= 
-          target: init              
-         ================================= -->
+	<!-- Init -->
 	<target name="init" description="--> Initialize">
-		<echo message="Removing old directories" />
-
-		<delete dir="${dirBin}" />
-		<delete dir="${dirJar}" />
-
-		<mkdir dir="${dirBin}" />
-		<mkdir dir="${dirJar}" />
+		<echo message="Initing directories"/>
+		<mkdir dir="${dirBin}"/>
+		<mkdir dir="${dirJar}"/>
 	</target>
 
-
-	<!-- ================================= 
-          target: compile              
-         ================================= -->
-	<target name="compile" depends="init" description="--> Compiles all classes">
-		<echo message="Compiling" />
-
-		<javac srcdir="${srcDir}" destdir="${dirBin}" classpath="${aoiJAR};jarfile" debug="on">
+	<!-- Compile -->
+	<target name="compile" depends="init" description="--> Compile program">
+		<echo message="Compiling"/>
+		<javac srcdir="${srcDir}" destdir="${dirBin}" debug="on">
 			<compilerarg value="-Xlint"/>
 		</javac>
 	</target>
 
-	<!-- ================================= 
-          target: jar              
-         ================================= -->
-	<target name="jar" depends="compile" description="--> Creates JAR file">
-		<echo message="Creating JAR" />
+	<!-- Create JAR -->
+	<target name="jar" depends="compile" description="--> Create JAR file">
+		<echo message="Creating JAR"/>
 		<jar destfile="${fileJar}" baseDir="${dirBin}"/>
 	</target>
 
-	<!-- ================================= 
-          target: cleanUp              
-         ================================= -->
-	<target name="cleanUp" depends="jar" description="--> Remove bin directory">
-		<echo message="Cleaning up" />
-
-		<delete dir="${dirBin}" />
+	<!-- Do everything. -->
+	<target name="final" depends="compile" description="--> All">
+		<echo message="Finished"/>
 	</target>
 
-	<!-- ================================= 
-          target: final - automatically call depending targets
-         ================================= -->
-	<target name="final" depends="cleanUp" description="--> Compile all classes, create JAR and clean up">
-		<echo message="Finished" />
-	</target>
-
-	<!--
-		=================================
-		target: clean
-		=================================
-	-->
-	<target name="clean" description="--> Remove dist directory">
-		<echo message="Removing created files" />
-		<delete dir="${dirJar}" />
+	<!-- Clean -->
+	<target name="clean" description="--> Remove everything">
+		<echo message="Removing created files"/>
+		<delete dir="${dirJar}"/>
+		<delete dir="${dirBin}"/>
 	</target>
 
 </project>
