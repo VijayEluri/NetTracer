@@ -303,6 +303,8 @@ public class NetMaster
 			int yOff, toid, allocd;
 			RGBColor[][] px;
 			boolean run = true;
+			long t_start = 0, t_end = 0;
+			int jobsize = 1, lastjobsize = 1;
 			while (run)
 			{
 				int cmd = ois.readInt();
@@ -310,7 +312,23 @@ public class NetMaster
 				{
 					case NetCodes.REQUEST_JOB:
 						System.out.println("Jobanfrage.");
-						int[] jobInfo = getFreeJob(10);
+
+						// Schätze linear ab, wieviele Tokens es bräuchte, damit
+						// dieser Job eine vernünftige Zeit braucht.
+						if (t_start != 0 && t_end != 0)
+						{
+							double millidiff = (double)(t_end - t_start);
+
+							lastjobsize = jobsize;
+							jobsize = (int)((lastjobsize / millidiff) * 15000);
+
+							if (jobsize < 1)
+								jobsize = 1;
+							else if (jobsize > 50)
+								jobsize = 50;
+						}
+
+						int[] jobInfo = getFreeJob(jobsize);
 						if (jobInfo == null)
 						{
 							if (getCurrentTarget() == 2 && theScene.set.AARays > 0)
@@ -329,13 +347,14 @@ public class NetMaster
 						}
 						else
 						{
-							System.out.println("Sende jobInfo.");
+							System.out.println("Sende jobInfo, Größe: " + jobsize);
 							for (int i = 0; i < jobInfo.length; i++)
 							{
 								oos.writeInt(jobInfo[i]);
 							}
 						}
 						oos.flush();
+						t_start = System.currentTimeMillis();
 						break;
 
 					case NetCodes.REQUEST_CRITICAL:
@@ -361,6 +380,7 @@ public class NetMaster
 
 						System.out.println("Ergebnis erhalten, Token fertig.");
 						setCompleted(toid, allocd);
+						t_end = System.currentTimeMillis();
 						break;
 
 					case NetCodes.JOB_COMPLETED_AA:
@@ -380,6 +400,7 @@ public class NetMaster
 
 						System.out.println("Addition fertig, Token fertig.");
 						setCompleted(toid, allocd);
+						t_end = System.currentTimeMillis();
 						break;
 
 					case NetCodes.QUIT:
