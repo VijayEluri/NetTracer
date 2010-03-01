@@ -116,6 +116,7 @@ public class NetNode
 							int rows = ois.readInt();
 							int toid = ois.readInt();
 							int type = ois.readInt();
+							int allocd = ois.readInt();
 
 							System.out.println("Habe Job: " + yOff + ", " + rows
 									+ ", " + type);
@@ -163,6 +164,7 @@ public class NetNode
 								oos.writeInt(reply);
 								oos.writeInt(yOff);
 								oos.writeInt(toid);
+								oos.writeInt(allocd);
 								oos.writeObject(theScene.pixels);
 								oos.flush();
 								System.out.println("Job gesendet.");

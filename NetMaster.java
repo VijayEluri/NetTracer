@@ -9,7 +9,6 @@ public class NetMaster
 
 	public static int bunchsize = 5;
 	public static short[] tokens = null;
-	public static boolean direction = false;
 
 	public static short free = 0;
 	public static short target = 2;
@@ -40,60 +39,58 @@ public class NetMaster
 	 * 1 : rows
 	 * 2 : token-index
 	 * 3 : type (0 = regular, 1 = antialiasing)
+	 * 4 : alloc'd
 	 */
-	public static int[] getFreeJob()
+	public static int[] getFreeJob(int desiredTokens)
 	{
-		int token = -1;
+		int startToken = -1;
 		int type = -1;
+		int allocd = 0;
 		synchronized (tokens)
 		{
-			// Von vorne oder hinten suchen?
-			if (direction)
+			// Versuche, <desiredTokens> Stück freie Token zu bekommen, die
+			// aneinander liegen.
+			for (int i = 0; i < tokens.length; i++)
 			{
-				for (int i = 0; i < tokens.length; i++)
+				if (tokens[i] == free)
 				{
-					if (tokens[i] == free)
-					{
-						tokens[i]++;
-						token = i;
-						break;
-					}
-				}
-			}
-			else
-			{
-				for (int i = tokens.length - 1; i >= 0; i--)
-				{
-					if (tokens[i] == free)
-					{
-						tokens[i]++;
-						token = i;
-						break;
-					}
-				}
-			}
+					startToken = i;
 
-			direction = !direction;
+					// Hier fangen wir an. Solange das aktuell betrachtete Token
+					// noch frei ist und wir noch mehr wollen, reservieren wir.
+					while (i < tokens.length
+							&& tokens[i] == free
+							&& allocd < desiredTokens)
+					{
+						tokens[i]++;
+						allocd++;
+						i++;
+					}
+
+					// Okay, raus aus der for-Schleife.
+					break;
+				}
+			}
 
 			// Nichts mehr frei?
-			if (token == -1)
+			if (allocd == 0)
 				return null;
 
 			// Primärer Job oder Antialiasing?
-			if (tokens[token] == 1)
+			if (target == 2)
 				type = 0;
-			else if (tokens[token] == 4)
+			else
 				type = 1;
 		}
 
 		// Von Tokens in Pixelgrenzen umrechnen.
-		int yOff = token * bunchsize;
-		int rows = bunchsize;
+		int yOff = startToken * bunchsize;
+		int rows = bunchsize * allocd;
 
 		if (yOff + rows >= theScene.set.sizeY)
 			rows = theScene.set.sizeY - yOff;
 
-		return new int[] {yOff, rows, token, type};
+		return new int[] {yOff, rows, startToken, type, allocd};
 	}
 
 	public static short getCurrentTarget()
@@ -104,11 +101,13 @@ public class NetMaster
 		}
 	}
 
-	public static void setCompleted(int token)
+	public static void setCompleted(int start, int num)
 	{
 		synchronized (tokens)
 		{
-			tokens[token]++;
+			// Markiere alle als fertig.
+			for (int i = start; i < tokens.length && i - start < num; i++)
+				tokens[i]++;
 
 			// Status ausgeben.
 			int bunchDone = 0;
@@ -301,7 +300,7 @@ public class NetMaster
 			oos.flush();
 			System.out.println("Szene gesendet.");
 
-			int yOff, toid;
+			int yOff, toid, allocd;
 			RGBColor[][] px;
 			boolean run = true;
 			while (run)
@@ -311,7 +310,7 @@ public class NetMaster
 				{
 					case NetCodes.REQUEST_JOB:
 						System.out.println("Jobanfrage.");
-						int[] jobInfo = getFreeJob();
+						int[] jobInfo = getFreeJob(10);
 						if (jobInfo == null)
 						{
 							if (getCurrentTarget() == 2 && theScene.set.AARays > 0)
@@ -350,6 +349,7 @@ public class NetMaster
 						System.out.println("Empfange Ergebnis.");
 						yOff = ois.readInt();
 						toid = ois.readInt();
+						allocd = ois.readInt();
 
 						px = (RGBColor[][])ois.readObject();
 
@@ -360,13 +360,14 @@ public class NetMaster
 						}
 
 						System.out.println("Ergebnis erhalten, Token fertig.");
-						setCompleted(toid);
+						setCompleted(toid, allocd);
 						break;
 
 					case NetCodes.JOB_COMPLETED_AA:
 						System.out.println("Empfange AA-Ergebnis.");
 						yOff = ois.readInt();
 						toid = ois.readInt();
+						allocd = ois.readInt();
 
 						px = (RGBColor[][])ois.readObject();
 						System.out.println("AA-Ergebnis erhalten. Addiere.");
@@ -378,7 +379,7 @@ public class NetMaster
 									pixels[y + yOff][x].addAllSamples(px[y][x]);
 
 						System.out.println("Addition fertig, Token fertig.");
-						setCompleted(toid);
+						setCompleted(toid, allocd);
 						break;
 
 					case NetCodes.QUIT:
