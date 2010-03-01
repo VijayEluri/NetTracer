@@ -109,6 +109,29 @@ public class NetMaster
 		{
 			tokens[token]++;
 
+			// Status ausgeben.
+			int bunchDone = 0;
+			String outstr = "";
+			boolean hadOne = false;
+			for (int i = 0; i < tokens.length; i++)
+			{
+				hadOne = true;
+				if (tokens[i] == target)
+					bunchDone++;
+
+				if (((i + 1) % 50) == 0)
+				{
+					outstr += "[" + (bunchDone < 10 ? "0" : "") + bunchDone + "]";
+					bunchDone = 0;
+					hadOne = false;
+				}
+			}
+			if (hadOne)
+			{
+				outstr += "[" + (bunchDone < 10 ? "0" : "") + bunchDone + "]";
+			}
+			System.out.println(outstr);
+
 			// Schau nach, ob wir jetzt fertig sind.
 			for (int i = 0; i < tokens.length; i++)
 				if (tokens[i] != target)
