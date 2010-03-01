@@ -337,6 +337,15 @@ public class NetMaster
 								// Antialiasing. Bitte warten.
 								System.out.println("Muss warten.");
 								oos.writeInt(-1);
+
+								// Wir sind an der Grenze zum Antialiasing. Da dort die
+								// Performance grundlegend anders sein kann, fangen wir
+								// auf jeden Fall wieder mit der kleinstmöglichen
+								// Tokengröße an.
+								t_start = 0;
+								t_end = 0;
+								jobsize = 1;
+								lastjobsize = 1;
 							}
 							else
 							{
@@ -352,9 +361,9 @@ public class NetMaster
 							{
 								oos.writeInt(jobInfo[i]);
 							}
+							t_start = System.currentTimeMillis();
 						}
 						oos.flush();
-						t_start = System.currentTimeMillis();
 						break;
 
 					case NetCodes.REQUEST_CRITICAL:
