@@ -42,7 +42,7 @@ public class Scene implements Serializable
 	 */
 	public class SceneSettings implements Serializable
 	{
-		private static final long serialVersionUID = 20100301001L;
+		private static final long serialVersionUID = 20100301002L;
 
 		public int sizeX = 640, sizeY = 480;
 		public int maxdepth = 4;
@@ -56,6 +56,7 @@ public class Scene implements Serializable
 		public double fakeDistanceScale = 1.0;
 		public double fakeDistanceExp = 1.0;
 		public int AARays = 0, threads = 2, rowstep = 6;
+		public RGBColor environ = RGBColor.black();
 		
 		// Bestimmt, wann zwei Pixel als "unterschiedlich" erkannt werden
 		// sollen. Dieser Wert wird noch durch 255.0 geteilt, die Angabe
@@ -332,11 +333,12 @@ public class Scene implements Serializable
 	{
 		// Schau erstmal, wo dieser Strahl landet.
 		Intersection intres = doIntersectionTest(r);
-		RGBColor out = RGBColor.black();
 		
 		// Kein Schnitt, schwarz
 		if (intres == null)
-			return out;
+			return new RGBColor(set.environ);
+
+		RGBColor out = RGBColor.black();
 		
 		// Kürzere Schreibweisen...
 		Vec3 N = intres.normal;
@@ -1367,6 +1369,19 @@ public class Scene implements Serializable
 							}
 						}
 						
+						break;
+
+					case 4:
+						// Umgebungsfarbe
+						if (tokens[0].equals("environment"))
+						{
+							nset.environ = new RGBColor(
+									new Double(tokens[1]),
+									new Double(tokens[2]),
+									new Double(tokens[3])
+									);
+						}
+
 						break;
 				}
 			}
