@@ -172,6 +172,14 @@ public class NetMaster
 				// Alle Tokens wieder auf "frei" setzen.
 				for (int i = 0; i < tokens.length; i++)
 					tokens[i] = free;
+
+				// Speichere Zwischenergebnis.
+				try
+				{
+					TIFFWriter.writeRGBImage(pixels,
+							new File("/tmp/raw1.tiff"));
+				}
+				catch (Exception e) {} // ignore
 			}
 		}
 	}
