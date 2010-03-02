@@ -51,6 +51,7 @@ public class NetNode
 	{
 		public Socket s = null;
 		public Scene theScene = null;
+		public int rowsDone = 0;
 
 		public Handler(Socket s)
 		{
@@ -189,6 +190,8 @@ public class NetNode
 								// bringt wirklich etwas.
 								oos.reset();
 								System.gc();
+
+								rowsDone += rows;
 							}
 						}
 						break;
@@ -226,7 +229,8 @@ public class NetNode
 				}
 			}
 
-			System.out.println("Thread zuende.");
+			System.out.println("Thread zuende. "
+					+ rowsDone + " Zeilen bearbeitet.");
 		}
 	}
 }
