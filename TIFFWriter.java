@@ -31,6 +31,23 @@ public class TIFFWriter implements Serializable
 		System.out.println("Gespeichert.");
 	}
 
+	/**
+	 * Write the image to the file. It'll be uncompressed.
+	 */
+	public static void writeRGBImage(short[][] s, File f)
+		throws IOException
+	{
+		System.out.println("Speichere nach " + f + " ...");
+
+		TIFFWriter stream = new TIFFWriter(f,
+				s[0].length / 3, s.length);
+		stream.seek(0);
+		stream.writeData(s);
+		stream.close();
+
+		System.out.println("Gespeichert.");
+	}
+
 	private FileOutputStream fos = null;
 	private DataOutputStream dos = null;
 	private BufferedOutputStream bos = null;
@@ -155,6 +172,22 @@ public class TIFFWriter implements Serializable
 				bos.write(RGBColor.toInteger(pixels[y][x].r));
 				bos.write(RGBColor.toInteger(pixels[y][x].g));
 				bos.write(RGBColor.toInteger(pixels[y][x].b));
+			}
+		}
+		bos.flush();
+	}
+
+	/**
+	 * Write data of an image (may be partial) using a buffered stream
+	 * but don't exceed the given limit.
+	 */
+	public void writeData(short[][] pixels) throws IOException
+	{
+		for (int y = 0; y < pixels.length; y++)
+		{
+			for (int x = 0; x < pixels[0].length; x++)
+			{
+				bos.write(pixels[y][x]);
 			}
 		}
 		bos.flush();

@@ -1136,6 +1136,55 @@ public class Scene implements Serializable
 		return true;
 	}
 
+	private boolean shortDiffer(short[][] px, int x, int y, int dx, int dy)
+	{
+		// Teste pro Kanal, ob Toleranz überschritten wird.
+		double tol = set.colorDelta;
+		return (
+				   Math.abs(px[y][x] - px[y + dy][((x + dx) * 3)    ]) > tol
+				|| Math.abs(px[y][x] - px[y + dy][((x + dx) * 3) + 1]) > tol
+				|| Math.abs(px[y][x] - px[y + dy][((x + dx) * 3) + 2]) > tol
+		);
+	}
+
+	/**
+	 * Wie die Suche in renderPhase(), jedoch auf externem short[][]
+	 * arbeiten. Nötig für speicherschonendes Netzwerkrendering.
+		*
+		* Es wird erwartet, dass dieses Array dieselben Dimensionen wie die
+		* Szene selbst erfüllt.
+	 */
+	public void findCriticalShort(short[][] px)
+	{
+		for (int y = 1; y < set.sizeY; y++)
+		{
+			for (int x = 1; x < set.sizeX; x++)
+			{
+				if (shortDiffer(px, x, y, -1, 0) || shortDiffer(px, x, y, 0, -1))
+				{
+					// Abweichung vorhanden, markiere alle 8 Nachbarn.
+					for (int yoff = -1; yoff <= 1; yoff++)
+					{
+						for (int xoff = -1; xoff <= 1; xoff++)
+						{
+							int pidxX = x + xoff;
+							int pidxY = y + yoff;
+
+							// Nicht über den Rand gehen
+							if (pidxX >= 0
+									&& pidxX < set.sizeX
+									&& pidxY >= 0
+									&& pidxY < set.sizeY)
+							{
+								criticalPixels[pidxY][pidxX] = true;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
 	/**
 	 * Lade die Settings und Szene aus dieser Datei
 	 */

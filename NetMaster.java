@@ -5,7 +5,7 @@ import java.io.*;
 public class NetMaster
 {
 	public static Scene theScene = null;
-	public static RGBColor[][] pixels = null;
+	public static short[][] pixels = null;
 
 	public static int bunchsize = 1;
 	public static short[] tokens = null;
@@ -25,9 +25,9 @@ public class NetMaster
 		// Lokalen Buffer erzeugen, der aber nur null's enthält. Die
 		// Daten kommen von den Clients, wir brauchen hier keine
 		// fertigen schwarzen Pixel.
-		pixels = new RGBColor[theScene.set.sizeY][];
+		pixels = new short[theScene.set.sizeY][];
 		for (int y = 0; y < theScene.set.sizeY; y++)
-			pixels[y] = new RGBColor[theScene.set.sizeX];
+			pixels[y] = new short[theScene.set.sizeX * 3];
 
 		// Tokens. Ein Token meint <bunchsize> Zeilen.
 		tokens = new short[
@@ -163,9 +163,6 @@ public class NetMaster
 				if (tokens[i] != target)
 					return;
 
-			// Phase beendet. Speichere Pixel in Szene.
-			theScene.pixels = pixels;
-
 			// Wir sind mit den primären Strahlen fertig. Jetzt AA?
 			if (target == 2 && theScene.set.AARays > 0)
 			{
@@ -254,8 +251,8 @@ public class NetMaster
 			for (int y = 0; y < theScene.set.sizeY; y++)
 				theScene.criticalPixels[y] = new boolean[theScene.set.sizeX];
 
-			// Array füllen, nutze vorhandenen Code.
-			theScene.renderPhase(1, -1);
+			// Array füllen, nutze angepassten Code.
+			theScene.findCriticalShort(pixels);
 		}
 	}
 
@@ -301,7 +298,7 @@ public class NetMaster
 			t.join();
 
 		// Bild schreiben.
-		TIFFWriter.writeRGBImage(theScene, new File(targetPath));
+		TIFFWriter.writeRGBImage(pixels, new File(targetPath));
 
 		long t_end = System.currentTimeMillis();
 		long s = t_end - t_start;
@@ -328,6 +325,24 @@ public class NetMaster
 		public int port = -1;
 
 		public Socket s = null;
+
+		private void clip(int x, int y)
+		{
+			if (pixels[y][x] > 255)
+				pixels[y][x] = 255;
+			else if (pixels[y][x] < 0)
+				pixels[y][x] = 0;
+		}
+
+		private long clipLong(long a, int num)
+		{
+			if (a > 255 * num)
+				return 255 * num;
+			if (a < 0)
+				return 0;
+
+			return a;
+		}
 
 		public void handle() throws Exception
 		{
@@ -439,8 +454,23 @@ public class NetMaster
 						// Ergebnis im Ziel einhängen.
 						for (int y = 0; y < px.length; y++)
 						{
-							pixels[y + yOff] = px[y];
+							int lx = 0;
+							for (int x = 0; x < px[0].length; x++)
+							{
+								pixels[y + yOff][lx    ] = (short)(px[y][x].r * 255);
+								pixels[y + yOff][lx + 1] = (short)(px[y][x].g * 255);
+								pixels[y + yOff][lx + 2] = (short)(px[y][x].b * 255);
+
+								clip(lx    , y + yOff);
+								clip(lx + 1, y + yOff);
+								clip(lx + 2, y + yOff);
+
+								lx += 3;
+							}
 						}
+
+						px = null;
+						System.gc();
 
 						System.out.println("Ergebnis erhalten, Token fertig.");
 						setCompleted(toid, allocd);
@@ -457,10 +487,36 @@ public class NetMaster
 						System.out.println("AA-Ergebnis erhalten. Addiere.");
 
 						// Ergebnis im Ziel dazuaddieren. Nur kritische Pixel.
+						int lx, aa = theScene.set.AARays;
+						long buf;
 						for (int y = 0; y < px.length; y++)
+						{
 							for (int x = 0; x < px[0].length; x++)
+							{
 								if (theScene.criticalPixels[y + yOff][x])
-									pixels[y + yOff][x].addAllSamples(px[y][x]);
+								{
+									lx = x * 3;
+
+									// Erst auf den vorhandenen Farbwert die zusätzlichen Farbwerte
+									// draufrechnen. Dann teile das durch die Zahl der insgesamt
+									// genutzten Samples für diesen Pixel.
+									buf = pixels[y + yOff][lx    ] + (long)(px[y][x].r * 255);
+									buf = clipLong(buf, aa + 1);
+									      pixels[y + yOff][lx    ] = (short)(buf / (aa + 1));
+
+									buf = pixels[y + yOff][lx + 1] + (long)(px[y][x].g * 255);
+									buf = clipLong(buf, aa + 1);
+									      pixels[y + yOff][lx + 1] = (short)(buf / (aa + 1));
+
+									buf = pixels[y + yOff][lx + 2] + (long)(px[y][x].b * 255);
+									buf = clipLong(buf, aa + 1);
+									      pixels[y + yOff][lx + 2] = (short)(buf / (aa + 1));
+								}
+							}
+						}
+
+						px = null;
+						System.gc();
 
 						System.out.println("Addition fertig, Token fertig.");
 						setCompleted(toid, allocd);
