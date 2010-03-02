@@ -13,6 +13,8 @@ public class NetMaster
 	public static short free = 0;
 	public static short target = 2;
 
+	public static int goalTime, maxTokensPerJob;
+
 	public static void loadScene(String path)
 	{
 		theScene = new Scene();
@@ -268,14 +270,34 @@ public class NetMaster
 	{
 		long t_start = System.currentTimeMillis();
 
-		if (args.length != 2)
-		{
-			System.err.println("Parameter: <Szene> <Zieldatei>");
-			System.exit(1);
-		}
+		goalTime = 15000;
+		maxTokensPerJob = 50;
+		String scenePath = "scenes/example4.scn";
+		String targetPath = "/tmp/image.tiff";
 
-		String scenePath = args[0];
-		String targetPath = args[1];
+		for (int i = 0; i < args.length; i++)
+		{
+			if (args[i].equals("-g"))
+			{
+				goalTime = new Integer(args[i + 1]);
+				i++;
+			}
+			if (args[i].equals("-m"))
+			{
+				maxTokensPerJob = new Integer(args[i + 1]);
+				i++;
+			}
+			if (args[i].equals("-s"))
+			{
+				scenePath = args[i + 1];
+				i++;
+			}
+			if (args[i].equals("-t"))
+			{
+				targetPath = args[i + 1];
+				i++;
+			}
+		}
 
 		System.setOut(new NetConsole(System.out));
 		System.setErr(new NetConsole(System.err));
@@ -397,12 +419,12 @@ public class NetMaster
 						{
 							double millidiff = (double)(t_end - t_start);
 
-							jobsize = (int)((lastjobsize / millidiff) * 5000);
+							jobsize = (int)((lastjobsize / millidiff) * goalTime);
 
 							if (jobsize < 1)
 								jobsize = 1;
-							else if (jobsize > 20)
-								jobsize = 20;
+							else if (jobsize > maxTokensPerJob)
+								jobsize = maxTokensPerJob;
 						}
 
 						// getFreeJob() wird der letzte Typ mitgegeben, damit dieses
