@@ -4,14 +4,23 @@ import javax.imageio.ImageIO;
 import java.io.Serializable;
 
 /**
- * Hält eine Textur als BufferedImage bereit und kann den Farbwert an
+ * Hält eine Textur als short[][] bereit und kann den Farbwert an
  * gegebener UV-Position zurückgeben.
  */
 public class TextureMaterial extends Material implements Serializable
 {
-	private static final long serialVersionUID = 20100301001L;
+	private static final long serialVersionUID = 20100302001L;
 
-	private BufferedImage img = null;
+	private int w = -1;
+	private int h = -1;
+
+	// Eigentlich würde hier auch ein byte[][] reichen. byte's sind in
+	// Java jedoch immer SIGNED, was hier natürlich total unangebracht
+	// ist. Deshalb nehmen wir einen short, da hier die nötigen Werte
+	// reinpassen. Bei einem byte müsste man später mehr casten und
+	// rechnen...
+	private short[][] pixels = null;
+
 	private RGBColor specular = null;
 	private RGBColor transparent = null;
 
@@ -72,7 +81,27 @@ public class TextureMaterial extends Material implements Serializable
 						cloudyRays = new Integer(tokens[1]);
 
 					if (tokens[0].equals("file"))
-						img = ImageIO.read(in.getRelativePath(tokens[1]));
+					{
+						BufferedImage img
+							= ImageIO.read(in.getRelativePath(tokens[1]));
+						w = img.getWidth();
+						h = img.getHeight();
+						pixels = new short[h][];
+						for (int y = 0; y < h; y++)
+						{
+							pixels[y] = new short[w * 3];
+
+							int lx = 0;
+							for (int x = 0; x < w; x++)
+							{
+								int argb = img.getRGB(x, y);
+								pixels[y][lx++] = (short)((argb & 0x00FF0000) >> 16);
+								pixels[y][lx++] = (short)((argb & 0x0000FF00) >>  8);
+								pixels[y][lx++] = (short)((argb & 0x000000FF)      );
+							}
+						}
+						img = null;
+					}
 
 					break;
 				case 4:
@@ -110,13 +139,10 @@ public class TextureMaterial extends Material implements Serializable
 	 */
 	public RGBColor getDiffuseColor(Vec3 p)
 	{
-		if (img == null)
+		if (pixels == null)
 			return RGBColor.black();
 
 		// Von den Intervallen [0, 1] auf Texturgröße hoch
-		int w = img.getWidth();
-		int h = img.getHeight();
-
 		double realx = p.x * (double)w;
 		double realy = (1.0 - p.y) * (double)h;
 
@@ -138,10 +164,26 @@ public class TextureMaterial extends Material implements Serializable
 		if (rw < w - 1 && rh < h - 1)
 		{
 			// Bilineare Filterung
-			RGBColor nn = new RGBColor(img.getRGB(rw, rh));
-			RGBColor en = new RGBColor(img.getRGB(rw + 1, rh));
-			RGBColor ne = new RGBColor(img.getRGB(rw, rh + 1));
-			RGBColor ee = new RGBColor(img.getRGB(rw + 1, rh + 1));
+			RGBColor nn = new RGBColor(
+					pixels[rh    ][((rw    ) * 3)    ] / 255.0,
+					pixels[rh    ][((rw    ) * 3) + 1] / 255.0,
+					pixels[rh    ][((rw    ) * 3) + 2] / 255.0
+					);
+			RGBColor en = new RGBColor(
+					pixels[rh    ][((rw + 1) * 3)    ] / 255.0,
+					pixels[rh    ][((rw + 1) * 3) + 1] / 255.0,
+					pixels[rh    ][((rw + 1) * 3) + 2] / 255.0
+					);
+			RGBColor ne = new RGBColor(
+					pixels[rh + 1][((rw    ) * 3)    ] / 255.0,
+					pixels[rh + 1][((rw    ) * 3) + 1] / 255.0,
+					pixels[rh + 1][((rw    ) * 3) + 2] / 255.0
+					);
+			RGBColor ee = new RGBColor(
+					pixels[rh + 1][((rw + 1) * 3)    ] / 255.0,
+					pixels[rh + 1][((rw + 1) * 3) + 1] / 255.0,
+					pixels[rh + 1][((rw + 1) * 3) + 2] / 255.0
+					);
 
 			double x2x = rw + 1 - realx;
 			double xx1 = realx - rw;
@@ -175,7 +217,11 @@ public class TextureMaterial extends Material implements Serializable
 		else
 		{
 			// Dort Farbe holen und als RGBColor zurück
-			return new RGBColor(img.getRGB(rw, rh));
+			return new RGBColor(
+					pixels[rh][(rw * 3)    ] / 255.0,
+					pixels[rh][(rw * 3) + 1] / 255.0,
+					pixels[rh][(rw * 3) + 2] / 255.0
+					);
 		}
 	}
 
@@ -193,7 +239,6 @@ public class TextureMaterial extends Material implements Serializable
 	public void dump()
 	{
 		System.out.println("TextureMaterial " + name + ":");
-		System.out.println("file: " + img);
 		System.out.println("transparency: " + transparency);
 		System.out.println("specularity: " + specularity);
 		System.out.println("shininess: " + shininess);

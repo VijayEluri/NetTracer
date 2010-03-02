@@ -1,0 +1,16 @@
+size 10 10
+
+camera
+	fov 90
+	origin 0.0 0.0 2.0
+	updir 0.0 1.0 0.0
+	lookat 0.0 0.0 0.0
+end
+
+texmat ico_png
+	file tex/testpic.png
+end
+
+texmat ico_gif
+	file tex/testpic.gif
+end
