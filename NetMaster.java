@@ -345,20 +345,10 @@ public class NetMaster
 		TIFFWriter.writeRGBImage(pixels, new File(targetPath));
 
 		long t_end = System.currentTimeMillis();
-		long s = t_end - t_start;
-		s /= 1000;
-		long h = s / 3600;
-		s -= 3600 * h;
-
-		long m = s / 60;
-		s -= 60 * m;
-
-		System.out.println("global_xfer_total = " + global_xfer_total);
+		System.out.println("global_xfer_total = " +
+				Utils.formatMillis(global_xfer_total));
 		System.out.println("Verstrichene Gesamtzeit: " +
-				(h < 10 ? "0" : "") + h + ":" +
-				(m < 10 ? "0" : "") + m + ":" +
-				(s < 10 ? "0" : "") + s
-				);
+				Utils.formatMillis(t_end - t_start));
 	}
 
 	/**
@@ -580,7 +570,8 @@ public class NetMaster
 					case NetCodes.QUIT:
 					default:
 						System.out.println("Beende.");
-						System.out.println("xfer_total = " + xfer_total);
+						System.out.println("xfer_total = " +
+								Utils.formatMillis(xfer_total));
 						addXferTime(xfer_total);
 						run = false;
 				}

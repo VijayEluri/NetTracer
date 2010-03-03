@@ -679,7 +679,9 @@ public class Scene implements Serializable
 			// ... ein kleines Epsilon schadet nie.
 			bigBox.radii.scale(1.0 + 1e-10);
 
-			System.out.println("Fertig. " + ((System.currentTimeMillis() - startTime) / 1000.0) + " Sekunden.\n");
+			System.out.println("Fertig. "
+					+ Utils.formatMillis(System.currentTimeMillis() - startTime)
+					+ "\n");
 
 
 			System.out.println("Baue BV-Tree ...");
@@ -687,7 +689,9 @@ public class Scene implements Serializable
 
 			bvroot = new BVNode(null, allPrims, bigBox, BVNode.MAXDEPTH);
 
-			System.out.println("Fertig. " + ((System.currentTimeMillis() - startTime) / 1000.0) + " Sekunden.");
+			System.out.println("Fertig. "
+					+ Utils.formatMillis(System.currentTimeMillis() - startTime)
+					+ "\n");
 
 
 			int numtreenodes = bvroot.getNumNodes();
@@ -929,7 +933,9 @@ public class Scene implements Serializable
 			// keinen Effekt.
 			ShellProgress.clearLine();
 
-			System.out.println("Fertig. " + ((System.currentTimeMillis() - startTime) / 1000.0) + " Sekunden.\n");
+			System.out.println("Fertig. "
+					+ Utils.formatMillis(System.currentTimeMillis() - startTime)
+					+ "\n");
 		}
 	}
 
