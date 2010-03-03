@@ -1,0 +1,46 @@
+#size 640 400
+size 1920 1200
+maxdepth 4
+AARays 16
+noLighting 0
+colorDelta 2.0
+
+camera
+	fov 5
+	origin -2 0 0
+	updir 0 0 1
+	lookat 0 0 1.1
+end
+
+mat july
+	diffuse 1 1 1
+	shininess 2.0
+	shininessSharpness 1.0
+end
+
+mandelbulb
+	mat july
+
+	step 0.01
+	nmax 7
+	normalEps 1e-8
+	bailout 2
+
+	cascadeLevel 3
+end
+
+# von links
+spherelight
+	intensity 0.2
+	origin -2 2 2
+	color 0.7 0.4 1.0
+	numrays 1
+end
+
+# von rechts
+spherelight
+	intensity 0.2
+	origin -2 -2 2
+	color 1.0 0.6 0.1
+	numrays 1
+end
