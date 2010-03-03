@@ -15,6 +15,8 @@ public class NetMaster
 
 	public static int goalTime, maxTokensPerJob;
 
+	public static long global_xfer_total = 0;
+
 	public static void loadScene(String path)
 	{
 		theScene = new Scene();
@@ -107,6 +109,11 @@ public class NetMaster
 		{
 			return target;
 		}
+	}
+
+	public synchronized static void addXferTime(long t)
+	{
+		global_xfer_total += t;
 	}
 
 	public static void setCompleted(int start, int num)
@@ -346,6 +353,7 @@ public class NetMaster
 		long m = s / 60;
 		s -= 60 * m;
 
+		System.out.println("global_xfer_total = " + global_xfer_total);
 		System.out.println("Verstrichene Gesamtzeit: " +
 				(h < 10 ? "0" : "") + h + ":" +
 				(m < 10 ? "0" : "") + m + ":" +
@@ -410,6 +418,8 @@ public class NetMaster
 			RGBColor[][] px;
 			boolean run = true;
 			long t_start = 0, t_end = 0;
+			long xfer_total = 0;
+			long xfer_start = 0, xfer_end = 0;
 			int jobsize = 1, lastjobsize = 1;
 			int lasttype = -1;
 			while (run)
@@ -486,7 +496,10 @@ public class NetMaster
 						toid = ois.readInt();
 						allocd = ois.readInt();
 
+						xfer_start = System.currentTimeMillis();
 						px = (RGBColor[][])ois.readObject();
+						xfer_end = System.currentTimeMillis();
+						xfer_total += (xfer_end - xfer_start);
 
 						// Ergebnis im Ziel einhängen.
 						for (int y = 0; y < px.length; y++)
@@ -520,7 +533,11 @@ public class NetMaster
 						toid = ois.readInt();
 						allocd = ois.readInt();
 
+						xfer_start = System.currentTimeMillis();
 						px = (RGBColor[][])ois.readObject();
+						xfer_end = System.currentTimeMillis();
+						xfer_total += (xfer_end - xfer_start);
+
 						System.out.println("AA-Ergebnis erhalten. Addiere.");
 
 						// Ergebnis im Ziel dazuaddieren. Nur kritische Pixel.
@@ -563,6 +580,8 @@ public class NetMaster
 					case NetCodes.QUIT:
 					default:
 						System.out.println("Beende.");
+						System.out.println("xfer_total = " + xfer_total);
+						addXferTime(xfer_total);
 						run = false;
 				}
 			}
