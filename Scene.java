@@ -35,7 +35,7 @@ public class Scene implements Serializable
 	// Für jegliche Random-Werte, dieses Objekt ist threadsafe.
 	// Liefert eine schönere Verteilung als Math.random(), was vorallem
 	// beim Antialiasing deutlich (!) sichtbar ist.
-	private final Random rGen = new Random();
+	private final Random rGen = new Random(System.currentTimeMillis());
 
 	/**
 	 * Settings für eine zu rendernde Szene
@@ -88,7 +88,7 @@ public class Scene implements Serializable
 		private int ID;
 		private boolean primary;
 		private int numrays;
-		private Random rGen = new Random();
+		private Random rGen = new Random(System.currentTimeMillis());
 
 		public WorkerThread(int ID, boolean primary, int numrays)
 		{
@@ -985,7 +985,6 @@ public class Scene implements Serializable
 			{
 				// Antialiasing
 
-				double sqrays = Math.sqrt(numrays);
 				// Renne nochmal über das ganze Bild ...
 				for (int y = curstart; (y < set.sizeY) && (y < curstart + rowstep); y++)
 				{
@@ -996,6 +995,7 @@ public class Scene implements Serializable
 						{
 							if (numrays <= 16)
 							{
+								double sqrays = Math.sqrt(numrays);
 								// Ordered Grid bis 16 Rays
 								for (int rx = 0; rx < sqrays; rx++)
 								for (int ry = 0; ry < sqrays; ry++)
@@ -1003,11 +1003,13 @@ public class Scene implements Serializable
 									double offsetX = ((double)rx - 0.5 * sqrays) / sqrays;
 									double offsetY = ((double)ry - 0.5 * sqrays) / sqrays;
 
-									offsetX *= 0.9;
-									offsetY *= 0.9;
-
-									RGBColor second = renderPixel(x + offsetX, y + offsetY, set.maxdepth, rGen);
-									pixels[y][x].addSample(second);
+									pixels[y][x].addSample(
+											renderPixel(
+												x + offsetX,
+												y + offsetY,
+												set.maxdepth,
+												rGen)
+											);
 								}
 							}
 							else
@@ -1015,11 +1017,16 @@ public class Scene implements Serializable
 								// Gauss-Jitter bei allem darüber
 								for (int i = 0; i < numrays; i++)
 								{
-									double offsetX = rGen.nextGaussian() * 0.45;
-									double offsetY = rGen.nextGaussian() * 0.45;
+									double offsetX = rGen.nextGaussian() * 0.5;
+									double offsetY = rGen.nextGaussian() * 0.5;
 
-									RGBColor second = renderPixel(x + offsetX, y + offsetY, set.maxdepth, rGen);
-									pixels[y][x].addSample(second);
+									pixels[y][x].addSample(
+											renderPixel(
+												x + offsetX,
+												y + offsetY,
+												set.maxdepth,
+												rGen)
+											);
 								}
 							}
 						}
@@ -1089,7 +1096,6 @@ public class Scene implements Serializable
 
 		// Wir rendern jetzt zusätzliche Samples für die kritischen Pixel
 		// und nur für die.
-		double sqrays = Math.sqrt(set.AARays);
 		for (int y = 0; y < rows; y++)
 		{
 			for (int x = 0; x < set.sizeX; x++)
@@ -1098,6 +1104,7 @@ public class Scene implements Serializable
 				{
 					if (set.AARays <= 16)
 					{
+						double sqrays = Math.sqrt(set.AARays);
 						// Ordered Grid bis 16 Rays
 						for (int rx = 0; rx < sqrays; rx++)
 						for (int ry = 0; ry < sqrays; ry++)
@@ -1105,28 +1112,25 @@ public class Scene implements Serializable
 							double offsetX = ((double)rx - 0.5 * sqrays) / sqrays;
 							double offsetY = ((double)ry - 0.5 * sqrays) / sqrays;
 
-							offsetX *= 0.9;
-							offsetY *= 0.9;
-
-							RGBColor second = renderPixel(
-									x + offsetX,
-									y + offsetY + yOff,
-									set.maxdepth, rGen);
-							pixels[y][x].addSample(second);
+							pixels[y][x].addSample(renderPixel(
+										x + offsetX,
+										y + offsetY + yOff,
+										set.maxdepth, rGen)
+									);
 						}
 					}
 					else
 					{
 						for (int i = 0; i < set.AARays; i++)
 						{
-							double offsetX = rGen.nextGaussian() * 0.45;
-							double offsetY = rGen.nextGaussian() * 0.45;
+							double offsetX = rGen.nextGaussian() * 0.5;
+							double offsetY = rGen.nextGaussian() * 0.5;
 
-							RGBColor second = renderPixel(
-									x + offsetX,
-									y + offsetY + yOff,
-									set.maxdepth, rGen);
-							pixels[y][x].addSample(second);
+							pixels[y][x].addSample(renderPixel(
+										x + offsetX,
+										y + offsetY + yOff,
+										set.maxdepth, rGen)
+									);
 						}
 					}
 				}
