@@ -1145,9 +1145,9 @@ public class Scene implements Serializable
 		// Teste pro Kanal, ob Toleranz überschritten wird.
 		double tol = set.colorDelta;
 		return (
-				   Math.abs(px[y][x] - px[y + dy][((x + dx) * 3)    ]) > tol
-				|| Math.abs(px[y][x] - px[y + dy][((x + dx) * 3) + 1]) > tol
-				|| Math.abs(px[y][x] - px[y + dy][((x + dx) * 3) + 2]) > tol
+				   Math.abs(px[y][(x * 3)    ] - px[y + dy][((x + dx) * 3)    ]) > tol
+				|| Math.abs(px[y][(x * 3) + 1] - px[y + dy][((x + dx) * 3) + 1]) > tol
+				|| Math.abs(px[y][(x * 3) + 2] - px[y + dy][((x + dx) * 3) + 2]) > tol
 		);
 	}
 
