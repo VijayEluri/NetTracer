@@ -1208,133 +1208,43 @@ public class Scene implements Serializable
 					case 1:
 						// Camera fängt an
 						if (tokens[0].equals("camera"))
-						{
-							try
-							{
-								eye = new Camera(in);
-							}
-							catch (Exception e)
-							{
-								return false;
-							}
-						}
+							eye = new Camera(in);
 
 						// Sphere fängt an
 						if (tokens[0].equals("sphere"))
-						{
-							try
-							{
-								nobjs.add(new Sphere3D(in, nmats));
-							}
-							catch (Exception e)
-							{
-								return false;
-							}
-						}
+							nobjs.add(new Sphere3D(in, nmats));
 
 						// OFF-File fängt an
 						if (tokens[0].equals("offreader"))
-						{
-							try
-							{
-								nobjs.add(new OFFTriMesh3D(in, nmats));
-							}
-							catch (Exception e)
-							{
-								return false;
-							}
-						}
+							nobjs.add(new OFFTriMesh3D(in, nmats));
 
 						// OBJ-File fängt an
 						if (tokens[0].equals("objreader"))
-						{
-							try
-							{
-								nobjs.add(new OBJTriMesh3D(in, nmats));
-							}
-							catch (Exception e)
-							{
-								return false;
-							}
-						}
+							nobjs.add(new OBJTriMesh3D(in, nmats));
 
 						// Blob fängt an
 						if (tokens[0].equals("blob"))
-						{
-							try
-							{
-								nobjs.add(new Blob3D(in, nmats));
-							}
-							catch (Exception e)
-							{
-								return false;
-							}
-						}
+							nobjs.add(new Blob3D(in, nmats));
 
 						// QJulia3D fängt an
 						if (tokens[0].equals("qjulia"))
-						{
-							try
-							{
-								nobjs.add(new QJulia3D(in, nmats));
-							}
-							catch (Exception e)
-							{
-								return false;
-							}
-						}
+							nobjs.add(new QJulia3D(in, nmats));
 
 						// Mandelbulb fängt an
 						if (tokens[0].equals("mandelbulb"))
-						{
-							try
-							{
-								nobjs.add(new Mandelbulb(in, nmats));
-							}
-							catch (Exception e)
-							{
-								return false;
-							}
-						}
+							nobjs.add(new Mandelbulb(in, nmats));
 
 						// PointLight fängt an
 						if (tokens[0].equals("pointlight"))
-						{
-							try
-							{
-								nlights.add(new PointLight(in));
-							}
-							catch (Exception e)
-							{
-								return false;
-							}
-						}
+							nlights.add(new PointLight(in));
 
 						// SphereLight fängt an
 						if (tokens[0].equals("spherelight"))
-						{
-							try
-							{
-								nlights.add(new SphereLight(in));
-							}
-							catch (Exception e)
-							{
-								return false;
-							}
-						}
+							nlights.add(new SphereLight(in));
 
 						// Headlight an Position der Kamera
 						if (tokens[0].equals("headlight"))
-						{
-							try
-							{
-								nlights.add(new Headlight(in, eye));
-							}
-							catch (Exception e)
-							{
-								return false;
-							}
-						}
+							nlights.add(new Headlight(in, eye));
 
 						break;
 
@@ -1381,42 +1291,15 @@ public class Scene implements Serializable
 
 						// UniformMaterial fängt an
 						if (tokens[0].equals("unimat") || tokens[0].equals("mat"))
-						{
-							try
-							{
-								nmats.add(new UniformMaterial(in, tokens[1]));
-							}
-							catch (Exception e)
-							{
-								return false;
-							}
-						}
+							nmats.add(new UniformMaterial(in, tokens[1]));
 
 						// ProceduralMaterial fängt an
 						if (tokens[0].equals("procmat"))
-						{
-							try
-							{
-								nmats.add(new ProceduralMaterial(in, tokens[1]));
-							}
-							catch (Exception e)
-							{
-								return false;
-							}
-						}
+							nmats.add(new ProceduralMaterial(in, tokens[1]));
 
 						// TextureMaterial fängt an
 						if (tokens[0].equals("texmat"))
-						{
-							try
-							{
-								nmats.add(new TextureMaterial(in, tokens[1]));
-							}
-							catch (Exception e)
-							{
-								return false;
-							}
-						}
+							nmats.add(new TextureMaterial(in, tokens[1]));
 
 						break;
 
@@ -1448,7 +1331,7 @@ public class Scene implements Serializable
 		}
 		catch (Exception e)
 		{
-			System.err.println("Hoppla. Szene konnte nicht geladen werden.");
+			System.err.println("Hoppla. Szene konnte nicht geladen werden:");
 			e.printStackTrace();
 			return false;
 		}
