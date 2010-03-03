@@ -272,7 +272,7 @@ public class NetMaster
 
 		goalTime = 15000;
 		maxTokensPerJob = 50;
-		String scenePath = "scenes/example4.scn";
+		String scenePath = null;
 		String targetPath = "/tmp/image.tiff";
 
 		for (int i = 0; i < args.length; i++)
@@ -297,6 +297,13 @@ public class NetMaster
 				targetPath = args[i + 1];
 				i++;
 			}
+		}
+
+		if (scenePath == null)
+		{
+			System.err.println("Erwarte Szenendatei als Argument für "
+					+ "Parameter -s.");
+			System.exit(1);
 		}
 
 		System.setOut(new NetConsole(System.out));
