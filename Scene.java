@@ -760,6 +760,8 @@ public class Scene implements Serializable
 	{
 		tpos = new ThreadPositions(set.threads);
 
+		long startTime = System.currentTimeMillis();
+
 		// Normales Rendern
 		renderPhase(0, -1);
 
@@ -771,7 +773,9 @@ public class Scene implements Serializable
 		// Antialiasing
 		renderPhase(2, set.AARays);
 
-		System.out.println("Rendern beendet.\n");
+		System.out.println("Rendern beendet. "
+				+ Utils.formatMillis(System.currentTimeMillis() - startTime)
+				+ "\n");
 
 		if (set.headless != null)
 		{
