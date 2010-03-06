@@ -41,6 +41,7 @@ public class SceneReader implements Serializable
 		while (in.hasNextLine())
 		{
 			String line = in.nextLine().trim();
+			line = line.replace(",", "");
 
 			// Wenn wir nicht in einem Kommentarbereich sind ...
 			if (!inComment)
