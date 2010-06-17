@@ -1,6 +1,7 @@
 #!/bin/bash
 
 cd -- "$(dirname "$(readlink -e "$0")")" || exit 1
+. run.conf || exit 1
 
-java -Xms1884m -Xmx1885m -cp antDist/Raytracer.jar \
+java -Xmx${MAIN_MEMSIZE} -cp antDist/Raytracer.jar \
 	raytracer.core.RaytracerApplication "$@"
