@@ -1263,9 +1263,9 @@ public class Scene implements Serializable
 						if (tokens[0].equals("qjulia"))
 							nobjs.add(new QJulia3D(in, nmats));
 
-						// Mandelbulb fängt an
+						// Mandelbulb3D fängt an
 						if (tokens[0].equals("mandelbulb"))
-							nobjs.add(new Mandelbulb(in, nmats));
+							nobjs.add(new Mandelbulb3D(in, nmats));
 
 						// PointLight fängt an
 						if (tokens[0].equals("pointlight"))

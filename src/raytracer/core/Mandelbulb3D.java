@@ -31,7 +31,7 @@ import java.io.Serializable;
  * http://www.fractalforums.com/3d-fractal-generation/true-3d-mandlebrot-type-fractal/msg8073/#msg8073
  * http://www.fractalforums.com/3d-fractal-generation/true-3d-mandlebrot-type-fractal/msg7812/#msg7812
  */
-public class Mandelbulb implements Object3D, RenderingPrimitive, Serializable
+public class Mandelbulb3D implements Object3D, RenderingPrimitive, Serializable
 {
 	private static final long serialVersionUID = 20100301001L;
 
@@ -63,7 +63,7 @@ public class Mandelbulb implements Object3D, RenderingPrimitive, Serializable
 	private RenderingPrimitive[] prims;
 	private Material mat = null;
 
-	public Mandelbulb(SceneReader in, List<Material> mats) throws Exception
+	public Mandelbulb3D(SceneReader in, List<Material> mats) throws Exception
 	{
 		String[] tokens = null;
 		while ((tokens = in.getNextTokens()) != null)
@@ -161,7 +161,7 @@ public class Mandelbulb implements Object3D, RenderingPrimitive, Serializable
 
 		// Unerwartetes Ende
 		System.err.println("Fehler, unerwartetes Ende in "
-				+ "Mandelbulb-Definition.");
+				+ "Mandelbulb3D-Definition.");
 		throw new Exception();
 	}
 
