@@ -120,7 +120,7 @@ public class OBJTriMesh3D implements Object3D, Serializable
 			ArrayList<Vec3> v = new ArrayList<Vec3>();
 			ArrayList<Vec3> vn = new ArrayList<Vec3>();
 			ArrayList<Vec3> vt = new ArrayList<Vec3>();
-			ArrayList<RenderingTriangle> f = new ArrayList<RenderingTriangle>();
+			ArrayList<Triangle3D> f = new ArrayList<Triangle3D>();
 
 			Scanner in = new Scanner(infile);
 			in.useLocale(java.util.Locale.US); // Punkt statt Komma...
@@ -196,7 +196,7 @@ public class OBJTriMesh3D implements Object3D, Serializable
 										};
 					}
 
-					f.add(new RenderingTriangle(verts, norms, tex, mat, smooth));
+					f.add(new Triangle3D(verts, norms, tex, mat, smooth));
 				}
 			}
 

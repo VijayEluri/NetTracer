@@ -22,7 +22,7 @@ import java.io.Serializable;
 /**
  * Ein einfaches Dreieck
  */
-public class RenderingTriangle implements RenderingPrimitive, Serializable
+public class Triangle3D implements RenderingPrimitive, Serializable
 {
 	private static final long serialVersionUID = 20100301001L;
 
@@ -45,7 +45,7 @@ public class RenderingTriangle implements RenderingPrimitive, Serializable
 	 * Erstellt ein neues Dreieck mit diesen Eckpunkten und Material,
 	 * sowie den gegebenen Vertex-Normalen.
 	 */
-	public RenderingTriangle(Vec3[] vertices, Vec3[] normals, Vec3[] tex,
+	public Triangle3D(Vec3[] vertices, Vec3[] normals, Vec3[] tex,
 							Material mat, boolean smooth)
 	{
 		this.vertices = vertices;

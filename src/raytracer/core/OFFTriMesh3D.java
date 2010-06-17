@@ -109,7 +109,7 @@ public class OFFTriMesh3D implements Object3D, Serializable
 				verts[i] = new Vec3(scan.nextDouble(), scan.nextDouble(), scan.nextDouble());
 			}
 
-			out = new RenderingTriangle[numFaces];
+			out = new Triangle3D[numFaces];
 
 			for (int i = 0; i < numFaces; i++)
 			{
@@ -127,7 +127,7 @@ public class OFFTriMesh3D implements Object3D, Serializable
 					theVerts[k] = verts[scan.nextInt()].plus(origin);
 				}
 
-				out[i] = new RenderingTriangle(theVerts, null, null, mat, false);
+				out[i] = new Triangle3D(theVerts, null, null, mat, false);
 			}
 		}
 		catch (Exception e)
