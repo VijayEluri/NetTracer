@@ -9,4 +9,4 @@ then
 fi
 
 cat nodes | java -Xmx1500m -cp antDist/Raytracer.jar \
-	NetMaster -s "$2" -t "$1"
+	raytracer.core.NetMaster -s "$2" -t "$1"

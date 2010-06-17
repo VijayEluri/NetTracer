@@ -5,7 +5,7 @@
 		Creates a JAR file ready to distribute
 	</description>
 
-	<property name="srcDir" location="."/>
+	<property name="srcDir" location="src/"/>
 	<property name="dirBin" location="antBin"/>
 	<property name="dirJar" location="antDist"/>
 	<property name="fileJar" location="${dirJar}/${ant.project.name}.jar"/>

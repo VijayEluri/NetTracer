@@ -18,10 +18,10 @@ then
 	nice -n 19 java -Xms1884m -Xmx1885m \
 		-XX:+UseConcMarkSweepGC -XX:+UseParNewGC \
 		-cp antDist/Raytracer.jar \
-		RaytracerApplication -h "$TARGET" "$@"
+		raytracer.core.RaytracerApplication -h "$TARGET" "$@"
 else
 	java -Xms1884m -Xmx1885m \
 		-XX:+UseConcMarkSweepGC -XX:+UseParNewGC \
 		-cp antDist/Raytracer.jar \
-		RaytracerApplication -h "$TARGET" "$@"
+		raytracer.core.RaytracerApplication -h "$TARGET" "$@"
 fi
