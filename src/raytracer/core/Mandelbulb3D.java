@@ -23,7 +23,7 @@ import java.util.LinkedList;
 import java.io.Serializable;
 
 /**
- * Mandelblub-Fraktale.
+ * Mandelbulb-Fraktale.
  * http://www.skytopia.com/project/fractal/2mandelbulb.html
  * https://sourceforge.net/projects/aoi/forums/forum/47784/topic/3464031
  * http://www.fractalforums.com/3d-fractal-generation/true-3d-mandlebrot-type-fractal/msg4109/#msg4109
