@@ -15,44 +15,18 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package raytracer.core;
+package raytracer.net;
 
-import java.io.*;
-
-public class NetConsole extends PrintStream
+public class NetCodes
 {
-	private PrintStream parent = null;
+	public static final int VERSION = 1;
 
-	public NetConsole(PrintStream parent)
-	{
-		super(parent, true);
-		this.parent = parent;
-	}
-
-	@Override
-	public void println(String s)
-	{
-		synchronized (this)
-		{
-			parent.println(Thread.currentThread() + "> " + s);
-		}
-	}
-
-	@Override
-	public void println()
-	{
-		synchronized (this)
-		{
-			parent.println(Thread.currentThread() + "> ");
-		}
-	}
-
-	@Override
-	public void print(String s)
-	{
-		synchronized (this)
-		{
-			parent.print(Thread.currentThread() + "> " + s);
-		}
-	}
+	// Opcodes
+	public static final int QUIT = 0;
+	public static final int REQUEST_JOB = 1;
+	public static final int JOB_COMPLETED = 2;
+	public static final int QUERY_THREADS = 3;
+	public static final int REQUEST_CRITICAL = 4;
+	public static final int JOB_COMPLETED_AA = 5;
+	public static final int NOOP = 1000;
 }
