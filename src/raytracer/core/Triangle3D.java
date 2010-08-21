@@ -37,6 +37,8 @@ public class Triangle3D implements RenderingPrimitive, Serializable
 	private Vec3 n;
 	private Vec3 uBeta;
 	private Vec3 uGamma;
+	private double kBeta;
+	private double kGamma;
 	private double d;
 
 	private AABB cachedAABB = null;
@@ -80,6 +82,9 @@ public class Triangle3D implements RenderingPrimitive, Serializable
 
 		uBeta  = b.times(ccD).minus(c.times(bcD));
 		uGamma = c.times(bbD).minus(b.times(bcD));
+
+		kBeta = -vertices[0].dot(uBeta);
+		kGamma = -vertices[0].dot(uGamma);
 	}
 
 	/**
@@ -97,15 +102,13 @@ public class Triangle3D implements RenderingPrimitive, Serializable
 		if (alpha1 <= 0.0)
 			return null;
 
-		Vec3 q = r.evaluate(alpha1);
-		Vec3 a = q.minus(vertices[0]);
-
 		// Schnittpunkt q mit Ebene gefunden, liegt der im Dreieck?
-		double beta = uBeta.dot(a);
+		Vec3 q = r.evaluate(alpha1);
+		double beta = uBeta.dot(q) + kBeta;
 		if (beta < 0.0)
 			return null;
 
-		double gamma = uGamma.dot(a);
+		double gamma = uGamma.dot(q) + kGamma;
 		if (gamma < 0.0)
 			return null;
 
