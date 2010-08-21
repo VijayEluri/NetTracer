@@ -59,27 +59,27 @@ public class Triangle3D implements RenderingPrimitive, Serializable
 			smooth = false;
 
 		// Vorarbeit, die einmal erledigt werden kann
-		Vec3 e1 = vertices[1].minus(vertices[0]);
-		Vec3 e2 = vertices[2].minus(vertices[0]);
+		Vec3 b = vertices[1].minus(vertices[0]);
+		Vec3 c = vertices[2].minus(vertices[0]);
 
 		// Ebenenparameter
-		n = e1.cross(e2);
+		n = b.cross(c);
 		n.normalize();
 		d = n.dot(vertices[0]);
 
 		// Baryzentrische Vorarbeit, siehe auch:
 		// http://www.blackpawn.com/texts/pointinpoly/default.html
-		double a = e1.dot(e1);
-		double b = e1.dot(e2);
-		double c = e2.dot(e2);
+		double bb = b.dot(b);
+		double bc = b.dot(c);
+		double cc = c.dot(c);
 
-		double D = a * c - b*b;
-		double A = a / D;
-		double B = b / D;
-		double C = c / D;
+		double D = 1.0 / (cc * bb - bc * bc);
+		double bbD = bb * D;
+		double bcD = bc * D;
+		double ccD = cc * D;
 
-		uBeta  = e1.times(C).minus(e2.times(B));
-		uGamma = e2.times(A).minus(e1.times(B));
+		uBeta  = b.times(ccD).minus(c.times(bcD));
+		uGamma = c.times(bbD).minus(b.times(bcD));
 	}
 
 	/**
@@ -88,24 +88,24 @@ public class Triangle3D implements RenderingPrimitive, Serializable
 	public Intersection intersectionTest(Ray r)
 	{
 		// Schnitttest Ray -> Ebene
-		double c = r.direction.dot(n);
-		if (c == 0.0)
+		double rn = r.direction.dot(n);
+		if (rn == 0.0)
 			return null;
 
 		// Wie weit hat es der Ray von seinem Ursprung zum Schnittpunkt?
-		double alpha1 = (d - r.origin.dot(n)) / c;
+		double alpha1 = (d - r.origin.dot(n)) / rn;
 		if (alpha1 <= 0.0)
 			return null;
 
 		Vec3 q = r.evaluate(alpha1);
-		Vec3 q2 = q.minus(vertices[0]);
+		Vec3 a = q.minus(vertices[0]);
 
 		// Schnittpunkt q mit Ebene gefunden, liegt der im Dreieck?
-		double beta = uBeta.dot(q2);
+		double beta = uBeta.dot(a);
 		if (beta < 0.0)
 			return null;
 
-		double gamma = uGamma.dot(q2);
+		double gamma = uGamma.dot(a);
 		if (gamma < 0.0)
 			return null;
 
