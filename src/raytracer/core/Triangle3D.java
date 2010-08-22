@@ -94,7 +94,7 @@ public class Triangle3D implements RenderingPrimitive, Serializable
 	{
 		// Schnitttest Ray -> Ebene
 		double rn = r.direction.dot(n);
-		if (rn == 0.0)
+		if (Math.abs(rn) < 1e-15)
 			return null;
 
 		// Wie weit hat es der Ray von seinem Ursprung zum Schnittpunkt?
