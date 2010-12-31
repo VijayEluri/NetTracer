@@ -24,11 +24,12 @@ import java.net.*;
 public class NetNode
 {
 	public static int threads = Runtime.getRuntime().availableProcessors();
+	public static final int defaultPort = 7431;
 
 	public static void main(String[] args) throws Exception
 	{
 		String host = "localhost";
-		int port = 7431;
+		int port = defaultPort;
 
 		System.setOut(new NetConsole(System.out));
 		System.setErr(new NetConsole(System.err));

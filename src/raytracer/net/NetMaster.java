@@ -351,15 +351,16 @@ public class NetMaster
 				// "nettracer" is our scheme. Doesn't really matter,
 				// though.
 				URI u = new URI("nettracer://" + line);
-				if (u.getHost() == null || u.getPort() == -1)
+				if (u.getHost() == null)
 				{
 					System.err.println("\"" + line +
-							"\" enthält keinen Host oder keinen Port.");
+							"\" enthält keinen Host.");
 				}
 				else
 				{
 					hosts.add(u.getHost());
-					ports.add(u.getPort());
+					ports.add(u.getPort() == -1 ? NetNode.defaultPort
+								: u.getPort());
 				}
 			}
 			catch (URISyntaxException e)
