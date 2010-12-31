@@ -345,9 +345,29 @@ public class NetMaster
 		while (sin.hasNext())
 		{
 			String line = sin.nextLine();
-			String[] split = line.split(":");
-			hosts.add(split[0]);
-			ports.add(new Integer(split[1]));
+
+			try
+			{
+				// "nettracer" is our scheme. Doesn't really matter,
+				// though.
+				URI u = new URI("nettracer://" + line);
+				if (u.getHost() == null || u.getPort() == -1)
+				{
+					System.err.println("\"" + line +
+							"\" enthält keinen Host oder keinen Port.");
+				}
+				else
+				{
+					hosts.add(u.getHost());
+					ports.add(u.getPort());
+				}
+			}
+			catch (URISyntaxException e)
+			{
+				System.err.println("Konnte \"" + line +
+						"\" nicht verarbeiten:");
+				e.printStackTrace();
+			}
 		}
 
 		// Rendern lassen.
